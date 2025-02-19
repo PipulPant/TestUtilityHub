@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Run Duration Estimator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; }
+    header { background-color: #333; color: #fff; padding: 15px; text-align: center; position: relative; }
+    header h1 { margin: 0; }
+    .hamburger { font-size: 24px; position: absolute; top: 15px; left: 15px; cursor: pointer; color: #fff; }
+    .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background-color: #333; color: #fff; transition: left 0.3s; padding-top: 60px; }
+    .sidebar a { display: block; padding: 15px; color: #fff; text-decoration: none; }
+    .sidebar a:hover { background-color: #444; }
+    .content { padding: 20px; margin-left: 10px; }
+    .container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, button { width: 100%; padding: 10px; margin-top: 10px; }
+    .result { margin-top: 20px; font-weight: bold; color: #0056b3; }
+  </style>
+</head>
+<body>
+  <header>
+    <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+    <h1>Test Run Duration Estimator</h1>
+  </header>
+
+  <div class="sidebar" id="sidebar">
+    <a href="index.html">Home</a>
+    <a href="test-duration-estimator.html">Test Duration Estimator</a>
+    <!-- Other sidebar links can be added here -->
+  </div>
+
+  <div class="content">
+    <div class="container">
+      <h2>Estimate Test Execution Time</h2>
+      <form id="durationForm">
+        <label for="testCount">Total Test Count:</label>
+        <input type="number" id="testCount" placeholder="Enter total test count" min="0" required />
+        <button type="button" onclick="calculateDuration()">Calculate Duration</button>
+      </form>
+      <div class="result" id="durationResult"></div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
+    }
+
+    function calculateDuration() {
+      const testCount = parseInt(document.getElementById('testCount').value, 10);
+      const resultDiv = document.getElementById('durationResult');
+      
+      if (isNaN(testCount) || testCount < 0) {
+        resultDiv.innerHTML = "<p>Please enter a valid test count.</p>";
+        return;
+      }
+      
+      // Each test takes an average of 4 minutes.
+      const totalMinutes = testCount * 4;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      
+      resultDiv.innerHTML = `
+        <p>Total Execution Time: <strong>${totalMinutes} minute(s)</strong></p>
+        <p>Which is approximately: <strong>${hours} hour(s) and ${minutes} minute(s)</strong></p>
+      `;
+    }
+  </script>
+</body>
+</html>
