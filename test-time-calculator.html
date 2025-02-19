@@ -39,6 +39,10 @@
       <form id="durationForm">
         <label for="testCount">Total Test Count:</label>
         <input type="number" id="testCount" placeholder="Enter total test count" min="0" required />
+
+        <label for="avgTime">Average Time per Test (in minutes):</label>
+        <input type="number" id="avgTime" placeholder="Default is 4 minutes" min="0" />
+
         <button type="button" onclick="calculateDuration()">Calculate Duration</button>
       </form>
       <div class="result" id="durationResult"></div>
@@ -52,19 +56,31 @@
     }
 
     function calculateDuration() {
+      // Retrieve the test count value
       const testCount = parseInt(document.getElementById('testCount').value, 10);
+      const avgTimeInput = document.getElementById('avgTime').value;
       const resultDiv = document.getElementById('durationResult');
-      
+
+      // Validate the test count input
       if (isNaN(testCount) || testCount < 0) {
         resultDiv.innerHTML = "<p>Please enter a valid test count.</p>";
         return;
       }
-      
-      // Each test takes an average of 4 minutes.
-      const totalMinutes = testCount * 4;
+
+      // Use the entered average time or fallback to the default value of 4 minutes
+      const avgTime = avgTimeInput ? parseFloat(avgTimeInput) : 4;
+
+      // Validate average time
+      if (isNaN(avgTime) || avgTime < 0) {
+        resultDiv.innerHTML = "<p>Please enter a valid average time in minutes.</p>";
+        return;
+      }
+
+      // Calculate the total execution time in minutes
+      const totalMinutes = testCount * avgTime;
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
-      
+
       resultDiv.innerHTML = `
         <p>Total Execution Time: <strong>${totalMinutes} minute(s)</strong></p>
         <p>Which is approximately: <strong>${hours} hour(s) and ${minutes} minute(s)</strong></p>
