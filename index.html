@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #dcdcdc; }
+    header { background-color: #333; color: #fff; padding: 15px; text-align: center; position: relative; }
+    header h1 { margin: 0; font-size: 1.8em; letter-spacing: 1px; color: #2f8a10; }
+    .hamburger { font-size: 24px; position: absolute; top: 15px; left: 15px; cursor: pointer; color: #2f8a10; }
+    .container { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; justify-content: center; }
+    .card { 
+      width: 220px; 
+      padding: 20px; 
+      background-color: #252526; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); 
+      text-align: center; 
+      transition: transform 0.3s, box-shadow 0.3s; 
+    }
+    .card:hover { 
+      transform: translateY(-10px); 
+      box-shadow: 0 6px 15px rgba(0, 123, 255, 0.5); 
+      border: 1px solid #2f8a10; 
+    }
+    .card h3 { color: #2f8a10; font-size: 1.3em; margin-bottom: 10px; }
+    .card p { color: #cfcfcf; font-size: 0.9em; margin-bottom: 15px; }
+    .card a { 
+      text-decoration: none; 
+      color: #1e90ff; 
+      font-weight: bold; 
+      border: 1px solid #1e90ff; 
+      padding: 8px 12px; 
+      border-radius: 6px; 
+      transition: background-color 0.3s, color 0.3s; 
+    }
+    .card a:hover { background-color: #1e90ff; color: #fff; }
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #777;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1>Utility Hub</h1>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h3>Parallel Worker Calculator</h3>
+    <p>Calculate the optimal number of parallel workers for Playwright tests.</p>
+    <a href="parallel-worker-calculator.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>Resource Requirement Calculator</h3>
+    <p>Calculate CPU and memory requirements for parallel testing.</p>
+    <a href="resource-requirement-calculator.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>Test Run Duration Estimator</h3>
+    <p>Estimate the duration of your test runs based on resources.</p>
+    <a href="test-duration-estimator.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>Timeout Configuration Helper</h3>
+    <p>Set an optimal timeout based on network and load speed.</p>
+    <a href="timeout-configuration-helper.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>Selector Stability Checker</h3>
+    <p>Check if your CSS selectors are stable and unique.</p>
+    <a href="selector-stability-checker.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>Page Load Speed Monitor</h3>
+    <p>Monitor page load speeds for optimized performance.</p>
+    <a href="page-load-speed-monitor.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>Test Data Generator</h3>
+    <p>Generate random names, emails, and other test data.</p>
+    <a href="test-data-generator.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>Assertion Helper</h3>
+    <p>Generate Playwright assertion code snippets for tests.</p>
+    <a href="assertion-helper.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>Locator Coverage Checker</h3>
+    <p>Verify locator coverage to avoid test flakiness.</p>
+    <a href="locator-coverage-checker.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>API Request Tester</h3>
+    <p>Send API requests and view JSON responses.</p>
+    <a href="api-request-tester.html">Go to Tool</a>
+  </div>
+  <div class="card">
+    <h3>Playwright Action Code Generator</h3>
+    <p>Generate code for click, type, upload, and other actions.</p>
+    <a href="playwright-action-code-generator.html">Go to Tool</a>
+  </div>
+</div>
+
+<footer>
+  &copy; 2024 Utility Hub - Designed for Playwright Test Automation
+</footer>
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
+  }
+</script>
+
+</body>
+</html>

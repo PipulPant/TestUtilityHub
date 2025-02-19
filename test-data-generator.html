@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Data Generator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; }
+    header { background-color: #333; color: #fff; padding: 15px; text-align: center; position: relative; }
+    header h1 { margin: 0; }
+    .hamburger { font-size: 24px; position: absolute; top: 15px; left: 15px; cursor: pointer; color: #fff; }
+    .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background-color: #333; color: #fff; transition: left 0.3s; padding-top: 60px; }
+    .sidebar a { display: block; padding: 15px; color: #fff; text-decoration: none; }
+    .sidebar a:hover { background-color: #444; }
+    .content { padding: 20px; margin-left: 10px; }
+    .container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    select, input, button { width: 100%; padding: 10px; margin-top: 10px; }
+    .result { margin-top: 20px; font-weight: bold; color: #0056b3; }
+    .data-output { white-space: pre-wrap; background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1>Test Data Generator</h1>
+</header>
+
+<div class="sidebar" id="sidebar">
+    <a href="index.html">Home</a>
+    <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+    <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+    <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+    <a href="timeout-configuration-helper.html">Timeout Configuration Helper</a>
+    <a href="selector-stability-checker.html">Selector Stability Checker</a>
+    <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+    <a href="test-data-generator.html">Test Data Generator</a>
+  </div>
+
+<div class="content">
+  <div class="container">
+    <h2>Generate Random Test Data</h2>
+    <form id="dataGeneratorForm">
+      <label for="dataType">Select Data Type:</label>
+      <select id="dataType" required>
+        <option value="name">Name</option>
+        <option value="email">Email</option>
+        <option value="phone">Phone Number</option>
+      </select>
+
+      <label for="dataQuantity">Quantity:</label>
+      <input type="number" id="dataQuantity" placeholder="e.g., 10" required>
+
+      <button type="button" onclick="generateTestData()">Generate Data</button>
+    </form>
+
+    <div class="result" id="dataResult"></div>
+  </div>
+</div>
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
+  }
+
+  function generateRandomName() {
+    const firstNames = ["John", "Jane", "Alice", "Bob", "Charlie", "Dana"];
+    const lastNames = ["Smith", "Johnson", "Brown", "Williams", "Jones", "Miller"];
+    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+  }
+
+  function generateRandomEmail() {
+    const domains = ["example.com", "test.com", "sample.org", "demo.net"];
+    const name = generateRandomName().toLowerCase().replace(" ", ".");
+    return `${name}@${domains[Math.floor(Math.random() * domains.length)]}`;
+  }
+
+  function generateRandomPhone() {
+    const areaCode = Math.floor(100 + Math.random() * 900);
+    const middle = Math.floor(100 + Math.random() * 900);
+    const last = Math.floor(1000 + Math.random() * 9000);
+    return `(${areaCode}) ${middle}-${last}`;
+  }
+
+  function generateTestData() {
+    const dataType = document.getElementById("dataType").value;
+    const dataQuantity = parseInt(document.getElementById("dataQuantity").value, 10);
+    const resultDiv = document.getElementById("dataResult");
+    
+    if (!dataQuantity || dataQuantity <= 0) {
+      resultDiv.innerHTML = "<p class='warning'>Please enter a valid quantity.</p>";
+      return;
+    }
+
+    let generatedData = [];
+    for (let i = 0; i < dataQuantity; i++) {
+      if (dataType === "name") {
+        generatedData.push(generateRandomName());
+      } else if (dataType === "email") {
+        generatedData.push(generateRandomEmail());
+      } else if (dataType === "phone") {
+        generatedData.push(generateRandomPhone());
+      }
+    }
+
+    resultDiv.innerHTML = "<p class='success'>Generated Data:</p><div class='data-output'>" + generatedData.join("\n") + "</div>";
+  }
+</script>
+
+</body>
+</html>

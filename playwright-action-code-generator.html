@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playwright Action Code Generator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; }
+    header { background-color: #333; color: #fff; padding: 15px; text-align: center; position: relative; }
+    header h1 { margin: 0; }
+    .hamburger { font-size: 24px; position: absolute; top: 15px; left: 15px; cursor: pointer; color: #fff; }
+    .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background-color: #333; color: #fff; transition: left 0.3s; padding-top: 60px; }
+    .sidebar a { display: block; padding: 15px; color: #fff; text-decoration: none; }
+    .sidebar a:hover { background-color: #444; }
+    .content { padding: 20px; margin-left: 10px; }
+    .container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    select, input, button { width: 100%; padding: 10px; margin-top: 10px; }
+    .result { margin-top: 20px; font-weight: bold; color: #0056b3; }
+    .code-output { background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px; font-family: monospace; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1>Playwright Action Code Generator</h1>
+</header>
+
+<div class="sidebar" id="sidebar">
+  <a href="index.html">Home</a>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="timeout-configuration-helper.html">Timeout Configuration Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="playwright-action-code-generator.html">Playwright Action Code Generator</a>
+</div>
+
+<div class="content">
+  <div class="container">
+    <h2>Generate Playwright Action Code</h2>
+    <form id="actionCodeForm">
+      <label for="selectorInput">CSS Selector:</label>
+      <input type="text" id="selectorInput" placeholder="e.g., .button, #main-header" required>
+
+      <label for="actionType">Choose Action:</label>
+      <select id="actionType" onchange="toggleAdditionalInputs()" required>
+        <option value="click">Click</option>
+        <option value="type">Type (requires text)</option>
+        <option value="fill">Fill (requires text)</option>
+        <option value="press">Press Key (requires key)</option>
+        <option value="upload">Upload File (requires file path)</option>
+        <option value="hover">Hover</option>
+        <option value="waitFor">Wait for Visibility</option>
+      </select>
+
+      <label for="actionValue" id="valueLabel">Value:</label>
+      <input type="text" id="actionValue" placeholder="e.g., text to type, file path, or key">
+
+      <button type="button" onclick="generateActionCode()">Generate Code</button>
+    </form>
+
+    <div class="result" id="actionCodeResult"></div>
+  </div>
+</div>
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
+  }
+
+  function toggleAdditionalInputs() {
+    const actionType = document.getElementById("actionType").value;
+    const valueLabel = document.getElementById("valueLabel");
+    const actionValue = document.getElementById("actionValue");
+
+    if (actionType === "type" || actionType === "fill" || actionType === "press" || actionType === "upload") {
+      valueLabel.style.display = "block";
+      actionValue.style.display = "block";
+      valueLabel.innerText = actionType === "press" ? "Key:" : (actionType === "upload" ? "File Path:" : "Text:");
+      actionValue.placeholder = actionType === "press" ? "e.g., Enter" : (actionType === "upload" ? "e.g., /path/to/file" : "e.g., Hello World");
+    } else {
+      valueLabel.style.display = "none";
+      actionValue.style.display = "none";
+    }
+  }
+
+  function generateActionCode() {
+    const selector = document.getElementById("selectorInput").value;
+    const actionType = document.getElementById("actionType").value;
+    const actionValue = document.getElementById("actionValue").value;
+    const resultDiv = document.getElementById("actionCodeResult");
+
+    let codeSnippet = "";
+    
+    switch (actionType) {
+      case "click":
+        codeSnippet = `// Click on element\nawait page.click('${selector}');`;
+        break;
+      case "type":
+        if (!actionValue) {
+          resultDiv.innerHTML = "<p class='feedback'>Please provide text to type.</p>";
+          return;
+        }
+        codeSnippet = `// Type into element\nawait page.type('${selector}', '${actionValue}');`;
+        break;
+      case "fill":
+        if (!actionValue) {
+          resultDiv.innerHTML = "<p class='feedback'>Please provide text to fill.</p>";
+          return;
+        }
+        codeSnippet = `// Fill input\nawait page.fill('${selector}', '${actionValue}');`;
+        break;
+      case "press":
+        if (!actionValue) {
+          resultDiv.innerHTML = "<p class='feedback'>Please provide a key to press.</p>";
+          return;
+        }
+        codeSnippet = `// Press a key\nawait page.press('${selector}', '${actionValue}');`;
+        break;
+      case "upload":
+        if (!actionValue) {
+          resultDiv.innerHTML = "<p class='feedback'>Please provide a file path to upload.</p>";
+          return;
+        }
+        codeSnippet = `// Upload a file\nawait page.setInputFiles('${selector}', '${actionValue}');`;
+        break;
+      case "hover":
+        codeSnippet = `// Hover over element\nawait page.hover('${selector}');`;
+        break;
+      case "waitFor":
+        codeSnippet = `// Wait for element to be visible\nawait page.waitForSelector('${selector}', { state: 'visible' });`;
+        break;
+      default:
+        codeSnippet = "// Select a valid action.";
+    }
+
+    resultDiv.innerHTML = "<p class='success'>Generated Code:</p><div class='code-output'>" + codeSnippet + "</div>";
+  }
+
+  // Hide additional input fields on page load
+  window.onload = () => toggleAdditionalInputs();
+</script>
+
+</body>
+</html>

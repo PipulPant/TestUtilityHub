@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Request Tester</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; }
+    header { background-color: #333; color: #fff; padding: 15px; text-align: center; position: relative; }
+    header h1 { margin: 0; }
+    .hamburger { font-size: 24px; position: absolute; top: 15px; left: 15px; cursor: pointer; color: #fff; }
+    .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background-color: #333; color: #fff; transition: left 0.3s; padding-top: 60px; }
+    .sidebar a { display: block; padding: 15px; color: #fff; text-decoration: none; }
+    .sidebar a:hover { background-color: #444; }
+    .content { padding: 20px; margin-left: 10px; }
+    .container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    select, input, textarea, button { width: 100%; padding: 10px; margin-top: 10px; }
+    .result { margin-top: 20px; font-weight: bold; color: #0056b3; }
+    .code-output { background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px; font-family: monospace; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1>API Request Tester</h1>
+</header>
+
+<div class="sidebar" id="sidebar">
+  <a href="index.html">Home</a>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="timeout-configuration-helper.html">Timeout Configuration Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="api-request-tester.html">API Request Tester</a>
+</div>
+
+<div class="content">
+  <div class="container">
+    <h2>Test API Requests</h2>
+    <form id="apiRequestForm">
+      <label for="requestMethod">HTTP Method:</label>
+      <select id="requestMethod" required>
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="DELETE">DELETE</option>
+      </select>
+
+      <label for="requestUrl">Request URL:</label>
+      <input type="text" id="requestUrl" placeholder="e.g., https://api.example.com/data" required>
+
+      <label for="requestHeaders">Headers (JSON format):</label>
+      <textarea id="requestHeaders" placeholder='e.g., {"Authorization": "Bearer token"}' rows="4"></textarea>
+
+      <label for="requestBody">Body (for POST/PUT requests):</label>
+      <textarea id="requestBody" placeholder='e.g., {"key": "value"}' rows="4"></textarea>
+
+      <button type="button" onclick="performApiRequest()">Send Request</button>
+    </form>
+
+    <div class="result" id="apiResult"></div>
+  </div>
+</div>
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
+  }
+
+  async function performApiRequest() {
+    const method = document.getElementById("requestMethod").value;
+    const url = document.getElementById("requestUrl").value;
+    const headersInput = document.getElementById("requestHeaders").value;
+    const bodyInput = document.getElementById("requestBody").value;
+    const resultDiv = document.getElementById("apiResult");
+
+    // Parse headers and body as JSON
+    let headers;
+    let body;
+
+    try {
+      headers = headersInput ? JSON.parse(headersInput) : {};
+    } catch (error) {
+      resultDiv.innerHTML = "<p class='feedback'>Invalid JSON format in headers.</p>";
+      return;
+    }
+
+    try {
+      body = bodyInput ? JSON.parse(bodyInput) : null;
+    } catch (error) {
+      resultDiv.innerHTML = "<p class='feedback'>Invalid JSON format in body.</p>";
+      return;
+    }
+
+    // Build request options
+    const options = {
+      method,
+      headers,
+    };
+    if (method === "POST" || method === "PUT") {
+      options.body = JSON.stringify(body);
+      options.headers["Content-Type"] = "application/json";
+    }
+
+    // Perform the API request
+    try {
+      const response = await fetch(url, options);
+      const result = await response.json();
+      resultDiv.innerHTML = `<p class='success'>Response:</p><div class='code-output'>${JSON.stringify(result, null, 2)}</div>`;
+    } catch (error) {
+      resultDiv.innerHTML = `<p class='feedback'>Request failed. Error: ${error.message}</p>`;
+    }
+  }
+</script>
+
+</body>
+</html>
