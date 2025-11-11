@@ -95,7 +95,7 @@ function initSidebar() {
   pages.forEach(page => {
     const isActive = page.url === currentPage ? 'active' : '';
     sidebarHTML += `<a href="${page.url}" class="${isActive}">
-      <i class="fas ${page.icon}"></i> ${page.name}
+      <i class="fas ${page.icon}"></i> <span>${page.name}</span>
     </a>`;
   });
   
