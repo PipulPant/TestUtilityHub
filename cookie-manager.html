@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cookie Manager - QA Test Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="utility-page">
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-cookie"></i> Cookie Manager</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+</header>
+<div class="sidebar" id="sidebar"></div>
+<div class="content">
+  <div class="container">
+    <h2>Manage Browser Cookies</h2>
+    <div style="margin-bottom: 20px;">
+      <button type="button" onclick="loadCookies()" class="secondary">
+        <i class="fas fa-sync"></i> Refresh Cookies
+      </button>
+      <button type="button" onclick="clearAllCookies()" class="secondary" style="margin-left: 10px;">
+        <i class="fas fa-trash"></i> Clear All Cookies
+      </button>
+    </div>
+    <div class="result" id="cookieResult">
+      <div id="cookieList"></div>
+    </div>
+    <h3 style="margin-top: 30px; color: var(--primary-color);">Add/Edit Cookie</h3>
+    <form id="cookieForm">
+      <label for="cookieName">Cookie Name:</label>
+      <input type="text" id="cookieName" placeholder="e.g., sessionId" required>
+      <label for="cookieValue">Cookie Value:</label>
+      <input type="text" id="cookieValue" placeholder="e.g., abc123xyz" required>
+      <label for="cookieDomain">Domain (optional):</label>
+      <input type="text" id="cookieDomain" placeholder="e.g., example.com">
+      <label for="cookiePath">Path (optional):</label>
+      <input type="text" id="cookiePath" placeholder="e.g., /" value="/">
+      <label for="cookieExpires">Expires (days, optional):</label>
+      <input type="number" id="cookieExpires" placeholder="e.g., 7" min="0">
+      <button type="button" onclick="setCookie()">
+        <i class="fas fa-save"></i> Set Cookie
+      </button>
+    </form>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  function loadCookies() {
+    const cookies = document.cookie.split(';').filter(c => c.trim());
+    const cookieListDiv = document.getElementById("cookieList");
+    if (cookies.length === 0) {
+      cookieListDiv.innerHTML = '<p class="warning">No cookies found.</p>';
+      return;
+    }
+    let html = '<p><strong>Current Cookies (' + cookies.length + '):</strong></p>';
+    html += '<div style="max-height: 400px; overflow-y: auto;">';
+    cookies.forEach((cookie, index) => {
+      const [name, value] = cookie.trim().split('=');
+      html += `
+        <div style="background: var(--bg-dark); padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border-color);">
+          <div class="flex-between">
+            <div>
+              <strong style="color: var(--primary-color);">${escapeHtml(name)}</strong>
+              <div class="code-output" style="margin-top: 8px; font-size: 0.9em;">${escapeHtml(value || '')}</div>
+            </div>
+            <button class="copy-btn secondary" onclick="copyCookieValue('${escapeHtml(name)}')" style="margin: 0;">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    cookieListDiv.innerHTML = html;
+  }
+  function setCookie() {
+    const name = document.getElementById("cookieName").value;
+    const value = document.getElementById("cookieValue").value;
+    const domain = document.getElementById("cookieDomain").value;
+    const path = document.getElementById("cookiePath").value || '/';
+    const expiresDays = document.getElementById("cookieExpires").value;
+    if (!name || !value) {
+      alert('Please enter cookie name and value');
+      return;
+    }
+    let cookieString = `${name}=${value}; path=${path}`;
+    if (domain) {
+      cookieString += `; domain=${domain}`;
+    }
+    if (expiresDays) {
+      const date = new Date();
+      date.setTime(date.getTime() + (expiresDays * 24 * 60 * 60 * 1000));
+      cookieString += `; expires=${date.toUTCString()}`;
+    }
+    document.cookie = cookieString;
+    alert('Cookie set successfully!');
+    loadCookies();
+    // Clear form
+    document.getElementById("cookieName").value = '';
+    document.getElementById("cookieValue").value = '';
+    document.getElementById("cookieDomain").value = '';
+    document.getElementById("cookiePath").value = '/';
+    document.getElementById("cookieExpires").value = '';
+  }
+  function clearAllCookies() {
+    if (confirm('Are you sure you want to clear all cookies?')) {
+      const cookies = document.cookie.split(';');
+      cookies.forEach(cookie => {
+        const [name] = cookie.trim().split('=');
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      });
+      loadCookies();
+      alert('All cookies cleared!');
+    }
+  }
+  function copyCookieValue(name) {
+    const cookies = document.cookie.split(';');
+    const cookie = cookies.find(c => c.trim().startsWith(name + '='));
+    if (cookie) {
+      const value = cookie.split('=').slice(1).join('=');
+      copyToClipboard(value, event.target.closest('button'));
+    }
+  }
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  // Load cookies on page load
+  window.onload = loadCookies;
+</script>
+</body>
+</html>

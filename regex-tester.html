@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regex Tester - QA Test Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="utility-page">
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-filter"></i> Regex Tester</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+</header>
+<div class="sidebar" id="sidebar"></div>
+<div class="content">
+  <div class="container">
+    <h2>Test Regular Expressions</h2>
+    <form id="regexForm">
+      <label for="regexPattern">Regular Expression Pattern:</label>
+      <input type="text" id="regexPattern" placeholder="e.g., ^[a-zA-Z0-9]+$" required>
+      <label for="testString">Test String:</label>
+      <textarea id="testString" placeholder="Enter text to test against the regex pattern" rows="8"></textarea>
+      <label>
+        <input type="checkbox" id="caseInsensitive" style="width: auto; margin-right: 8px;">
+        Case Insensitive (i flag)
+      </label>
+      <label>
+        <input type="checkbox" id="globalMatch" style="width: auto; margin-right: 8px;">
+        Global Match (g flag)
+      </label>
+      <label>
+        <input type="checkbox" id="multiline" style="width: auto; margin-right: 8px;">
+        Multiline (m flag)
+      </label>
+      <button type="button" onclick="testRegex()">
+        <i class="fas fa-search"></i> TEST REGEX
+      </button>
+    </form>
+    <div class="result" id="regexResult" style="display: none;">
+      <div id="regexOutput"></div>
+    </div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  function testRegex() {
+    const pattern = document.getElementById("regexPattern").value;
+    const testString = document.getElementById("testString").value;
+    const caseInsensitive = document.getElementById("caseInsensitive").checked;
+    const globalMatch = document.getElementById("globalMatch").checked;
+    const multiline = document.getElementById("multiline").checked;
+    const resultDiv = document.getElementById("regexResult");
+    const outputDiv = document.getElementById("regexOutput");
+    if (!pattern) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = '<p class="error">Please enter a regex pattern.</p>';
+      return;
+    }
+    if (!testString) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = '<p class="error">Please enter a test string.</p>';
+      return;
+    }
+    try {
+      let flags = '';
+      if (caseInsensitive) flags += 'i';
+      if (globalMatch) flags += 'g';
+      if (multiline) flags += 'm';
+      const regex = new RegExp(pattern, flags);
+      const matches = testString.match(regex);
+      const testResult = regex.test(testString);
+      let output = '';
+      if (testResult) {
+        output += `<p class="success">✓ Pattern matches!</p>`;
+        if (matches) {
+          output += `<p><strong>Matches found: ${matches.length}</strong></p>`;
+          output += `<div class="code-output">${matches.map((match, index) => `Match ${index + 1}: ${escapeHtml(match)}`).join('\n')}</div>`;
+        }
+      } else {
+        output += `<p class="error">✗ Pattern does not match.</p>`;
+      }
+      // Show all matches with highlighting
+      if (globalMatch && matches) {
+        let highlightedText = testString;
+        matches.forEach(match => {
+          highlightedText = highlightedText.replace(match, `<mark style="background: var(--primary-color); color: white; padding: 2px 4px;">${escapeHtml(match)}</mark>`);
+        });
+        output += `<p><strong>Highlighted matches in text:</strong></p>`;
+        output += `<div class="code-output" style="background: var(--bg-dark); padding: 15px;">${highlightedText}</div>`;
+      }
+      outputDiv.innerHTML = output;
+      resultDiv.style.display = 'block';
+    } catch (error) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = `<p class="error">Invalid regex pattern: ${error.message}</p>`;
+    }
+  }
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+</body>
+</html>

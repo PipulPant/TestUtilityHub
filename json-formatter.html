@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Formatter & Validator - QA Test Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="utility-page">
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-brackets-curly"></i> JSON Formatter & Validator</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+</header>
+<div class="sidebar" id="sidebar"></div>
+<div class="content">
+  <div class="container">
+    <h2>Format and Validate JSON</h2>
+    <form id="jsonFormatterForm">
+      <label for="jsonInput">JSON Input:</label>
+      <textarea id="jsonInput" placeholder='Paste your JSON here, e.g., {"name":"John","age":30}' rows="12"></textarea>
+      <div class="flex-between" style="margin-top: 15px;">
+        <button type="button" onclick="formatJSON()">
+          <i class="fas fa-magic"></i> FORMAT JSON
+        </button>
+        <button type="button" class="secondary" onclick="validateJSON()">
+          <i class="fas fa-check-circle"></i> VALIDATE JSON
+        </button>
+        <button type="button" class="secondary" onclick="minifyJSON()">
+          <i class="fas fa-compress"></i> MINIFY JSON
+        </button>
+      </div>
+      <button type="button" class="secondary" onclick="clearJSON()" style="margin-top: 10px;">
+        <i class="fas fa-trash"></i> Clear
+      </button>
+    </form>
+    <div class="result" id="jsonResult" style="display: none;">
+      <div id="validationStatus"></div>
+      <div id="formattedOutput"></div>
+      <button class="copy-btn secondary" onclick="copyFormattedJSON()">
+        <i class="fas fa-copy"></i> Copy Formatted JSON
+      </button>
+    </div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  let formattedJSON = '';
+  function formatJSON() {
+    const input = document.getElementById("jsonInput").value.trim();
+    const resultDiv = document.getElementById("jsonResult");
+    const statusDiv = document.getElementById("validationStatus");
+    const outputDiv = document.getElementById("formattedOutput");
+    if (!input) {
+      resultDiv.style.display = 'block';
+      statusDiv.innerHTML = '<p class="error">Please enter JSON to format.</p>';
+      return;
+    }
+    try {
+      const parsed = JSON.parse(input);
+      formattedJSON = JSON.stringify(parsed, null, 2);
+      outputDiv.innerHTML = `<div class="code-output">${escapeHtml(formattedJSON)}</div>`;
+      statusDiv.innerHTML = '<p class="success">✓ JSON is valid and formatted!</p>';
+      resultDiv.style.display = 'block';
+    } catch (error) {
+      resultDiv.style.display = 'block';
+      statusDiv.innerHTML = `<p class="error">✗ Invalid JSON: ${error.message}</p>`;
+      outputDiv.innerHTML = '';
+    }
+  }
+  function validateJSON() {
+    const input = document.getElementById("jsonInput").value.trim();
+    const resultDiv = document.getElementById("jsonResult");
+    const statusDiv = document.getElementById("validationStatus");
+    const outputDiv = document.getElementById("formattedOutput");
+    if (!input) {
+      resultDiv.style.display = 'block';
+      statusDiv.innerHTML = '<p class="error">Please enter JSON to validate.</p>';
+      return;
+    }
+    try {
+      JSON.parse(input);
+      statusDiv.innerHTML = '<p class="success">✓ JSON is valid!</p>';
+      outputDiv.innerHTML = '';
+      resultDiv.style.display = 'block';
+    } catch (error) {
+      resultDiv.style.display = 'block';
+      statusDiv.innerHTML = `<p class="error">✗ Invalid JSON: ${error.message}</p>`;
+      outputDiv.innerHTML = '';
+    }
+  }
+  function minifyJSON() {
+    const input = document.getElementById("jsonInput").value.trim();
+    const resultDiv = document.getElementById("jsonResult");
+    const statusDiv = document.getElementById("validationStatus");
+    const outputDiv = document.getElementById("formattedOutput");
+    if (!input) {
+      resultDiv.style.display = 'block';
+      statusDiv.innerHTML = '<p class="error">Please enter JSON to minify.</p>';
+      return;
+    }
+    try {
+      const parsed = JSON.parse(input);
+      formattedJSON = JSON.stringify(parsed);
+      outputDiv.innerHTML = `<div class="code-output">${escapeHtml(formattedJSON)}</div>`;
+      statusDiv.innerHTML = '<p class="success">✓ JSON minified successfully!</p>';
+      resultDiv.style.display = 'block';
+    } catch (error) {
+      resultDiv.style.display = 'block';
+      statusDiv.innerHTML = `<p class="error">✗ Invalid JSON: ${error.message}</p>`;
+      outputDiv.innerHTML = '';
+    }
+  }
+  function clearJSON() {
+    document.getElementById("jsonInput").value = '';
+    document.getElementById("jsonResult").style.display = 'none';
+  }
+  function copyFormattedJSON() {
+    if (formattedJSON) {
+      copyToClipboard(formattedJSON, event.target.closest('button'));
+    }
+  }
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+</body>
+</html>

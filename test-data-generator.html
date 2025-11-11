@@ -3,113 +3,178 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Data Generator</title>
+  <title>Test Data Generator - QA Test Utility Hub</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; }
-    header { background-color: #333; color: #fff; padding: 15px; text-align: center; position: relative; }
-    header h1 { margin: 0; }
-    .hamburger { font-size: 24px; position: absolute; top: 15px; left: 15px; cursor: pointer; color: #fff; }
-    .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background-color: #333; color: #fff; transition: left 0.3s; padding-top: 60px; }
-    .sidebar a { display: block; padding: 15px; color: #fff; text-decoration: none; }
-    .sidebar a:hover { background-color: #444; }
-    .content { padding: 20px; margin-left: 10px; }
-    .container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    select, input, button { width: 100%; padding: 10px; margin-top: 10px; }
-    .result { margin-top: 20px; font-weight: bold; color: #0056b3; }
-    .data-output { white-space: pre-wrap; background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-
+<body class="utility-page">
 <header>
   <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
-  <h1>Test Data Generator</h1>
+  <h1><i class="fas fa-database"></i> Test Data Generator</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
 </header>
-
-<div class="sidebar" id="sidebar">
-    <a href="index.html">Home</a>
-    <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
-    <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
-    <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
-    <a href="timeout-configuration-helper.html">Timeout Configuration Helper</a>
-    <a href="selector-stability-checker.html">Selector Stability Checker</a>
-    <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
-    <a href="test-data-generator.html">Test Data Generator</a>
-  </div>
-
+<div class="sidebar" id="sidebar"></div>
 <div class="content">
   <div class="container">
     <h2>Generate Random Test Data</h2>
     <form id="dataGeneratorForm">
       <label for="dataType">Select Data Type:</label>
       <select id="dataType" required>
-        <option value="name">Name</option>
-        <option value="email">Email</option>
+        <option value="name">Full Name</option>
+        <option value="email">Email Address</option>
         <option value="phone">Phone Number</option>
+        <option value="address">Address</option>
+        <option value="date">Date</option>
+        <option value="uuid">UUID</option>
+        <option value="password">Password</option>
+        <option value="username">Username</option>
+        <option value="creditCard">Credit Card Number</option>
+        <option value="ipAddress">IP Address</option>
       </select>
-
       <label for="dataQuantity">Quantity:</label>
-      <input type="number" id="dataQuantity" placeholder="e.g., 10" required>
-
-      <button type="button" onclick="generateTestData()">Generate Data</button>
+      <input type="number" id="dataQuantity" placeholder="e.g., 10" min="1" max="1000" value="10" required>
+      <button type="button" onclick="generateTestData()">
+        <i class="fas fa-magic"></i> GENERATE DATA
+      </button>
     </form>
-
-    <div class="result" id="dataResult"></div>
+    <div class="result" id="dataResult" style="display: none;">
+      <div id="generatedData"></div>
+      <button class="copy-btn secondary" onclick="copyGeneratedData()">
+        <i class="fas fa-copy"></i> Copy All Data
+      </button>
+    </div>
   </div>
 </div>
-
+<script src="common.js"></script>
 <script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
-  }
-
+  let generatedDataArray = [];
+  const firstNames = ["John", "Jane", "Alice", "Bob", "Charlie", "Dana", "Emma", "Frank", "Grace", "Henry", "Ivy", "Jack", "Kate", "Liam", "Mia"];
+  const lastNames = ["Smith", "Johnson", "Brown", "Williams", "Jones", "Miller", "Davis", "Garcia", "Rodriguez", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson"];
+  const domains = ["example.com", "test.com", "sample.org", "demo.net", "qa.io", "testing.dev"];
   function generateRandomName() {
-    const firstNames = ["John", "Jane", "Alice", "Bob", "Charlie", "Dana"];
-    const lastNames = ["Smith", "Johnson", "Brown", "Williams", "Jones", "Miller"];
-    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    return `${firstName} ${lastName}`;
   }
-
   function generateRandomEmail() {
-    const domains = ["example.com", "test.com", "sample.org", "demo.net"];
     const name = generateRandomName().toLowerCase().replace(" ", ".");
-    return `${name}@${domains[Math.floor(Math.random() * domains.length)]}`;
+    const randomNum = Math.floor(Math.random() * 1000);
+    return `${name}${randomNum}@${domains[Math.floor(Math.random() * domains.length)]}`;
   }
-
   function generateRandomPhone() {
     const areaCode = Math.floor(100 + Math.random() * 900);
     const middle = Math.floor(100 + Math.random() * 900);
     const last = Math.floor(1000 + Math.random() * 9000);
     return `(${areaCode}) ${middle}-${last}`;
   }
-
+  function generateRandomAddress() {
+    const streets = ["Main St", "Oak Ave", "Elm Dr", "Park Blvd", "First St", "Second Ave"];
+    const cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia"];
+    const states = ["NY", "CA", "IL", "TX", "AZ", "PA"];
+    const streetNum = Math.floor(100 + Math.random() * 9000);
+    const zip = Math.floor(10000 + Math.random() * 90000);
+    return `${streetNum} ${streets[Math.floor(Math.random() * streets.length)]}, ${cities[Math.floor(Math.random() * cities.length)]}, ${states[Math.floor(Math.random() * states.length)]} ${zip}`;
+  }
+  function generateRandomDate() {
+    const start = new Date(2020, 0, 1);
+    const end = new Date();
+    const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    return date.toISOString().split('T')[0];
+  }
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+  function generatePassword(length = 12) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  }
+  function generateUsername() {
+    const name = generateRandomName().toLowerCase().replace(" ", "");
+    const num = Math.floor(Math.random() * 1000);
+    return `${name}${num}`;
+  }
+  function generateCreditCard() {
+    // Luhn algorithm compatible test card number
+    const prefix = ['4', '5', '3', '6'][Math.floor(Math.random() * 4)];
+    let card = prefix;
+    for (let i = 0; i < 14; i++) {
+      card += Math.floor(Math.random() * 10);
+    }
+    // Simple check digit
+    card += Math.floor(Math.random() * 10);
+    return card.replace(/(.{4})/g, '$1 ').trim();
+  }
+  function generateIPAddress() {
+    return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+  }
   function generateTestData() {
     const dataType = document.getElementById("dataType").value;
     const dataQuantity = parseInt(document.getElementById("dataQuantity").value, 10);
     const resultDiv = document.getElementById("dataResult");
-    
-    if (!dataQuantity || dataQuantity <= 0) {
-      resultDiv.innerHTML = "<p class='warning'>Please enter a valid quantity.</p>";
+    const dataDiv = document.getElementById("generatedData");
+    if (!dataQuantity || dataQuantity <= 0 || dataQuantity > 1000) {
+      resultDiv.style.display = 'block';
+      dataDiv.innerHTML = "<p class='error'>Please enter a valid quantity (1-1000).</p>";
       return;
     }
-
-    let generatedData = [];
+    generatedDataArray = [];
     for (let i = 0; i < dataQuantity; i++) {
-      if (dataType === "name") {
-        generatedData.push(generateRandomName());
-      } else if (dataType === "email") {
-        generatedData.push(generateRandomEmail());
-      } else if (dataType === "phone") {
-        generatedData.push(generateRandomPhone());
+      let data;
+      switch(dataType) {
+        case "name":
+          data = generateRandomName();
+          break;
+        case "email":
+          data = generateRandomEmail();
+          break;
+        case "phone":
+          data = generateRandomPhone();
+          break;
+        case "address":
+          data = generateRandomAddress();
+          break;
+        case "date":
+          data = generateRandomDate();
+          break;
+        case "uuid":
+          data = generateUUID();
+          break;
+        case "password":
+          data = generatePassword();
+          break;
+        case "username":
+          data = generateUsername();
+          break;
+        case "creditCard":
+          data = generateCreditCard();
+          break;
+        case "ipAddress":
+          data = generateIPAddress();
+          break;
+        default:
+          data = generateRandomName();
       }
+      generatedDataArray.push(data);
     }
-
-    resultDiv.innerHTML = "<p class='success'>Generated Data:</p><div class='data-output'>" + generatedData.join("\n") + "</div>";
+    dataDiv.innerHTML = `
+      <p class="success">Generated ${dataQuantity} ${dataType}(s):</p>
+      <div class="data-output">${generatedDataArray.join("\n")}</div>
+    `;
+    resultDiv.style.display = 'block';
+  }
+  function copyGeneratedData() {
+    if (generatedDataArray.length > 0) {
+      copyToClipboard(generatedDataArray.join("\n"), event.target.closest('button'));
+    }
   }
 </script>
-
 </body>
 </html>

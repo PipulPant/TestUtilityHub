@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Storage Manager - QA Test Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="utility-page">
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-hdd"></i> Local Storage Manager</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+</header>
+<div class="sidebar" id="sidebar"></div>
+<div class="content">
+  <div class="container">
+    <h2>Manage Local & Session Storage</h2>
+    <div style="margin-bottom: 20px;">
+      <button type="button" onclick="loadStorage('localStorage')" class="secondary">
+        <i class="fas fa-sync"></i> Refresh Local Storage
+      </button>
+      <button type="button" onclick="loadStorage('sessionStorage')" class="secondary" style="margin-left: 10px;">
+        <i class="fas fa-sync"></i> Refresh Session Storage
+      </button>
+    </div>
+    <div style="margin-bottom: 20px;">
+      <label>
+        <input type="radio" name="storageType" value="localStorage" checked style="width: auto; margin-right: 8px;">
+        Local Storage
+      </label>
+      <label style="margin-left: 20px;">
+        <input type="radio" name="storageType" value="sessionStorage" style="width: auto; margin-right: 8px;">
+        Session Storage
+      </label>
+    </div>
+    <div class="result" id="storageResult">
+      <div id="storageList"></div>
+    </div>
+    <h3 style="margin-top: 30px; color: var(--primary-color);">Add/Edit Storage Item</h3>
+    <form id="storageForm">
+      <label for="storageKey">Key:</label>
+      <input type="text" id="storageKey" placeholder="e.g., userToken" required>
+      <label for="storageValue">Value:</label>
+      <textarea id="storageValue" placeholder="Enter value" rows="4" required></textarea>
+      <div class="flex-between" style="margin-top: 15px;">
+        <button type="button" onclick="setStorageItem()">
+          <i class="fas fa-save"></i> Set Item
+        </button>
+        <button type="button" class="secondary" onclick="clearStorage()">
+          <i class="fas fa-trash"></i> Clear All
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  function getStorageType() {
+    return document.querySelector('input[name="storageType"]:checked').value;
+  }
+  function loadStorage(type) {
+    const storage = type === 'localStorage' ? window.localStorage : window.sessionStorage;
+    const storageListDiv = document.getElementById("storageList");
+    const keys = Object.keys(storage);
+    if (keys.length === 0) {
+      storageListDiv.innerHTML = `<p class="warning">No items in ${type}.</p>`;
+      return;
+    }
+    let html = `<p><strong>${type} Items (${keys.length}):</strong></p>`;
+    html += '<div style="max-height: 400px; overflow-y: auto;">';
+    keys.forEach((key, index) => {
+      const value = storage.getItem(key);
+      html += `
+        <div style="background: var(--bg-dark); padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border-color);">
+          <div class="flex-between">
+            <div style="flex: 1;">
+              <strong style="color: var(--primary-color);">${escapeHtml(key)}</strong>
+              <div class="code-output" style="margin-top: 8px; font-size: 0.9em; max-height: 100px; overflow-y: auto;">${escapeHtml(value || '')}</div>
+            </div>
+            <div>
+              <button class="copy-btn secondary" onclick="copyStorageValue('${escapeHtml(key)}', '${type}')" style="margin: 0 5px;">
+                <i class="fas fa-copy"></i>
+              </button>
+              <button class="copy-btn secondary" onclick="deleteStorageItem('${escapeHtml(key)}', '${type}')" style="margin: 0 5px; background: var(--error);">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    storageListDiv.innerHTML = html;
+  }
+  function setStorageItem() {
+    const key = document.getElementById("storageKey").value;
+    const value = document.getElementById("storageValue").value;
+    const type = getStorageType();
+    if (!key || !value) {
+      alert('Please enter key and value');
+      return;
+    }
+    const storage = type === 'localStorage' ? window.localStorage : window.sessionStorage;
+    storage.setItem(key, value);
+    alert('Item saved successfully!');
+    loadStorage(type);
+    // Clear form
+    document.getElementById("storageKey").value = '';
+    document.getElementById("storageValue").value = '';
+  }
+  function clearStorage() {
+    const type = getStorageType();
+    if (confirm(`Are you sure you want to clear all ${type}?`)) {
+      const storage = type === 'localStorage' ? window.localStorage : window.sessionStorage;
+      storage.clear();
+      loadStorage(type);
+      alert(`${type} cleared!`);
+    }
+  }
+  function copyStorageValue(key, type) {
+    const storage = type === 'localStorage' ? window.localStorage : window.sessionStorage;
+    const value = storage.getItem(key);
+    if (value) {
+      copyToClipboard(value, event.target.closest('button'));
+    }
+  }
+  function deleteStorageItem(key, type) {
+    if (confirm(`Delete "${key}" from ${type}?`)) {
+      const storage = type === 'localStorage' ? window.localStorage : window.sessionStorage;
+      storage.removeItem(key);
+      loadStorage(type);
+    }
+  }
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  // Load storage on page load and when type changes
+  window.onload = () => loadStorage('localStorage');
+  document.querySelectorAll('input[name="storageType"]').forEach(radio => {
+    radio.addEventListener('change', (e) => loadStorage(e.target.value));
+  });
+</script>
+</body>
+</html>

@@ -1,47 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Request Tester</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Request Tester - QA Test Utility Hub</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; }
-    header { background-color: #333; color: #fff; padding: 15px; text-align: center; position: relative; }
-    header h1 { margin: 0; }
-    .hamburger { font-size: 24px; position: absolute; top: 15px; left: 15px; cursor: pointer; color: #fff; }
-    .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background-color: #333; color: #fff; transition: left 0.3s; padding-top: 60px; }
-    .sidebar a { display: block; padding: 15px; color: #fff; text-decoration: none; }
-    .sidebar a:hover { background-color: #444; }
-    .content { padding: 20px; margin-left: 10px; }
-    .container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    select, input, textarea, button { width: 100%; padding: 10px; margin-top: 10px; }
-    .result { margin-top: 20px; font-weight: bold; color: #0056b3; }
-    .code-output { background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px; font-family: monospace; white-space: pre-wrap; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-
+<body class="utility-page">
 <header>
   <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
-  <h1>API Request Tester</h1>
+  <h1><i class="fas fa-plug"></i> API Request Tester</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
 </header>
-
-<div class="sidebar" id="sidebar">
-  <a href="index.html">Home</a>
-  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
-  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
-  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
-  <a href="timeout-configuration-helper.html">Timeout Configuration Helper</a>
-  <a href="selector-stability-checker.html">Selector Stability Checker</a>
-  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
-  <a href="test-data-generator.html">Test Data Generator</a>
-  <a href="assertion-helper.html">Assertion Helper</a>
-  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
-  <a href="api-request-tester.html">API Request Tester</a>
-</div>
-
+<div class="sidebar" id="sidebar"></div>
 <div class="content">
   <div class="container">
     <h2>Test API Requests</h2>
@@ -52,75 +24,125 @@
         <option value="POST">POST</option>
         <option value="PUT">PUT</option>
         <option value="DELETE">DELETE</option>
+        <option value="PATCH">PATCH</option>
       </select>
-
       <label for="requestUrl">Request URL:</label>
-      <input type="text" id="requestUrl" placeholder="e.g., https://api.example.com/data" required>
-
+      <input type="url" id="requestUrl" placeholder="e.g., https://api.example.com/data" required>
       <label for="requestHeaders">Headers (JSON format):</label>
-      <textarea id="requestHeaders" placeholder='e.g., {"Authorization": "Bearer token"}' rows="4"></textarea>
-
-      <label for="requestBody">Body (for POST/PUT requests):</label>
-      <textarea id="requestBody" placeholder='e.g., {"key": "value"}' rows="4"></textarea>
-
-      <button type="button" onclick="performApiRequest()">Send Request</button>
+      <textarea id="requestHeaders" placeholder='e.g., {"Authorization": "Bearer token", "Content-Type": "application/json"}' rows="4"></textarea>
+      <label for="requestBody">Body (for POST/PUT/PATCH requests):</label>
+      <textarea id="requestBody" placeholder='e.g., {"key": "value"}' rows="6"></textarea>
+      <button type="button" onclick="performApiRequest()">
+        <i class="fas fa-paper-plane"></i> SEND REQUEST
+      </button>
     </form>
-
-    <div class="result" id="apiResult"></div>
+    <div class="result" id="apiResult" style="display: none;">
+      <div id="responseStatus"></div>
+      <div id="responseHeaders"></div>
+      <div id="responseBody"></div>
+      <button class="copy-btn secondary" onclick="copyResponse()">
+        <i class="fas fa-copy"></i> Copy Response
+      </button>
+    </div>
   </div>
 </div>
-
+<script src="common.js"></script>
 <script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
-  }
-
+  let lastResponse = '';
   async function performApiRequest() {
     const method = document.getElementById("requestMethod").value;
     const url = document.getElementById("requestUrl").value;
     const headersInput = document.getElementById("requestHeaders").value;
     const bodyInput = document.getElementById("requestBody").value;
     const resultDiv = document.getElementById("apiResult");
-
-    // Parse headers and body as JSON
-    let headers;
-    let body;
-
+    const statusDiv = document.getElementById("responseStatus");
+    const headersDiv = document.getElementById("responseHeaders");
+    const bodyDiv = document.getElementById("responseBody");
+    resultDiv.style.display = 'none';
+    resultDiv.innerHTML = '<div class="spinner"></div>';
+    let headers = {};
+    let body = null;
     try {
       headers = headersInput ? JSON.parse(headersInput) : {};
     } catch (error) {
-      resultDiv.innerHTML = "<p class='feedback'>Invalid JSON format in headers.</p>";
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `<p class="error">Invalid JSON format in headers: ${error.message}</p>`;
       return;
     }
-
     try {
       body = bodyInput ? JSON.parse(bodyInput) : null;
     } catch (error) {
-      resultDiv.innerHTML = "<p class='feedback'>Invalid JSON format in body.</p>";
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `<p class="error">Invalid JSON format in body: ${error.message}</p>`;
       return;
     }
-
-    // Build request options
     const options = {
       method,
-      headers,
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers
+      },
     };
-    if (method === "POST" || method === "PUT") {
+    if ((method === "POST" || method === "PUT" || method === "PATCH") && body) {
       options.body = JSON.stringify(body);
-      options.headers["Content-Type"] = "application/json";
     }
-
-    // Perform the API request
     try {
+      const startTime = performance.now();
       const response = await fetch(url, options);
-      const result = await response.json();
-      resultDiv.innerHTML = `<p class='success'>Response:</p><div class='code-output'>${JSON.stringify(result, null, 2)}</div>`;
+      const endTime = performance.now();
+      const responseTime = (endTime - startTime).toFixed(2);
+      let responseData;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
+      }
+      const statusClass = response.ok ? 'success' : 'error';
+      statusDiv.innerHTML = `
+        <p class="${statusClass}">
+          <strong>Status:</strong> ${response.status} ${response.statusText} | 
+          <strong>Time:</strong> ${responseTime}ms
+        </p>
+      `;
+      const headersArray = [];
+      response.headers.forEach((value, key) => {
+        headersArray.push(`${key}: ${value}`);
+      });
+      headersDiv.innerHTML = `
+        <p><strong>Response Headers:</strong></p>
+        <div class="code-output">${headersArray.join('\n')}</div>
+      `;
+      bodyDiv.innerHTML = `
+        <p><strong>Response Body:</strong></p>
+        <div class="code-output">${typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2)}</div>
+      `;
+      lastResponse = typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2);
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `
+        <div id="responseStatus"></div>
+        <div id="responseHeaders"></div>
+        <div id="responseBody"></div>
+        <button class="copy-btn secondary" onclick="copyResponse()">
+          <i class="fas fa-copy"></i> Copy Response
+        </button>
+      `;
+      document.getElementById("responseStatus").innerHTML = statusDiv.innerHTML;
+      document.getElementById("responseHeaders").innerHTML = headersDiv.innerHTML;
+      document.getElementById("responseBody").innerHTML = bodyDiv.innerHTML;
     } catch (error) {
-      resultDiv.innerHTML = `<p class='feedback'>Request failed. Error: ${error.message}</p>`;
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `
+        <p class="error">Request failed: ${error.message}</p>
+        <p class="warning">Note: CORS restrictions may prevent requests to external APIs. Use a browser extension or test from the same origin.</p>
+      `;
+    }
+  }
+  function copyResponse() {
+    if (lastResponse) {
+      copyToClipboard(lastResponse, event.target.closest('button'));
     }
   }
 </script>
-
 </body>
 </html>

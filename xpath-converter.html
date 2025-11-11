@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XPath to CSS Converter - QA Test Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="utility-page">
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-exchange-alt"></i> XPath to CSS Converter</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+</header>
+<div class="sidebar" id="sidebar"></div>
+<div class="content">
+  <div class="container">
+    <h2>Convert XPath to CSS Selector</h2>
+    <form id="xpathForm">
+      <label for="xpathInput">XPath Expression:</label>
+      <textarea id="xpathInput" placeholder="e.g., //div[@id='main']//button[@class='submit']" rows="4"></textarea>
+      <button type="button" onclick="convertXPath()">
+        <i class="fas fa-exchange-alt"></i> CONVERT TO CSS SELECTOR
+      </button>
+    </form>
+    <div class="result" id="xpathResult" style="display: none;">
+      <div id="xpathOutput"></div>
+      <button class="copy-btn secondary" onclick="copyCSS()">
+        <i class="fas fa-copy"></i> Copy CSS Selector
+      </button>
+    </div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  let convertedCSS = '';
+  function convertXPath() {
+    const xpath = document.getElementById("xpathInput").value.trim();
+    const resultDiv = document.getElementById("xpathResult");
+    const outputDiv = document.getElementById("xpathOutput");
+    if (!xpath) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = '<p class="error">Please enter an XPath expression.</p>';
+      return;
+    }
+    try {
+      convertedCSS = xpathToCSS(xpath);
+      outputDiv.innerHTML = `
+        <p class="success">CSS Selector:</p>
+        <div class="code-output">${escapeHtml(convertedCSS)}</div>
+        <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.9em;">
+          <strong>Note:</strong> Some XPath expressions cannot be directly converted to CSS selectors. 
+          Complex XPath expressions may require manual adjustment.
+        </p>
+      `;
+      resultDiv.style.display = 'block';
+    } catch (error) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = `<p class="error">Conversion failed: ${error.message}</p>`;
+    }
+  }
+  function xpathToCSS(xpath) {
+    // Remove leading // or /
+    xpath = xpath.replace(/^\/+/, '');
+    // Convert // to space (descendant)
+    xpath = xpath.replace(/\/\//g, ' ');
+    // Convert / to > (child)
+    xpath = xpath.replace(/\//g, ' > ');
+    // Convert [@id='value'] to #value
+    xpath = xpath.replace(/\[@id=['"]([^'"]+)['"]\]/g, '#$1');
+    // Convert [@class='value'] to .value
+    xpath = xpath.replace(/\[@class=['"]([^'"]+)['"]\]/g, '.$1');
+    // Convert [@attribute='value'] to [attribute='value']
+    xpath = xpath.replace(/\[@([^=]+)=['"]([^'"]+)['"]\]/g, '[$1="$2"]');
+    // Convert [@attribute] to [attribute]
+    xpath = xpath.replace(/\[@([^\]]+)\]/g, '[$1]');
+    // Convert text() to :contains()
+    xpath = xpath.replace(/text\(\)=['"]([^'"]+)['"]/g, ':contains("$1")');
+    // Clean up multiple spaces
+    xpath = xpath.replace(/\s+/g, ' ').trim();
+    // Remove leading > if present
+    xpath = xpath.replace(/^>\s*/, '');
+    return xpath || 'Unable to convert. Please use a simpler XPath expression.';
+  }
+  function copyCSS() {
+    if (convertedCSS) {
+      copyToClipboard(convertedCSS, event.target.closest('button'));
+    }
+  }
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+</body>
+</html>

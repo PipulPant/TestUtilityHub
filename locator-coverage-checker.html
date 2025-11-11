@@ -1,93 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Locator Coverage Checker</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Locator Coverage Checker - QA Test Utility Hub</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; }
-    header { background-color: #333; color: #fff; padding: 15px; text-align: center; position: relative; }
-    header h1 { margin: 0; }
-    .hamburger { font-size: 24px; position: absolute; top: 15px; left: 15px; cursor: pointer; color: #fff; }
-    .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background-color: #333; color: #fff; transition: left 0.3s; padding-top: 60px; }
-    .sidebar a { display: block; padding: 15px; color: #fff; text-decoration: none; }
-    .sidebar a:hover { background-color: #444; }
-    .content { padding: 20px; margin-left: 10px; }
-    .container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, button { width: 100%; padding: 10px; margin-top: 10px; }
-    .result { margin-top: 20px; font-weight: bold; color: #0056b3; }
-    .feedback { color: #d9534f; }
-    .success { color: #5cb85c; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-
+<body class="utility-page">
 <header>
   <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
-  <h1>Locator Coverage Checker</h1>
+  <h1><i class="fas fa-search"></i> Locator Coverage Checker</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
 </header>
-
-<div class="sidebar" id="sidebar">
-  <a href="index.html">Home</a>
-  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
-  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
-  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
-  <a href="timeout-configuration-helper.html">Timeout Configuration Helper</a>
-  <a href="selector-stability-checker.html">Selector Stability Checker</a>
-  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
-  <a href="test-data-generator.html">Test Data Generator</a>
-  <a href="assertion-helper.html">Assertion Helper</a>
-  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
-</div>
-
+<div class="sidebar" id="sidebar"></div>
 <div class="content">
   <div class="container">
-    <h2>Locator Coverage Checker</h2>
+    <h2>Check Locator Coverage</h2>
     <form id="locatorForm">
       <label for="locatorInput">Enter a CSS Selector:</label>
       <input type="text" id="locatorInput" placeholder="e.g., .button, #main-header" required>
-      <button type="button" onclick="checkLocator()">Check Locator Coverage</button>
+      <button type="button" onclick="checkLocator()">
+        <i class="fas fa-search"></i> CHECK LOCATOR COVERAGE
+      </button>
     </form>
-
-    <div class="result" id="locatorResult"></div>
+    <div class="result" id="locatorResult" style="display: none;"></div>
   </div>
 </div>
-
+<script src="common.js"></script>
 <script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
-  }
-
   function checkLocator() {
     const selector = document.getElementById("locatorInput").value;
     const resultDiv = document.getElementById("locatorResult");
-
-    // Clear previous results
     resultDiv.innerHTML = '';
-
+    resultDiv.style.display = 'block';
     if (!selector) {
-      resultDiv.innerHTML = "<p class='feedback'>Please enter a valid selector.</p>";
+      resultDiv.innerHTML = "<p class='error'>Please enter a valid selector.</p>";
       return;
     }
-
     // Attempt to select elements based on the selector
     try {
       const elements = document.querySelectorAll(selector);
       if (elements.length === 1) {
-        resultDiv.innerHTML = `<p class='success'>Locator covers 1 unique element. It's a good choice for automation.</p>`;
+        resultDiv.innerHTML = `
+          <p class="success">✓ Locator covers 1 unique element. It's a good choice for automation.</p>
+          <p style="margin-top: 10px; color: var(--text-muted);">
+            This selector is stable and will reliably target a single element.
+          </p>
+        `;
       } else if (elements.length > 1) {
-        resultDiv.innerHTML = `<p class='feedback'>Locator matches ${elements.length} elements. Consider making it more specific.</p>`;
+        resultDiv.innerHTML = `
+          <p class="warning">⚠ Locator matches ${elements.length} elements. Consider making it more specific.</p>
+          <p style="margin-top: 10px; color: var(--text-muted);">
+            Using this selector may cause ambiguity. Try adding more specific attributes or using data-testid.
+          </p>
+        `;
       } else {
-        resultDiv.innerHTML = `<p class='feedback'>No elements match the selector. Please verify the selector.</p>`;
+        resultDiv.innerHTML = `
+          <p class="error">✗ No elements match the selector. Please verify the selector.</p>
+          <p style="margin-top: 10px; color: var(--text-muted);">
+            This selector doesn't match any elements on the current page. Make sure the selector is correct.
+          </p>
+        `;
       }
     } catch (error) {
-      resultDiv.innerHTML = `<p class='feedback'>Invalid selector syntax. Please check your input.</p>`;
+      resultDiv.innerHTML = `
+        <p class="error">✗ Invalid selector syntax. Please check your input.</p>
+        <p style="margin-top: 10px; color: var(--text-muted);">Error: ${error.message}</p>
+      `;
     }
   }
 </script>
-
 </body>
 </html>

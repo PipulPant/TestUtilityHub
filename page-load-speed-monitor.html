@@ -3,117 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page Load Speed Monitor</title>
+  <title>Page Load Speed Monitor - QA Test Utility Hub</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; }
-    header { background-color: #333; color: #fff; padding: 15px; text-align: center; position: relative; }
-    header h1 { margin: 0; }
-    .hamburger { font-size: 24px; position: absolute; top: 15px; left: 15px; cursor: pointer; color: #fff; }
-    .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background-color: #333; color: #fff; transition: left 0.3s; padding-top: 60px; }
-    .sidebar a { display: block; padding: 15px; color: #fff; text-decoration: none; }
-    .sidebar a:hover { background-color: #444; }
-    .content { padding: 20px; margin-left: 10px; }
-    .container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, button { width: 100%; padding: 10px; margin-top: 10px; }
-    .result { margin-top: 20px; font-weight: bold; color: #0056b3; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-
+<body class="utility-page">
 <header>
   <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
-  <h1>Page Load Speed Monitor</h1>
+  <h1><i class="fas fa-tachometer-alt"></i> Page Load Speed Monitor</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
 </header>
-
-<div class="sidebar" id="sidebar">
-  <a href="index.html">Home</a>
-  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
-  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
-  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
-  <a href="timeout-configuration-helper.html">Timeout Configuration Helper</a>
-  <a href="selector-stability-checker.html">Selector Stability Checker</a>
-  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
-  <a href="test-data-generator.html">Test Data Generator</a>
-</div>
-
+<div class="sidebar" id="sidebar"></div>
 <div class="content">
   <div class="container">
     <h2>Monitor Page Load Speed</h2>
     <form id="loadSpeedForm">
       <label for="urlInput">Enter the URL:</label>
-      <input type="text" id="urlInput" placeholder="e.g., https://example.com/favicon.ico" required>
-
+      <input type="url" id="urlInput" placeholder="e.g., https://example.com/favicon.ico" required>
       <label for="numAttempts">Number of Test Runs:</label>
-      <input type="number" id="numAttempts" placeholder="e.g., 5" required>
-
-      <button type="button" onclick="calculateLoadSpeed()">Calculate Average Load Time</button>
+      <input type="number" id="numAttempts" placeholder="e.g., 5" min="1" max="20" value="5" required>
+      <button type="button" onclick="calculateLoadSpeed()">
+        <i class="fas fa-tachometer-alt"></i> CALCULATE AVERAGE LOAD TIME
+      </button>
     </form>
-
-    <div class="result" id="loadSpeedResult"></div>
+    <div class="result" id="loadSpeedResult" style="display: none;"></div>
   </div>
 </div>
-
+<script src="common.js"></script>
 <script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
-  }
-
   function calculateLoadSpeed() {
     const url = document.getElementById("urlInput").value;
     const numAttempts = parseInt(document.getElementById("numAttempts").value, 10);
     const resultDiv = document.getElementById("loadSpeedResult");
-
-    if (!url || !numAttempts || numAttempts <= 0) {
-      resultDiv.innerHTML = "<p class='warning'>Please enter a valid URL and number of attempts.</p>";
+    if (!url || !numAttempts || numAttempts <= 0 || numAttempts > 20) {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = "<p class='error'>Please enter a valid URL and number of attempts (1-20).</p>";
       return;
     }
-
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<div class="spinner"></div><p style="text-align: center;">Testing load speed...</p>';
     let totalTime = 0;
     let successAttempts = 0;
-
+    const times = [];
     function loadImage(url) {
       return new Promise((resolve, reject) => {
         const img = new Image();
         const startTime = performance.now();
-
         img.onload = () => {
           const endTime = performance.now();
           resolve(endTime - startTime);
         };
-
         img.onerror = reject;
-
-        // Adding a cache-buster to avoid cached responses
         img.src = `${url}?cachebuster=${Date.now()}`;
       });
     }
-
     async function runTests() {
       for (let i = 0; i < numAttempts; i++) {
         try {
           const loadTime = await loadImage(url);
           totalTime += loadTime;
+          times.push(loadTime);
           successAttempts++;
         } catch (error) {
           console.error(`Attempt ${i + 1} failed`, error);
         }
       }
-
       if (successAttempts > 0) {
         const averageTime = (totalTime / successAttempts).toFixed(2);
-        resultDiv.innerHTML = `<p>Average Load Time: ${averageTime} milliseconds (based on ${successAttempts} successful attempts).</p>`;
+        const minTime = Math.min(...times).toFixed(2);
+        const maxTime = Math.max(...times).toFixed(2);
+        let performanceRating = '';
+        let ratingColor = '';
+        if (averageTime < 200) {
+          performanceRating = 'Excellent';
+          ratingColor = 'var(--success)';
+        } else if (averageTime < 500) {
+          performanceRating = 'Good';
+          ratingColor = 'var(--warning)';
+        } else {
+          performanceRating = 'Needs Improvement';
+          ratingColor = 'var(--error)';
+        }
+        resultDiv.innerHTML = `
+          <p class="success">Load Speed Analysis (${successAttempts} successful attempts):</p>
+          <div style="margin-top: 15px;">
+            <p><strong>Average Load Time:</strong> <span style="color: var(--primary-color); font-size: 1.2em;">${averageTime} ms</span></p>
+            <p><strong>Min Time:</strong> ${minTime} ms | <strong>Max Time:</strong> ${maxTime} ms</p>
+            <p style="margin-top: 10px;">
+              <strong>Performance Rating:</strong> 
+              <span style="color: ${ratingColor}; font-weight: bold;">${performanceRating}</span>
+            </p>
+          </div>
+          <div style="margin-top: 15px; padding: 10px; background: var(--bg-dark); border-radius: 6px;">
+            <p style="font-size: 0.9em;"><strong>Individual Test Times:</strong></p>
+            <div class="code-output" style="margin-top: 8px;">${times.map((t, i) => `Attempt ${i + 1}: ${t.toFixed(2)} ms`).join('\n')}</div>
+          </div>
+        `;
       } else {
-        resultDiv.innerHTML = "<p class='warning'>Failed to load the image. Please check the URL.</p>";
+        resultDiv.innerHTML = "<p class='error'>Failed to load the resource. Please check the URL and ensure CORS allows the request.</p>";
       }
     }
-
     runTests();
   }
 </script>
-
 </body>
 </html>

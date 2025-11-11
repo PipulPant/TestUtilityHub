@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Case Template Generator - QA Test Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="utility-page">
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-file-alt"></i> Test Case Template Generator</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+</header>
+<div class="sidebar" id="sidebar"></div>
+<div class="content">
+  <div class="container">
+    <h2>Generate Test Case Template</h2>
+    <form id="testCaseForm">
+      <label for="testCaseId">Test Case ID:</label>
+      <input type="text" id="testCaseId" placeholder="e.g., TC_001" required>
+      <label for="testCaseTitle">Test Case Title:</label>
+      <input type="text" id="testCaseTitle" placeholder="e.g., Verify user login functionality" required>
+      <label for="testDescription">Test Description:</label>
+      <textarea id="testDescription" placeholder="Describe what this test case validates" rows="3"></textarea>
+      <label for="preconditions">Preconditions:</label>
+      <textarea id="preconditions" placeholder="List any prerequisites for this test" rows="3"></textarea>
+      <label for="testSteps">Test Steps (one per line):</label>
+      <textarea id="testSteps" placeholder="Enter test steps, one per line" rows="6" required></textarea>
+      <label for="expectedResult">Expected Result:</label>
+      <textarea id="expectedResult" placeholder="Describe the expected outcome" rows="3" required></textarea>
+      <label for="testType">Test Type:</label>
+      <select id="testType">
+        <option value="Functional">Functional</option>
+        <option value="Regression">Regression</option>
+        <option value="Smoke">Smoke</option>
+        <option value="Integration">Integration</option>
+        <option value="E2E">End-to-End</option>
+      </select>
+      <label for="priority">Priority:</label>
+      <select id="priority">
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <button type="button" onclick="generateTestCase()">
+        <i class="fas fa-file-export"></i> GENERATE TEST CASE TEMPLATE
+      </button>
+    </form>
+    <div class="result" id="testCaseResult" style="display: none;">
+      <div id="testCaseOutput"></div>
+      <button class="copy-btn secondary" onclick="copyTestCase()">
+        <i class="fas fa-copy"></i> Copy Test Case
+      </button>
+    </div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  let generatedTestCase = '';
+  function generateTestCase() {
+    const testCaseId = document.getElementById("testCaseId").value;
+    const testCaseTitle = document.getElementById("testCaseTitle").value;
+    const testDescription = document.getElementById("testDescription").value;
+    const preconditions = document.getElementById("preconditions").value;
+    const testSteps = document.getElementById("testSteps").value.split('\n').filter(step => step.trim());
+    const expectedResult = document.getElementById("expectedResult").value;
+    const testType = document.getElementById("testType").value;
+    const priority = document.getElementById("priority").value;
+    const resultDiv = document.getElementById("testCaseResult");
+    const outputDiv = document.getElementById("testCaseOutput");
+    if (!testCaseId || !testCaseTitle || !testSteps.length || !expectedResult) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = '<p class="error">Please fill in all required fields.</p>';
+      return;
+    }
+    let template = `TEST CASE TEMPLATE
+==================
+Test Case ID: ${testCaseId}
+Test Case Title: ${testCaseTitle}
+Test Type: ${testType}
+Priority: ${priority}
+DESCRIPTION:
+${testDescription || 'N/A'}
+PRECONDITIONS:
+${preconditions || 'None'}
+TEST STEPS:
+`;
+    testSteps.forEach((step, index) => {
+      template += `${index + 1}. ${step.trim()}\n`;
+    });
+    template += `
+EXPECTED RESULT:
+${expectedResult}
+NOTES:
+- Test Environment: [To be specified]
+- Test Data: [To be specified]
+- Dependencies: [To be specified]
+`;
+    generatedTestCase = template;
+    outputDiv.innerHTML = `
+      <p class="success">Test Case Template Generated:</p>
+      <div class="code-output">${escapeHtml(template)}</div>
+    `;
+    resultDiv.style.display = 'block';
+  }
+  function copyTestCase() {
+    if (generatedTestCase) {
+      copyToClipboard(generatedTestCase, event.target.closest('button'));
+    }
+  }
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base64 Encoder/Decoder - QA Test Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="utility-page">
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-key"></i> Base64 Encoder/Decoder</h1>
+  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+</header>
+<div class="sidebar" id="sidebar"></div>
+<div class="content">
+  <div class="container">
+    <h2>Encode and Decode Base64</h2>
+    <form id="base64Form">
+      <label for="inputText">Input Text:</label>
+      <textarea id="inputText" placeholder="Enter text to encode or base64 string to decode" rows="8"></textarea>
+      <div class="flex-between" style="margin-top: 15px;">
+        <button type="button" onclick="encodeBase64()">
+          <i class="fas fa-lock"></i> ENCODE TO BASE64
+        </button>
+        <button type="button" class="secondary" onclick="decodeBase64()">
+          <i class="fas fa-unlock"></i> DECODE FROM BASE64
+        </button>
+      </div>
+      <button type="button" class="secondary" onclick="clearBase64()" style="margin-top: 10px;">
+        <i class="fas fa-trash"></i> Clear
+      </button>
+    </form>
+    <div class="result" id="base64Result" style="display: none;">
+      <div id="outputText"></div>
+      <button class="copy-btn secondary" onclick="copyBase64()">
+        <i class="fas fa-copy"></i> Copy Result
+      </button>
+    </div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  let lastResult = '';
+  function encodeBase64() {
+    const input = document.getElementById("inputText").value;
+    const resultDiv = document.getElementById("base64Result");
+    const outputDiv = document.getElementById("outputText");
+    if (!input) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = '<p class="error">Please enter text to encode.</p>';
+      return;
+    }
+    try {
+      lastResult = btoa(unescape(encodeURIComponent(input)));
+      outputDiv.innerHTML = `
+        <p class="success">Encoded Base64:</p>
+        <div class="code-output">${lastResult}</div>
+      `;
+      resultDiv.style.display = 'block';
+    } catch (error) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = `<p class="error">Encoding failed: ${error.message}</p>`;
+    }
+  }
+  function decodeBase64() {
+    const input = document.getElementById("inputText").value.trim();
+    const resultDiv = document.getElementById("base64Result");
+    const outputDiv = document.getElementById("outputText");
+    if (!input) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = '<p class="error">Please enter base64 string to decode.</p>';
+      return;
+    }
+    try {
+      lastResult = decodeURIComponent(escape(atob(input)));
+      outputDiv.innerHTML = `
+        <p class="success">Decoded Text:</p>
+        <div class="code-output">${escapeHtml(lastResult)}</div>
+      `;
+      resultDiv.style.display = 'block';
+    } catch (error) {
+      resultDiv.style.display = 'block';
+      outputDiv.innerHTML = `<p class="error">Decoding failed: ${error.message}. Please check if the input is valid Base64.</p>`;
+    }
+  }
+  function clearBase64() {
+    document.getElementById("inputText").value = '';
+    document.getElementById("base64Result").style.display = 'none';
+  }
+  function copyBase64() {
+    if (lastResult) {
+      copyToClipboard(lastResult, event.target.closest('button'));
+    }
+  }
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+</body>
+</html>
