@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base64 & URL Encoder — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
+    .home-btn:hover { color: #fff; }
+
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(47,138,16,0.15); border-left-color: #2f8a10; }
+
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 860px; margin: auto; }
+    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; }
+    .tab-btn { padding: 9px 20px; background: none; border: none; cursor: pointer; font-size: 0.88em; font-weight: 600; color: #9ca3af; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+    .tab-btn.active { color: #2f8a10; border-bottom-color: #2f8a10; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 22px; margin-bottom: 18px; }
+    .card-title { font-size: 0.92em; font-weight: 700; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #2f8a10; }
+
+    .field-label { font-size: 0.78em; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+    textarea {
+      width: 100%; height: 110px; padding: 12px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.85em;
+      background: #0f1117; color: #e2e8f0; resize: vertical; line-height: 1.6;
+      transition: border-color 0.15s;
+    }
+    textarea:focus { outline: none; border-color: #2f8a10; }
+    textarea.output-area { background: #0b0d12; color: #a8e6a3; }
+    textarea.error-area  { border-color: #e53e3e; }
+
+    .arrow-row { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 10px 0; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn { padding: 9px 16px; border: none; border-radius: 8px; font-size: 0.85em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #2f8a10; color: #fff; }
+    .btn-primary:hover { background: #267a0d; }
+    .btn-secondary { background: #4f46e5; color: #fff; }
+    .btn-secondary:hover { background: #4338ca; }
+    .btn-outline { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
+    .btn-outline:hover { background: #f3f4f6; }
+    .btn-danger { background: #e53e3e; color: #fff; }
+    .btn-sm { padding: 5px 10px; font-size: 0.76em; }
+
+    .status-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 0.82em; font-weight: 600; margin-top: 10px; }
+    .status-ok    { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .status-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .divider { display: flex; align-items: center; gap: 12px; margin: 14px 0; color: #9ca3af; font-size: 0.8em; font-weight: 600; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
+
+    /* Cheatsheet */
+    .cheat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .cheat-item { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: all 0.15s; }
+    .cheat-item:hover { background: #f0fdf4; border-color: #2f8a10; }
+    .cheat-name { font-size: 0.8em; font-weight: 700; color: #374151; margin-bottom: 3px; }
+    .cheat-val  { font-family: monospace; font-size: 0.78em; color: #6b7280; word-break: break-all; }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85em; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 8px; }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-lock-open" style="color:#2f8a10;margin-right:8px"></i>Base64 &amp; URL Encoder</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
+</header>
+
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html">Color Contrast Checker</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html" class="active">Base64 / URL Encoder</a>
+  <a href="string-utils.html">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html">HTTP Status Reference</a>
+  <a href="hash-generator.html">Hash Generator</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
+
+<div class="content">
+  <div class="main-container">
+    <div class="page-title">Base64 &amp; URL Encoder</div>
+    <div class="page-subtitle">Encode and decode Base64, URL strings, and HTTP Basic Auth headers — useful for API auth testing.</div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('base64')"><i class="fas fa-code"></i> Base64</button>
+      <button class="tab-btn" onclick="switchTab('url')"><i class="fas fa-link"></i> URL</button>
+      <button class="tab-btn" onclick="switchTab('auth')"><i class="fas fa-key"></i> Basic Auth</button>
+      <button class="tab-btn" onclick="switchTab('jwt')"><i class="fas fa-shield-alt"></i> JWT Inspect</button>
+    </div>
+
+    <!-- BASE64 TAB -->
+    <div class="tab-panel active" id="tab-base64">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-arrow-right"></i> Encode to Base64</div>
+        <div class="field-label">Plain Text Input
+          <button class="btn btn-outline btn-sm" onclick="b64Clear('enc')"><i class="fas fa-times"></i> Clear</button>
+        </div>
+        <textarea id="b64EncIn" placeholder="Type or paste text to encode..." oninput="b64EncLive()"></textarea>
+        <div class="divider">Encoded Output</div>
+        <textarea id="b64EncOut" class="output-area" readonly placeholder="Base64 output..."></textarea>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-primary" onclick="b64Encode()"><i class="fas fa-arrow-right"></i> Encode</button>
+          <button class="btn btn-outline" onclick="copyText('b64EncOut')"><i class="fas fa-copy"></i> Copy</button>
+          <button class="btn btn-outline" onclick="swapB64('enc')"><i class="fas fa-exchange-alt"></i> Send to Decode</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-arrow-left"></i> Decode from Base64</div>
+        <div class="field-label">Base64 Input
+          <button class="btn btn-outline btn-sm" onclick="b64Clear('dec')"><i class="fas fa-times"></i> Clear</button>
+        </div>
+        <textarea id="b64DecIn" placeholder="Paste Base64 string to decode..." oninput="b64DecLive()"></textarea>
+        <div class="divider">Decoded Output</div>
+        <textarea id="b64DecOut" class="output-area" readonly placeholder="Decoded text..."></textarea>
+        <div id="b64DecStatus" style="display:none" class="status-bar"></div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-secondary" onclick="b64Decode()"><i class="fas fa-arrow-left"></i> Decode</button>
+          <button class="btn btn-outline" onclick="copyText('b64DecOut')"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- URL TAB -->
+    <div class="tab-panel" id="tab-url">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-compress-arrows-alt"></i> URL Encode / Decode</div>
+        <div class="field-label">Input</div>
+        <textarea id="urlIn" placeholder="Paste a URL or text to encode/decode..." style="height:90px"></textarea>
+        <div class="btn-row" style="margin-top:12px;margin-bottom:14px">
+          <button class="btn btn-primary" onclick="urlEncode()"><i class="fas fa-lock"></i> Encode</button>
+          <button class="btn btn-secondary" onclick="urlDecode()"><i class="fas fa-lock-open"></i> Decode</button>
+          <button class="btn btn-outline" onclick="urlClear()"><i class="fas fa-times"></i> Clear</button>
+        </div>
+        <div class="field-label">Output <button class="btn btn-outline btn-sm" onclick="copyText('urlOut')"><i class="fas fa-copy"></i> Copy</button></div>
+        <textarea id="urlOut" class="output-area" readonly style="height:90px" placeholder="Output will appear here..."></textarea>
+        <div id="urlStatus" style="display:none" class="status-bar"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fas fa-search-plus"></i> URL Parser</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <input id="urlParseIn" type="text" style="flex:1;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.88em;background:#fafafa"
+            placeholder="https://example.com/path?foo=bar&baz=123#section" />
+          <button class="btn btn-primary" onclick="parseURL()"><i class="fas fa-search"></i> Parse</button>
+        </div>
+        <div id="urlParsed" style="display:none">
+          <div id="urlParseRows"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BASIC AUTH TAB -->
+    <div class="tab-panel" id="tab-auth">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-key"></i> Generate Basic Auth Header</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+          <div>
+            <div class="field-label">Username</div>
+            <input id="authUser" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.9em;background:#fafafa" placeholder="admin" oninput="buildAuth()" />
+          </div>
+          <div>
+            <div class="field-label">Password</div>
+            <input id="authPass" type="password" style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.9em;background:#fafafa" placeholder="••••••••" oninput="buildAuth()" />
+            <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:0.8em;cursor:pointer">
+              <input type="checkbox" onchange="togglePassVis(this)"> Show password
+            </label>
+          </div>
+        </div>
+        <div class="field-label">Authorization Header</div>
+        <textarea id="authOutput" class="output-area" readonly style="height:70px" placeholder="Basic dXNlcjpwYXNz..."></textarea>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-primary" onclick="buildAuth()"><i class="fas fa-magic"></i> Generate</button>
+          <button class="btn btn-outline" onclick="copyText('authOutput')"><i class="fas fa-copy"></i> Copy Header</button>
+          <button class="btn btn-outline" onclick="decodeAuth()"><i class="fas fa-eye"></i> Decode Existing</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-eye"></i> Decode Basic Auth Header</div>
+        <div class="field-label">Paste Authorization header value</div>
+        <input id="authDecIn" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.9em;background:#fafafa;font-family:monospace" placeholder="Basic dXNlcjpwYXNz" />
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-secondary" onclick="decodeAuth()"><i class="fas fa-unlock"></i> Decode</button>
+        </div>
+        <div id="authDecResult" style="display:none;margin-top:14px"></div>
+      </div>
+    </div>
+
+    <!-- JWT TAB -->
+    <div class="tab-panel" id="tab-jwt">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-shield-alt"></i> JWT Inspector <span style="font-size:0.78em;color:#9ca3af;font-weight:400">(decode only — no verification)</span></div>
+        <div class="field-label">Paste JWT Token</div>
+        <textarea id="jwtIn" style="height:90px;font-size:0.78em" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0In0...." oninput="inspectJWT()"></textarea>
+        <div id="jwtResult" style="margin-top:14px;display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div>
+              <div class="field-label" style="color:#f6ad55">Header</div>
+              <textarea id="jwtHeader" class="output-area" readonly style="height:110px"></textarea>
+            </div>
+            <div>
+              <div class="field-label" style="color:#68d391">Payload</div>
+              <textarea id="jwtPayload" class="output-area" readonly style="height:110px"></textarea>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="field-label">Claims Summary</div>
+            <div id="jwtClaims" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div>
+          </div>
+        </div>
+        <div id="jwtStatus" style="display:none" class="status-bar"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-check"></i> Copied!</div>
+
+<script>
+  // ── Base64 ────────────────────────────────────────────────────────────────
+  function b64Encode() {
+    const v = document.getElementById('b64EncIn').value;
+    document.getElementById('b64EncOut').value = btoa(unescape(encodeURIComponent(v)));
+  }
+  function b64Decode() {
+    const v = document.getElementById('b64DecIn').value.trim();
+    const statusEl = document.getElementById('b64DecStatus');
+    try {
+      const decoded = decodeURIComponent(escape(atob(v)));
+      document.getElementById('b64DecOut').value = decoded;
+      document.getElementById('b64DecIn').className = '';
+      statusEl.style.display = 'flex';
+      statusEl.className = 'status-bar status-ok';
+      statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Decoded successfully';
+    } catch(e) {
+      document.getElementById('b64DecIn').className = 'error-area';
+      statusEl.style.display = 'flex';
+      statusEl.className = 'status-bar status-error';
+      statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Invalid Base64 string';
+    }
+  }
+  function b64EncLive() {
+    const v = document.getElementById('b64EncIn').value;
+    if (v) document.getElementById('b64EncOut').value = btoa(unescape(encodeURIComponent(v)));
+    else document.getElementById('b64EncOut').value = '';
+  }
+  function b64DecLive() {
+    const v = document.getElementById('b64DecIn').value.trim();
+    if (!v) { document.getElementById('b64DecOut').value = ''; return; }
+    try { document.getElementById('b64DecOut').value = decodeURIComponent(escape(atob(v))); }
+    catch(e) { document.getElementById('b64DecOut').value = ''; }
+  }
+  function b64Clear(mode) {
+    if (mode === 'enc') { document.getElementById('b64EncIn').value = ''; document.getElementById('b64EncOut').value = ''; }
+    else { document.getElementById('b64DecIn').value = ''; document.getElementById('b64DecOut').value = ''; document.getElementById('b64DecStatus').style.display = 'none'; }
+  }
+  function swapB64() {
+    const encoded = document.getElementById('b64EncOut').value;
+    if (encoded) { document.getElementById('b64DecIn').value = encoded; switchTab('base64'); b64DecLive(); }
+  }
+
+  // ── URL ───────────────────────────────────────────────────────────────────
+  function urlEncode() {
+    const v = document.getElementById('urlIn').value;
+    document.getElementById('urlOut').value = encodeURIComponent(v);
+    showStatus('urlStatus', 'ok', 'URL encoded');
+  }
+  function urlDecode() {
+    const v = document.getElementById('urlIn').value;
+    try {
+      document.getElementById('urlOut').value = decodeURIComponent(v);
+      showStatus('urlStatus', 'ok', 'URL decoded');
+    } catch(e) {
+      showStatus('urlStatus', 'error', 'Invalid URL-encoded string');
+    }
+  }
+  function urlClear() {
+    document.getElementById('urlIn').value = '';
+    document.getElementById('urlOut').value = '';
+    document.getElementById('urlStatus').style.display = 'none';
+  }
+  function parseURL() {
+    const raw = document.getElementById('urlParseIn').value.trim();
+    if (!raw) return;
+    try {
+      const u = new URL(raw);
+      const rows = [
+        ['Protocol', u.protocol],
+        ['Host', u.host],
+        ['Pathname', u.pathname],
+        ['Hash', u.hash || '(none)'],
+      ];
+      const params = [...u.searchParams.entries()];
+      let html = rows.map(([k, v]) => `
+        <div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6;gap:16px">
+          <span style="width:90px;font-size:0.78em;font-weight:700;color:#9ca3af;text-transform:uppercase">${k}</span>
+          <span style="font-family:monospace;font-size:0.88em;color:#1a1a2e">${escHtml(v)}</span>
+        </div>`).join('');
+      if (params.length) {
+        html += `<div style="padding:8px 0 4px;font-size:0.78em;font-weight:700;color:#9ca3af;text-transform:uppercase;margin-top:4px">Query Params</div>`;
+        html += params.map(([k, v]) => `
+          <div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #f3f4f6;gap:16px">
+            <span style="width:90px;font-family:monospace;font-size:0.82em;color:#4f46e5">${escHtml(k)}</span>
+            <span style="font-family:monospace;font-size:0.88em;color:#1a1a2e">${escHtml(v)}</span>
+          </div>`).join('');
+      }
+      document.getElementById('urlParseRows').innerHTML = html;
+      document.getElementById('urlParsed').style.display = 'block';
+    } catch(e) {
+      document.getElementById('urlParseRows').innerHTML = `<div style="color:#e53e3e;font-size:0.88em">Invalid URL: ${escHtml(e.message)}</div>`;
+      document.getElementById('urlParsed').style.display = 'block';
+    }
+  }
+
+  // ── Basic Auth ────────────────────────────────────────────────────────────
+  function buildAuth() {
+    const user = document.getElementById('authUser').value;
+    const pass = document.getElementById('authPass').value;
+    if (!user && !pass) { document.getElementById('authOutput').value = ''; return; }
+    const token = btoa(unescape(encodeURIComponent(user + ':' + pass)));
+    document.getElementById('authOutput').value = 'Basic ' + token;
+  }
+  function togglePassVis(cb) {
+    document.getElementById('authPass').type = cb.checked ? 'text' : 'password';
+  }
+  function decodeAuth() {
+    const raw = document.getElementById('authDecIn').value.trim() || document.getElementById('authOutput').value.trim();
+    const resultEl = document.getElementById('authDecResult');
+    try {
+      const b64 = raw.replace(/^Basic\s+/i, '');
+      const decoded = decodeURIComponent(escape(atob(b64)));
+      const [user, ...rest] = decoded.split(':');
+      const pass = rest.join(':');
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px">
+            <div style="font-size:0.75em;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:4px">Username</div>
+            <div style="font-family:monospace;font-size:0.95em;color:#1a1a2e">${escHtml(user)}</div>
+          </div>
+          <div style="background:#fff3cd;border:1px solid #fde68a;border-radius:8px;padding:12px">
+            <div style="font-size:0.75em;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:4px">Password</div>
+            <div style="font-family:monospace;font-size:0.95em;color:#1a1a2e">${escHtml(pass)}</div>
+          </div>
+        </div>`;
+    } catch(e) {
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = `<div style="color:#e53e3e;font-size:0.88em">Could not decode — make sure the input is a valid Basic Auth header.</div>`;
+    }
+  }
+
+  // ── JWT ───────────────────────────────────────────────────────────────────
+  function inspectJWT() {
+    const token = document.getElementById('jwtIn').value.trim();
+    const resultEl = document.getElementById('jwtResult');
+    const statusEl = document.getElementById('jwtStatus');
+    if (!token) { resultEl.style.display = 'none'; statusEl.style.display = 'none'; return; }
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      showStatus('jwtStatus', 'error', 'Invalid JWT — expected 3 parts separated by dots');
+      resultEl.style.display = 'none'; return;
+    }
+    try {
+      const decode = s => JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))));
+      const header  = decode(parts[0]);
+      const payload = decode(parts[1]);
+      document.getElementById('jwtHeader').value  = JSON.stringify(header,  null, 2);
+      document.getElementById('jwtPayload').value = JSON.stringify(payload, null, 2);
+      statusEl.style.display = 'none';
+      resultEl.style.display = 'block';
+
+      // Claims summary
+      const now = Math.floor(Date.now() / 1000);
+      const chips = [];
+      if (payload.sub)  chips.push({ label: 'sub', val: payload.sub, color: '#4f46e5' });
+      if (payload.iss)  chips.push({ label: 'iss', val: payload.iss, color: '#0891b2' });
+      if (payload.aud)  chips.push({ label: 'aud', val: payload.aud, color: '#0891b2' });
+      if (payload.iat)  chips.push({ label: 'issued', val: new Date(payload.iat * 1000).toISOString(), color: '#374151' });
+      if (payload.exp) {
+        const expired = payload.exp < now;
+        chips.push({ label: 'expires', val: new Date(payload.exp * 1000).toISOString() + (expired ? ' ⚠️ EXPIRED' : ' ✅'), color: expired ? '#e53e3e' : '#2f8a10' });
+      }
+      if (header.alg)   chips.push({ label: 'alg', val: header.alg, color: '#d97706' });
+      document.getElementById('jwtClaims').innerHTML = chips.map(c =>
+        `<div style="background:#f3f4f6;border-radius:8px;padding:8px 12px;font-size:0.8em">
+          <div style="font-weight:700;color:${c.color};font-size:0.75em;text-transform:uppercase;margin-bottom:2px">${c.label}</div>
+          <div style="font-family:monospace;color:#1a1a2e;word-break:break-all">${escHtml(String(c.val))}</div>
+        </div>`
+      ).join('');
+    } catch(e) {
+      showStatus('jwtStatus', 'error', 'Could not decode JWT: ' + e.message);
+      resultEl.style.display = 'none';
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function copyText(id) {
+    const el = document.getElementById(id);
+    const text = el.value || el.textContent;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(showToast).catch(() => {});
+  }
+  function showStatus(id, type, msg) {
+    const el = document.getElementById(id);
+    el.style.display = 'flex';
+    el.className = 'status-bar ' + (type === 'ok' ? 'status-ok' : 'status-error');
+    el.innerHTML = `<i class="fas fa-${type === 'ok' ? 'check-circle' : 'times-circle'}"></i> ${msg}`;
+  }
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+  function switchTab(name) {
+    const names = ['base64','url','auth','jwt'];
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', names[i] === name));
+    document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', names[i] === name));
+  }
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-270px' : '0px';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTTP Status Reference — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
+    .home-btn:hover { color: #fff; }
+
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(99,102,241,0.15); border-left-color: #6366f1; }
+
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 860px; margin: auto; }
+    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 20px; }
+
+    .search-row { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+    .search-input { flex: 1; min-width: 200px; padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; background: #fff; color: #1a1a2e; transition: border-color 0.15s; }
+    .search-input:focus { outline: none; border-color: #6366f1; }
+    .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { padding: 5px 12px; border-radius: 20px; font-size: 0.78em; font-weight: 700; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; user-select: none; }
+    .chip.all { background: #6366f1; color: #fff; }
+    .chip.all.inactive { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+    .chip.c1 { background: #dbeafe; color: #1d4ed8; }
+    .chip.c1.inactive { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+    .chip.c2 { background: #dcfce7; color: #166534; }
+    .chip.c2.inactive { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+    .chip.c3 { background: #eff6ff; color: #1e40af; }
+    .chip.c3.inactive { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+    .chip.c4 { background: #fff3cd; color: #856404; }
+    .chip.c4.inactive { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+    .chip.c5 { background: #fee2e2; color: #991b1b; }
+    .chip.c5.inactive { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+
+    .category-group { margin-bottom: 24px; }
+    .category-header { font-size: 0.78em; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 8px 14px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .cat-1xx { background: #dbeafe; color: #1d4ed8; }
+    .cat-2xx { background: #dcfce7; color: #166534; }
+    .cat-3xx { background: #eff6ff; color: #1e40af; }
+    .cat-4xx { background: #fff3cd; color: #856404; }
+    .cat-5xx { background: #fee2e2; color: #991b1b; }
+
+    .status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+    .status-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); padding: 14px 16px; border-left: 4px solid transparent; cursor: pointer; transition: box-shadow 0.15s, transform 0.1s; }
+    .status-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
+    .status-card.s1 { border-left-color: #3b82f6; }
+    .status-card.s2 { border-left-color: #22c55e; }
+    .status-card.s3 { border-left-color: #60a5fa; }
+    .status-card.s4 { border-left-color: #f59e0b; }
+    .status-card.s5 { border-left-color: #ef4444; }
+    .status-card.hidden { display: none; }
+
+    .code-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .code-badge { font-size: 1.1em; font-weight: 800; font-family: monospace; }
+    .s1 .code-badge { color: #1d4ed8; }
+    .s2 .code-badge { color: #166534; }
+    .s3 .code-badge { color: #1e40af; }
+    .s4 .code-badge { color: #92400e; }
+    .s5 .code-badge { color: #991b1b; }
+
+    .status-name { font-weight: 700; font-size: 0.9em; color: #1a1a2e; margin-bottom: 4px; }
+    .status-desc { font-size: 0.8em; color: #6b7280; line-height: 1.5; }
+    .qa-tag { display: inline-block; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 1px 7px; border-radius: 10px; font-size: 0.7em; font-weight: 600; margin-top: 6px; }
+    .qa-tag.warn { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+    .qa-tag.err { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .qa-tag.info { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+
+    .no-results { text-align: center; padding: 40px; color: #9ca3af; font-size: 0.9em; display: none; }
+    .no-results.show { display: block; }
+
+    /* Modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-backdrop.open { display: flex; }
+    .modal { background: #fff; border-radius: 14px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; }
+    .modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 1.3em; cursor: pointer; color: #9ca3af; }
+    .modal-close:hover { color: #374151; }
+    .modal-code { font-size: 2em; font-weight: 900; font-family: monospace; margin-bottom: 4px; }
+    .modal-name { font-size: 1.15em; font-weight: 700; margin-bottom: 12px; color: #374151; }
+    .modal-section { margin-top: 14px; }
+    .modal-section-title { font-size: 0.75em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #9ca3af; margin-bottom: 6px; }
+    .modal-text { font-size: 0.88em; color: #374151; line-height: 1.6; }
+    .modal-tips { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .modal-tips li { display: flex; gap: 8px; font-size: 0.84em; color: #374151; line-height: 1.5; }
+    .modal-tips li i { color: #6366f1; margin-top: 2px; flex-shrink: 0; }
+    .copy-code-btn { margin-top: 14px; padding: 8px 16px; background: #6366f1; color: #fff; border: none; border-radius: 7px; font-size: 0.84em; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .copy-code-btn:hover { background: #4f46e5; }
+  </style>
+</head>
+<body>
+
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-list-ol" style="color:#6366f1;margin-right:8px"></i>HTTP Status Reference</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
+</header>
+
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html">Color Contrast Checker</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <a href="string-utils.html">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html" class="active">HTTP Status Reference</a>
+  <a href="hash-generator.html">Hash Generator</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
+
+<div class="content">
+  <div class="main-container">
+    <div class="page-title">HTTP Status Reference</div>
+    <div class="page-subtitle">All standard HTTP status codes with descriptions and QA testing tips. Click any card for details.</div>
+
+    <div class="search-row">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search by code, name, or keyword..." oninput="filterCodes()" />
+      <div class="filter-chips">
+        <span class="chip all" data-cat="all" onclick="setFilter('all')">All</span>
+        <span class="chip c1 inactive" data-cat="1" onclick="setFilter('1')">1xx Info</span>
+        <span class="chip c2 inactive" data-cat="2" onclick="setFilter('2')">2xx Success</span>
+        <span class="chip c3 inactive" data-cat="3" onclick="setFilter('3')">3xx Redirect</span>
+        <span class="chip c4 inactive" data-cat="4" onclick="setFilter('4')">4xx Client</span>
+        <span class="chip c5 inactive" data-cat="5" onclick="setFilter('5')">5xx Server</span>
+      </div>
+    </div>
+
+    <div id="statusContainer"></div>
+    <div class="no-results" id="noResults"><i class="fas fa-search" style="font-size:2em;margin-bottom:12px;display:block;opacity:0.3"></i>No status codes match your search.</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModalDirect()"><i class="fas fa-times"></i></button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+const STATUS_CODES = [
+  // 1xx
+  { code: 100, name: "Continue", cat: 1, desc: "The server has received the request headers and the client should proceed to send the request body.", qa: "Rarely tested directly. Check that large POST requests don't fail prematurely.", qaType: "info" },
+  { code: 101, name: "Switching Protocols", cat: 1, desc: "The server agrees to switch protocols as requested by the client (e.g., HTTP to WebSocket).", qa: "Verify WebSocket upgrade handshakes succeed in your app.", qaType: "info" },
+  { code: 102, name: "Processing", cat: 1, desc: "WebDAV: The server has received and is processing the request, but no response is available yet.", qa: "Long-running API calls may send this before the final response.", qaType: "info" },
+  { code: 103, name: "Early Hints", cat: 1, desc: "Used to return response headers before the final HTTP message, allowing the client to preload resources.", qa: "Check that performance-critical pages send early hints for CSS/JS.", qaType: "info" },
+  // 2xx
+  { code: 200, name: "OK", cat: 2, desc: "The request succeeded. The response body contains the requested data (GET) or result (POST/PUT).", qa: "Assert status 200 on all successful API calls. Verify response body schema.", qaType: "ok" },
+  { code: 201, name: "Created", cat: 2, desc: "The request succeeded and a new resource was created. The Location header often points to the new resource.", qa: "Assert 201 on POST create endpoints. Check Location header and response body for new resource ID.", qaType: "ok" },
+  { code: 202, name: "Accepted", cat: 2, desc: "The request has been accepted for processing, but processing has not been completed (async operations).", qa: "Test polling mechanisms or webhooks that signal when the async job is done.", qaType: "ok" },
+  { code: 204, name: "No Content", cat: 2, desc: "The server successfully processed the request but returns no content. Common for DELETE and some PUT requests.", qa: "Assert 204 on DELETE endpoints. Verify response body is empty and resource is actually removed.", qaType: "ok" },
+  { code: 206, name: "Partial Content", cat: 2, desc: "The server delivers only part of the resource due to a Range header in the request. Used for file streaming.", qa: "Test file download resumption and video streaming endpoints with Range headers.", qaType: "ok" },
+  // 3xx
+  { code: 301, name: "Moved Permanently", cat: 3, desc: "The requested resource has permanently moved to the URL in the Location header. Browsers cache this redirect.", qa: "Verify old URLs redirect to new URLs. Test that cached 301s don't cause stale redirect issues.", qaType: "info" },
+  { code: 302, name: "Found", cat: 3, desc: "Temporary redirect. The resource is temporarily at a different URL. Browsers should not cache this.", qa: "Test login/logout redirects. Assert the Location header points to the correct destination.", qaType: "info" },
+  { code: 304, name: "Not Modified", cat: 3, desc: "The resource has not changed since the version specified in the request headers (If-None-Match or If-Modified-Since).", qa: "Test browser caching behaviour. Verify ETag and Last-Modified headers are sent correctly.", qaType: "info" },
+  { code: 307, name: "Temporary Redirect", cat: 3, desc: "Temporary redirect that preserves the HTTP method. Unlike 302, the method must not change (POST stays POST).", qa: "Verify method is preserved on redirect. Important for POST → POST flows.", qaType: "info" },
+  { code: 308, name: "Permanent Redirect", cat: 3, desc: "Permanent redirect that preserves the HTTP method. Like 301 but the method must not change.", qa: "Test API versioning redirects where method preservation matters.", qaType: "info" },
+  // 4xx
+  { code: 400, name: "Bad Request", cat: 4, desc: "The server cannot process the request due to malformed syntax, invalid parameters, or missing required fields.", qa: "Test with missing required fields, invalid types, boundary values. Assert helpful error messages are returned.", qaType: "warn" },
+  { code: 401, name: "Unauthorized", cat: 4, desc: "Authentication is required but not provided or is invalid. The client should authenticate and retry.", qa: "Test expired tokens, missing Authorization header, wrong credentials. Assert 401 vs 403 distinction.", qaType: "warn" },
+  { code: 403, name: "Forbidden", cat: 4, desc: "The server understood the request but refuses to authorize it. The client is authenticated but lacks permission.", qa: "Test role-based access control. Verify users cannot access resources beyond their permission level.", qaType: "warn" },
+  { code: 404, name: "Not Found", cat: 4, desc: "The requested resource could not be found. May also be used to hide existence of a resource for security.", qa: "Test deleted resources, wrong IDs, and non-existent endpoints. Assert 404 on invalid routes.", qaType: "warn" },
+  { code: 405, name: "Method Not Allowed", cat: 4, desc: "The HTTP method used is not allowed for the requested resource. The Allow header lists valid methods.", qa: "Test calling GET-only endpoints with POST/PUT/DELETE. Check Allow header in response.", qaType: "warn" },
+  { code: 408, name: "Request Timeout", cat: 4, desc: "The server timed out waiting for the request. The client may repeat the request.", qa: "Test slow network conditions and large payload uploads. Verify retry logic handles 408 correctly.", qaType: "warn" },
+  { code: 409, name: "Conflict", cat: 4, desc: "The request conflicts with the current state of the resource (e.g., duplicate entry, version mismatch).", qa: "Test duplicate creation attempts, concurrent updates, optimistic locking. Assert conflict details in response.", qaType: "warn" },
+  { code: 410, name: "Gone", cat: 4, desc: "The resource is permanently deleted and will not be available again. Unlike 404, this is intentional and final.", qa: "Test permanently deleted resources. Verify 410 is used for intentional removals vs 404 for 'never existed'.", qaType: "warn" },
+  { code: 413, name: "Content Too Large", cat: 4, desc: "The request body exceeds the server's configured limits. The server may close the connection.", qa: "Test file upload size limits. Assert proper error message and that server closes connection gracefully.", qaType: "warn" },
+  { code: 415, name: "Unsupported Media Type", cat: 4, desc: "The request body format is not supported. The client should use a Content-Type the server accepts.", qa: "Test with wrong Content-Type headers (e.g., sending XML to JSON-only endpoint).", qaType: "warn" },
+  { code: 422, name: "Unprocessable Entity", cat: 4, desc: "The request was well-formed but contained semantic errors (e.g., validation failures). Common in REST APIs.", qa: "Test business rule violations. Assert field-level validation errors in response body.", qaType: "warn" },
+  { code: 429, name: "Too Many Requests", cat: 4, desc: "The client has sent too many requests in a given time window. Rate limiting is active.", qa: "Test rate limit thresholds. Check Retry-After header. Verify retry logic and backoff strategies.", qaType: "warn" },
+  // 5xx
+  { code: 500, name: "Internal Server Error", cat: 5, desc: "A generic error indicating the server encountered an unexpected condition that prevented it from fulfilling the request.", qa: "Monitor for unexpected 500s in test runs — they indicate server-side bugs. Assert error responses don't leak stack traces.", qaType: "err" },
+  { code: 501, name: "Not Implemented", cat: 5, desc: "The server does not support the functionality required to fulfill the request (unimplemented method).", qa: "Test placeholder or planned endpoints. Verify roadmap features return 501 rather than crashing.", qaType: "err" },
+  { code: 502, name: "Bad Gateway", cat: 5, desc: "The server acting as a gateway received an invalid response from an upstream server.", qa: "Test proxy and microservice configurations. Common when a downstream service is down.", qaType: "err" },
+  { code: 503, name: "Service Unavailable", cat: 5, desc: "The server is temporarily unable to handle requests due to maintenance or overload. Retry-After header may indicate when to try again.", qa: "Test circuit breaker patterns. Verify graceful degradation and retry-after handling.", qaType: "err" },
+  { code: 504, name: "Gateway Timeout", cat: 5, desc: "The server acting as a gateway did not receive a timely response from an upstream server.", qa: "Test slow downstream services. Verify timeout thresholds and error handling in API gateways.", qaType: "err" },
+  { code: 507, name: "Insufficient Storage", cat: 5, desc: "The server is unable to store the representation needed to complete the request (WebDAV).", qa: "Test file storage limits. Verify appropriate error message when disk/quota is full.", qaType: "err" },
+];
+
+const GROUPS = [
+  { cat: 1, label: "1xx — Informational", cls: "cat-1xx", scls: "s1", icon: "fa-info-circle" },
+  { cat: 2, label: "2xx — Success", cls: "cat-2xx", scls: "s2", icon: "fa-check-circle" },
+  { cat: 3, label: "3xx — Redirection", cls: "cat-3xx", scls: "s3", icon: "fa-share" },
+  { cat: 4, label: "4xx — Client Error", cls: "cat-4xx", scls: "s4", icon: "fa-exclamation-triangle" },
+  { cat: 5, label: "5xx — Server Error", cls: "cat-5xx", scls: "s5", icon: "fa-server" },
+];
+
+let activeFilter = 'all';
+
+function render() {
+  const container = document.getElementById('statusContainer');
+  container.innerHTML = '';
+  GROUPS.forEach(g => {
+    const codes = STATUS_CODES.filter(s => s.cat === g.cat);
+    const groupEl = document.createElement('div');
+    groupEl.className = 'category-group';
+    groupEl.dataset.cat = g.cat;
+    groupEl.innerHTML = `<div class="category-header ${g.cls}"><i class="fas ${g.icon}"></i>${g.label} <span style="margin-left:auto;font-weight:600;opacity:0.7">${codes.length} codes</span></div><div class="status-grid" id="grid-${g.cat}"></div>`;
+    container.appendChild(groupEl);
+    const grid = groupEl.querySelector('.status-grid');
+    codes.forEach(s => {
+      const tagCls = s.qaType === 'ok' ? '' : s.qaType === 'warn' ? 'warn' : s.qaType === 'err' ? 'err' : 'info';
+      const tagLabel = s.qaType === 'ok' ? 'QA: Assert success' : s.qaType === 'warn' ? 'QA: Test edge cases' : s.qaType === 'err' ? 'QA: Monitor for errors' : 'QA: Integration check';
+      const card = document.createElement('div');
+      card.className = `status-card ${g.scls}`;
+      card.dataset.code = s.code;
+      card.dataset.search = `${s.code} ${s.name} ${s.desc}`.toLowerCase();
+      card.innerHTML = `
+        <div class="code-row"><span class="code-badge">${s.code}</span></div>
+        <div class="status-name">${s.name}</div>
+        <div class="status-desc">${s.desc.length > 100 ? s.desc.substring(0,100)+'…' : s.desc}</div>
+        <span class="qa-tag ${tagCls}">${tagLabel}</span>`;
+      card.onclick = () => openModal(s, g);
+      grid.appendChild(card);
+    });
+  });
+}
+
+function filterCodes() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let total = 0;
+  GROUPS.forEach(g => {
+    const groupEl = document.querySelector(`[data-cat="${g.cat}"]`);
+    if (!groupEl) return;
+    const cards = groupEl.querySelectorAll('.status-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const matchSearch = !q || card.dataset.search.includes(q);
+      const matchFilter = activeFilter === 'all' || activeFilter === String(g.cat);
+      const show = matchSearch && matchFilter;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    groupEl.style.display = visible === 0 ? 'none' : 'block';
+    total += visible;
+  });
+  document.getElementById('noResults').classList.toggle('show', total === 0);
+}
+
+function setFilter(cat) {
+  activeFilter = cat;
+  document.querySelectorAll('.chip').forEach(c => {
+    const isSelf = c.dataset.cat === cat;
+    const base = c.className.split(' ')[1];
+    c.className = `chip ${base}${isSelf ? '' : ' inactive'}`;
+  });
+  filterCodes();
+}
+
+function openModal(s, g) {
+  const tagCls = s.qaType === 'ok' ? '' : s.qaType === 'warn' ? 'warn' : s.qaType === 'err' ? 'err' : 'info';
+  const codeColor = g.cat === 1 ? '#1d4ed8' : g.cat === 2 ? '#166534' : g.cat === 3 ? '#1e40af' : g.cat === 4 ? '#92400e' : '#991b1b';
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-code" style="color:${codeColor}">${s.code}</div>
+    <div class="modal-name">${s.name}</div>
+    <span class="qa-tag ${tagCls}" style="margin-bottom:16px;display:inline-block">${g.label}</span>
+    <div class="modal-section">
+      <div class="modal-section-title">Description</div>
+      <div class="modal-text">${s.desc}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">QA Testing Tips</div>
+      <ul class="modal-tips">
+        ${s.qa.split('. ').filter(Boolean).map(tip => `<li><i class="fas fa-lightbulb"></i>${tip.trim()}${tip.trim().endsWith('.') ? '' : '.'}</li>`).join('')}
+      </ul>
+    </div>
+    <button class="copy-code-btn" onclick="copyCode(${s.code})"><i class="fas fa-copy"></i> Copy status code</button>`;
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(String(code));
+  const btn = document.querySelector('.copy-code-btn');
+  btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+  setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy status code'; }, 2000);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalBackdrop')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  s.style.left = s.style.left === '0px' ? '-270px' : '0px';
+}
+
+render();
+</script>
+</body>
+</html>

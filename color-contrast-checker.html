@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Contrast Checker — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
+    .home-btn:hover { color: #fff; }
+
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(47,138,16,0.15); border-left-color: #2f8a10; }
+
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 680px; margin: auto; }
+    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
+
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 22px; margin-bottom: 18px; }
+    .card-title { font-size: 0.92em; font-weight: 700; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #2f8a10; }
+
+    label { display: block; font-size: 0.82em; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; background: #fafafa; color: #1a1a2e; font-family: 'SF Mono','Fira Code','Consolas',monospace; transition: border-color 0.15s; }
+    input[type=text]:focus { outline: none; border-color: #2f8a10; background: #fff; }
+
+    /* Color picker row */
+    .color-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 14px; }
+    .color-field { flex: 1; }
+    .color-swatch-wrap { position: relative; }
+    input[type=color] { width: 46px; height: 42px; border: 1.5px solid #e5e7eb; border-radius: 8px; cursor: pointer; padding: 2px; background: #fafafa; }
+
+    /* Preview */
+    .preview-box { border-radius: 10px; padding: 28px 24px; text-align: center; margin-bottom: 14px; transition: background 0.2s, color 0.2s; }
+    .preview-large { font-size: 1.8em; font-weight: 700; margin-bottom: 6px; }
+    .preview-small { font-size: 0.9em; }
+    .preview-ui { font-size: 0.78em; margin-top: 10px; opacity: 0.8; }
+
+    /* Ratio display */
+    .ratio-display { text-align: center; margin-bottom: 18px; }
+    .ratio-number { font-size: 3em; font-weight: 900; color: #1a1a2e; line-height: 1; }
+    .ratio-label { font-size: 0.82em; color: #9ca3af; margin-top: 4px; }
+
+    /* WCAG results */
+    .wcag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .wcag-item { border-radius: 10px; padding: 14px; text-align: center; }
+    .wcag-item.pass { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
+    .wcag-item.fail { background: #fef2f2; border: 1.5px solid #fecaca; }
+    .wcag-level { font-size: 0.7em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+    .wcag-item.pass .wcag-level { color: #166534; }
+    .wcag-item.fail .wcag-level { color: #991b1b; }
+    .wcag-desc { font-size: 0.8em; color: #6b7280; margin-bottom: 6px; }
+    .wcag-result { font-size: 1em; font-weight: 800; }
+    .wcag-item.pass .wcag-result { color: #166534; }
+    .wcag-item.fail .wcag-result { color: #991b1b; }
+    .wcag-min { font-size: 0.72em; color: #9ca3af; margin-top: 2px; }
+
+    /* Suggestions */
+    .suggestion-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .sug-swatch { width: 44px; height: 44px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s, border-color 0.15s; flex-shrink: 0; }
+    .sug-swatch:hover { transform: scale(1.1); border-color: #374151; }
+    .sug-label { font-size: 0.7em; color: #9ca3af; text-align: center; margin-top: 3px; font-family: monospace; }
+
+    /* Swap btn */
+    .swap-btn { background: none; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; cursor: pointer; color: #6b7280; font-size: 0.88em; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .swap-btn:hover { background: #f3f4f6; color: #374151; }
+  </style>
+</head>
+<body>
+
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-adjust" style="color:#2f8a10;margin-right:8px"></i>Color Contrast Checker</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
+</header>
+
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html" class="active">Color Contrast Checker</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <a href="string-utils.html">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html">HTTP Status Reference</a>
+  <a href="hash-generator.html">Hash Generator</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
+
+<div class="content">
+  <div class="main-container">
+    <div class="page-title">Color Contrast Checker</div>
+    <div class="page-subtitle">Check WCAG 2.1 AA/AAA compliance for text and UI component color combinations.</div>
+
+    <!-- Color Inputs -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-palette"></i> Color Pair</div>
+
+      <div class="color-row">
+        <div class="color-field">
+          <label>Foreground (Text)</label>
+          <input type="text" id="fgHex" value="#1a1a2e" oninput="syncColor('fg')" placeholder="#000000 or rgb(0,0,0)" />
+        </div>
+        <div class="color-swatch-wrap">
+          <input type="color" id="fgPicker" value="#1a1a2e" oninput="syncPicker('fg')" title="Pick foreground color" />
+        </div>
+      </div>
+
+      <div class="color-row">
+        <div class="color-field">
+          <label>Background</label>
+          <input type="text" id="bgHex" value="#ffffff" oninput="syncColor('bg')" placeholder="#ffffff or rgb(255,255,255)" />
+        </div>
+        <div class="color-swatch-wrap">
+          <input type="color" id="bgPicker" value="#ffffff" oninput="syncPicker('bg')" title="Pick background color" />
+        </div>
+      </div>
+
+      <button class="swap-btn" onclick="swapColors()"><i class="fas fa-exchange-alt"></i> Swap colors</button>
+    </div>
+
+    <!-- Preview -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-eye"></i> Preview</div>
+      <div class="preview-box" id="previewBox">
+        <div class="preview-large" id="previewLarge">Large Text — Aa</div>
+        <div class="preview-small" id="previewSmall">Small body text — The quick brown fox jumps over the lazy dog.</div>
+        <div class="preview-ui" id="previewUI">Button · Link · Label · Input placeholder · Badge</div>
+      </div>
+    </div>
+
+    <!-- Contrast Ratio -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-chart-bar"></i> Contrast Ratio</div>
+      <div class="ratio-display">
+        <div class="ratio-number" id="ratioDisplay">—</div>
+        <div class="ratio-label">contrast ratio</div>
+      </div>
+      <div class="wcag-grid" id="wcagGrid"></div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="card" id="sugCard">
+      <div class="card-title"><i class="fas fa-magic"></i> Suggested Foreground Colors (AA-compliant)</div>
+      <div class="suggestion-row" id="suggestions"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function hexToRgb(hex) {
+  hex = hex.trim().replace(/^#/, '');
+  if (hex.length === 3) hex = hex.split('').map(c => c+c).join('');
+  if (hex.length !== 6) return null;
+  const n = parseInt(hex, 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+function parseColor(str) {
+  str = str.trim();
+  if (str.startsWith('#')) return hexToRgb(str);
+  const m = str.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
+  if (m) return { r: +m[1], g: +m[2], b: +m[3] };
+  return null;
+}
+
+function rgbToHex(r, g, b) {
+  return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+}
+
+function luminance(r, g, b) {
+  return [r,g,b].reduce((sum, c, i) => {
+    const s = c / 255;
+    const lin = s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    return sum + lin * [0.2126, 0.7152, 0.0722][i];
+  }, 0);
+}
+
+function contrastRatio(fg, bg) {
+  const l1 = luminance(fg.r, fg.g, fg.b);
+  const l2 = luminance(bg.r, bg.g, bg.b);
+  const lighter = Math.max(l1, l2);
+  const darker  = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function update() {
+  const fg = parseColor(document.getElementById('fgHex').value);
+  const bg = parseColor(document.getElementById('bgHex').value);
+  if (!fg || !bg) return;
+
+  // Preview
+  const fgHex = rgbToHex(fg.r, fg.g, fg.b);
+  const bgHex = rgbToHex(bg.r, bg.g, bg.b);
+  const box = document.getElementById('previewBox');
+  box.style.background = bgHex;
+  box.style.color = fgHex;
+
+  const ratio = contrastRatio(fg, bg);
+  document.getElementById('ratioDisplay').textContent = ratio.toFixed(2) + ':1';
+
+  // WCAG checks: AA normal=4.5, AA large=3, AAA normal=7, AAA large=4.5
+  const checks = [
+    { level: 'AA', size: 'Normal Text', min: 4.5, desc: 'Body, labels, small UI text (<18pt or <14pt bold)' },
+    { level: 'AA', size: 'Large Text',  min: 3.0, desc: 'Headings, large text (≥18pt or ≥14pt bold)' },
+    { level: 'AAA', size: 'Normal Text', min: 7.0, desc: 'Enhanced — body, labels' },
+    { level: 'AAA', size: 'Large Text',  min: 4.5, desc: 'Enhanced — headings, large text' },
+  ];
+
+  const grid = document.getElementById('wcagGrid');
+  grid.innerHTML = checks.map(c => {
+    const pass = ratio >= c.min;
+    return `<div class="wcag-item ${pass ? 'pass' : 'fail'}">
+      <div class="wcag-level">WCAG 2.1 ${c.level}</div>
+      <div class="wcag-desc">${c.size}</div>
+      <div class="wcag-result">${pass ? '✓ Pass' : '✗ Fail'}</div>
+      <div class="wcag-min">Required: ${c.min}:1 · Got: ${ratio.toFixed(2)}:1</div>
+    </div>`;
+  }).join('');
+
+  renderSuggestions(bg, ratio);
+}
+
+function renderSuggestions(bg, currentRatio) {
+  if (currentRatio >= 4.5) {
+    document.getElementById('sugCard').style.display = 'none';
+    return;
+  }
+  document.getElementById('sugCard').style.display = 'block';
+
+  const candidates = [
+    '#000000','#111827','#1f2937','#374151','#4b5563',
+    '#1a1a2e','#1e3a5f','#1e40af','#166534','#991b1b',
+    '#92400e','#ffffff','#f9fafb','#f3f4f6','#e5e7eb',
+  ];
+
+  const passing = candidates.filter(hex => {
+    const c = hexToRgb(hex);
+    return c && contrastRatio(c, bg) >= 4.5;
+  }).slice(0, 10);
+
+  const row = document.getElementById('suggestions');
+  if (passing.length === 0) {
+    row.innerHTML = '<span style="font-size:0.85em;color:#9ca3af">No common colors pass AA with this background. Try a lighter or darker background.</span>';
+    return;
+  }
+  row.innerHTML = passing.map(hex => `
+    <div>
+      <div class="sug-swatch" style="background:${hex};border-color:${hex === '#ffffff' ? '#e5e7eb' : 'transparent'}" title="${hex}" onclick="applySuggestion('${hex}')"></div>
+      <div class="sug-label">${hex}</div>
+    </div>`).join('');
+}
+
+function applySuggestion(hex) {
+  document.getElementById('fgHex').value = hex;
+  document.getElementById('fgPicker').value = hex;
+  update();
+}
+
+function syncColor(which) {
+  const hex = document.getElementById(which + 'Hex').value.trim();
+  const c = parseColor(hex);
+  if (c) {
+    document.getElementById(which + 'Picker').value = rgbToHex(c.r, c.g, c.b);
+  }
+  update();
+}
+
+function syncPicker(which) {
+  document.getElementById(which + 'Hex').value = document.getElementById(which + 'Picker').value;
+  update();
+}
+
+function swapColors() {
+  const fg = document.getElementById('fgHex').value;
+  const bg = document.getElementById('bgHex').value;
+  document.getElementById('fgHex').value = bg;
+  document.getElementById('bgHex').value = fg;
+  const fgP = document.getElementById('fgPicker').value;
+  const bgP = document.getElementById('bgPicker').value;
+  document.getElementById('fgPicker').value = bgP;
+  document.getElementById('bgPicker').value = fgP;
+  update();
+}
+
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  s.style.left = s.style.left === '0px' ? '-270px' : '0px';
+}
+
+update();
+</script>
+</body>
+</html>

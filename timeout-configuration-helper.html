@@ -1,86 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Timeout Configuration Helper - QA Test Utility Hub</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timeout Configuration Helper — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
+    .home-btn:hover { color: #fff; }
+
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(47,138,16,0.15); border-left-color: #2f8a10; }
+
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 680px; margin: auto; }
+    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
+
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 22px; margin-bottom: 18px; }
+    .card-title { font-size: 0.92em; font-weight: 700; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #2f8a10; }
+
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.82em; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    input, select {
+      width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+      font-size: 0.92em; background: #fafafa; color: #1a1a2e; font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus { outline: none; border-color: #2f8a10; background: #fff; }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #2f8a10; color: #fff; }
+    .btn-primary:hover { background: #267a0d; }
+    .btn-outline { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
+    .btn-outline:hover { background: #f3f4f6; }
+
+    .result-box { border-radius: 10px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 14px; }
+    .result-box.success { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
+    .result-box.warning { background: #fffbeb; border: 1.5px solid #fde68a; }
+    .result-box.error   { background: #fef2f2; border: 1.5px solid #fecaca; }
+    .result-icon { font-size: 1.3em; margin-top: 2px; flex-shrink: 0; }
+    .result-box.success .result-icon { color: #2f8a10; }
+    .result-box.warning .result-icon { color: #d97706; }
+    .result-box.error   .result-icon { color: #e53e3e; }
+    .result-title { font-weight: 700; font-size: 0.92em; margin-bottom: 4px; }
+    .result-box.success .result-title { color: #166534; }
+    .result-box.warning .result-title { color: #92400e; }
+    .result-box.error   .result-title { color: #991b1b; }
+    .result-desc { font-size: 0.84em; color: #6b7280; line-height: 1.5; }
+
+    .speed-badges { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .speed-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.78em; font-weight: 700; }
+    .badge-slow { background: #fef2f2; color: #991b1b; }
+    .badge-average { background: #fffbeb; color: #92400e; }
+    .badge-fast { background: #f0fdf4; color: #166534; }
+  </style>
 </head>
-<body class="utility-page">
+<body>
+
 <header>
   <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
-  <h1><i class="fas fa-hourglass-half"></i> Timeout Configuration Helper</h1>
-  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+  <h1><i class="fas fa-hourglass-half" style="color:#2f8a10;margin-right:8px"></i>Timeout Configuration Helper</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
 </header>
-<div class="sidebar" id="sidebar"></div>
+
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html" class="active">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html">Color Contrast Checker</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <a href="string-utils.html">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html">HTTP Status Reference</a>
+  <a href="hash-generator.html">Hash Generator</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
+
 <div class="content">
-  <div class="container">
-    <h2><i class="fas fa-hourglass-half"></i> Calculate Optimal Timeout</h2>
-    <form id="timeoutForm">
-      <label for="networkSpeed">Select Network Speed:</label>
-      <select id="networkSpeed" required>
-        <option value="slow">Slow (3G/Mobile)</option>
-        <option value="average" selected>Average (4G/Broadband)</option>
-        <option value="fast">Fast (5G/Fiber)</option>
-      </select>
-      <label for="expectedLoadTime">Expected Load Time (in seconds):</label>
-      <input type="number" id="expectedLoadTime" placeholder="e.g., 5" min="0.1" step="0.1" required>
-      <button type="button" onclick="calculateTimeout()">
-        <i class="fas fa-calculator"></i> CALCULATE SUGGESTED TIMEOUT
-      </button>
-    </form>
-    <div class="result" id="timeoutResult" style="display: none;"></div>
+  <div class="main-container">
+    <div class="page-title">Timeout Configuration Helper</div>
+    <div class="page-subtitle">Get recommended timeout values for Playwright/Cypress based on network speed and expected load time.</div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-hourglass-half"></i> Configuration</div>
+
+      <div class="form-group">
+        <label for="networkSpeed">Network Speed</label>
+        <select id="networkSpeed">
+          <option value="slow">Slow (3× multiplier)</option>
+          <option value="average">Average (2× multiplier)</option>
+          <option value="fast">Fast (1× multiplier)</option>
+        </select>
+        <div class="speed-badges">
+          <span class="speed-badge badge-slow">Slow ×3</span>
+          <span class="speed-badge badge-average">Average ×2</span>
+          <span class="speed-badge badge-fast">Fast ×1</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="expectedLoadTime">Expected Load Time (seconds)</label>
+        <input type="number" id="expectedLoadTime" placeholder="e.g., 5" min="0.1" step="0.1" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calculateTimeout()"><i class="fas fa-calculator"></i> Calculate Suggested Timeout</button>
+        <button class="btn btn-outline" onclick="resetForm()"><i class="fas fa-redo"></i> Reset</button>
+      </div>
+    </div>
+
+    <div id="resultContainer" style="display:none" class="card">
+      <div class="card-title"><i class="fas fa-chart-bar"></i> Result</div>
+      <div id="timeoutResult"></div>
+    </div>
   </div>
 </div>
-<script src="common.js"></script>
+
 <script>
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-270px' : '0px';
+  }
+
   function calculateTimeout() {
     const networkSpeed = document.getElementById("networkSpeed").value;
     const expectedLoadTime = parseFloat(document.getElementById("expectedLoadTime").value);
+
+    const container = document.getElementById('resultContainer');
     const resultDiv = document.getElementById("timeoutResult");
-    if (!expectedLoadTime || expectedLoadTime <= 0) {
-      resultDiv.style.display = 'block';
-      resultDiv.innerHTML = "<p class='error'>Please enter a valid load time.</p>";
+    container.style.display = 'block';
+
+    if (!expectedLoadTime) {
+      resultDiv.innerHTML = `<div class="result-box error"><i class="fas fa-exclamation-circle result-icon"></i><div><div class="result-title">Missing value</div><div class="result-desc">Please enter a valid load time.</div></div></div>`;
       return;
     }
-    // Set base timeout multiplier based on network speed
+
     let multiplier;
-    let speedDescription;
     switch (networkSpeed) {
-      case 'slow':
-        multiplier = 3;
-        speedDescription = 'Slow (3G/Mobile)';
-        break;
-      case 'average':
-        multiplier = 2;
-        speedDescription = 'Average (4G/Broadband)';
-        break;
-      case 'fast':
-        multiplier = 1.5;
-        speedDescription = 'Fast (5G/Fiber)';
-        break;
+      case 'slow':    multiplier = 3; break;
+      case 'average': multiplier = 2; break;
+      case 'fast':    multiplier = 1; break;
     }
-    // Calculate suggested timeout
-    const suggestedTimeoutMs = expectedLoadTime * multiplier * 1000;
-    const suggestedTimeoutSec = (suggestedTimeoutMs / 1000).toFixed(1);
-    resultDiv.style.display = 'block';
+
+    const suggestedTimeout = expectedLoadTime * multiplier * 1000;
+    const speedLabel = networkSpeed.charAt(0).toUpperCase() + networkSpeed.slice(1);
+    const boxType = networkSpeed === 'slow' ? 'warning' : 'success';
+    const icon = networkSpeed === 'slow' ? 'fa-exclamation-triangle' : 'fa-check-circle';
+
     resultDiv.innerHTML = `
-      <p class="success">Suggested Timeout:</p>
-      <p style="font-size: 1.3em; margin: 10px 0;">
-        <strong>${suggestedTimeoutMs.toLocaleString()} ms</strong> 
-        <span style="color: var(--text-muted);">(${suggestedTimeoutSec} seconds)</span>
-      </p>
-      <p style="margin-top: 15px; color: var(--text-muted);">
-        Network Speed: ${speedDescription}<br>
-        Expected Load Time: ${expectedLoadTime} seconds<br>
-        Multiplier: ${multiplier}x
-      </p>
-      <div style="margin-top: 15px; padding: 10px; background: var(--bg-dark); border-radius: 6px;">
-        <p style="font-size: 0.9em;"><strong>Playwright Configuration:</strong></p>
-        <div class="code-output" style="margin-top: 8px;">timeout: ${suggestedTimeoutMs}</div>
-      </div>
-    `;
+      <div class="result-box ${boxType}">
+        <i class="fas ${icon} result-icon"></i>
+        <div>
+          <div class="result-title">${suggestedTimeout.toLocaleString()} milliseconds</div>
+          <div class="result-desc">
+            Suggested timeout for <strong>${speedLabel}</strong> network speed.<br/>
+            Calculation: ${expectedLoadTime}s × ${multiplier} (${speedLabel} multiplier) × 1000 = <strong>${suggestedTimeout.toLocaleString()} ms</strong>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function resetForm() {
+    document.getElementById('networkSpeed').value = 'slow';
+    document.getElementById('expectedLoadTime').value = '';
+    document.getElementById('resultContainer').style.display = 'none';
   }
 </script>
 </body>

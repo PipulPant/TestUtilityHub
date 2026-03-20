@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hash Generator — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
+    .home-btn:hover { color: #fff; }
+
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(99,102,241,0.15); border-left-color: #6366f1; }
+
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 680px; margin: auto; }
+    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
+
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 22px; margin-bottom: 18px; }
+    .card-title { font-size: 0.92em; font-weight: 700; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #6366f1; }
+
+    label { display: block; font-size: 0.82em; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; background: #fafafa; color: #1a1a2e; font-family: inherit; resize: vertical; transition: border-color 0.15s; }
+    textarea:focus { outline: none; border-color: #6366f1; background: #fff; }
+
+    .algo-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .algo-chip { padding: 6px 14px; border-radius: 20px; font-size: 0.8em; font-weight: 700; cursor: pointer; border: 2px solid #e5e7eb; background: #f9fafb; color: #6b7280; transition: all 0.15s; user-select: none; }
+    .algo-chip.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+    .algo-chip:hover:not(.active) { border-color: #6366f1; color: #6366f1; background: #f0f0ff; }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #6366f1; color: #fff; }
+    .btn-primary:hover { background: #4f46e5; }
+    .btn-outline { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
+    .btn-outline:hover { background: #f3f4f6; }
+
+    .hash-output { background: #0f1117; border-radius: 10px; padding: 0; overflow: hidden; }
+    .hash-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); gap: 12px; }
+    .hash-row:last-child { border-bottom: none; }
+    .hash-label { font-size: 0.72em; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.8px; flex-shrink: 0; width: 80px; }
+    .hash-value { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.78em; color: #e2e8f0; word-break: break-all; flex: 1; line-height: 1.5; }
+    .hash-copy { background: none; border: none; color: #4b5563; cursor: pointer; font-size: 0.85em; flex-shrink: 0; padding: 4px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; }
+    .hash-copy:hover { color: #6366f1; background: rgba(99,102,241,0.1); }
+    .hash-placeholder { color: #4b5563; font-style: italic; font-size: 0.8em; }
+
+    .options-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+    .toggle-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.84em; color: #374151; font-weight: 600; user-select: none; }
+    .toggle-label input[type=checkbox] { width: 16px; height: 16px; accent-color: #6366f1; cursor: pointer; }
+
+    .file-drop { border: 2px dashed #e5e7eb; border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; color: #9ca3af; font-size: 0.88em; }
+    .file-drop:hover, .file-drop.drag { border-color: #6366f1; background: #f0f0ff; color: #6366f1; }
+    .file-drop i { font-size: 1.8em; margin-bottom: 8px; display: block; }
+    .file-name { font-weight: 600; color: #374151; margin-top: 6px; font-size: 0.85em; }
+
+    .compare-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+    .compare-input { flex: 1; min-width: 200px; padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.85em; font-family: 'SF Mono','Fira Code','Consolas',monospace; background: #fafafa; color: #1a1a2e; transition: border-color 0.15s; }
+    .compare-input:focus { outline: none; border-color: #6366f1; }
+    .match-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.82em; font-weight: 700; display: none; }
+    .match-badge.match { background: #dcfce7; color: #166534; display: inline-block; }
+    .match-badge.nomatch { background: #fee2e2; color: #991b1b; display: inline-block; }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85em; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 8px; }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-hashtag" style="color:#6366f1;margin-right:8px"></i>Hash Generator</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
+</header>
+
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html">Color Contrast Checker</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <a href="string-utils.html">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html">HTTP Status Reference</a>
+  <a href="hash-generator.html" class="active">Hash Generator</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
+
+<div class="content">
+  <div class="main-container">
+    <div class="page-title">Hash Generator</div>
+    <div class="page-subtitle">Generate cryptographic hashes using SHA-256, SHA-384, and SHA-512 — for text or files.</div>
+
+    <!-- Text Hash -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-font"></i> Hash Text</div>
+
+      <div class="algo-row">
+        <span class="algo-chip active" data-algo="SHA-256" onclick="toggleAlgo(this)">SHA-256</span>
+        <span class="algo-chip active" data-algo="SHA-384" onclick="toggleAlgo(this)">SHA-384</span>
+        <span class="algo-chip active" data-algo="SHA-512" onclick="toggleAlgo(this)">SHA-512</span>
+        <span class="algo-chip" data-algo="MD5-note" onclick="showMd5Note()" style="border-style:dashed">MD5 ⚠</span>
+      </div>
+
+      <label for="textInput">Input Text</label>
+      <textarea id="textInput" rows="4" placeholder="Type or paste text to hash..." oninput="liveHash()"></textarea>
+
+      <div class="options-row">
+        <label class="toggle-label">
+          <input type="checkbox" id="upperCase" onchange="liveHash()" /> Uppercase output
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="liveMode" checked onchange="liveHash()" /> Live (auto-hash)
+        </label>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="hashText()"><i class="fas fa-hashtag"></i> Generate Hash</button>
+        <button class="btn btn-outline" onclick="clearText()"><i class="fas fa-redo"></i> Clear</button>
+      </div>
+    </div>
+
+    <!-- Hash Output -->
+    <div class="card" id="outputCard" style="display:none">
+      <div class="card-title"><i class="fas fa-key"></i> Hash Results</div>
+      <div class="hash-output" id="hashOutput"></div>
+
+      <div style="margin-top:16px">
+        <label>Compare Hash (paste a known hash to verify)</label>
+        <div class="compare-row">
+          <input type="text" class="compare-input" id="compareInput" placeholder="Paste hash to compare..." oninput="compareHash()" />
+          <span class="match-badge" id="matchBadge"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- File Hash -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-file-alt"></i> Hash File</div>
+      <div class="file-drop" id="fileDrop" onclick="document.getElementById('fileInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+        <i class="fas fa-cloud-upload-alt"></i>
+        Drop a file here or click to browse
+        <div class="file-name" id="fileName"></div>
+      </div>
+      <input type="file" id="fileInput" style="display:none" onchange="hashFile()" />
+      <div class="hash-output" id="fileHashOutput" style="margin-top:14px;display:none"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-check"></i> Copied!</div>
+
+<script>
+const ALGOS = ['SHA-256', 'SHA-384', 'SHA-512'];
+let activeAlgos = new Set(['SHA-256', 'SHA-384', 'SHA-512']);
+let lastHashes = {};
+
+function toggleAlgo(el) {
+  if (el.dataset.algo === 'MD5-note') return;
+  if (activeAlgos.has(el.dataset.algo)) {
+    if (activeAlgos.size === 1) return; // keep at least one
+    activeAlgos.delete(el.dataset.algo);
+    el.classList.remove('active');
+  } else {
+    activeAlgos.add(el.dataset.algo);
+    el.classList.add('active');
+  }
+  liveHash();
+}
+
+function showMd5Note() {
+  alert('MD5 is not available via the Web Crypto API as it is considered cryptographically broken. Use SHA-256 or higher for secure hashing.');
+}
+
+async function digest(algo, data) {
+  const buf = typeof data === 'string' ? new TextEncoder().encode(data) : data;
+  const hashBuf = await crypto.subtle.digest(algo, buf);
+  return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function liveHash() {
+  if (!document.getElementById('liveMode').checked) return;
+  await hashText();
+}
+
+async function hashText() {
+  const text = document.getElementById('textInput').value;
+  const upper = document.getElementById('upperCase').checked;
+  const card = document.getElementById('outputCard');
+  const out = document.getElementById('hashOutput');
+  lastHashes = {};
+
+  if (!text) { card.style.display = 'none'; return; }
+
+  const rows = await Promise.all(
+    ALGOS.filter(a => activeAlgos.has(a)).map(async a => {
+      const h = await digest(a, text);
+      const display = upper ? h.toUpperCase() : h;
+      lastHashes[a] = display;
+      return `<div class="hash-row">
+        <span class="hash-label">${a}</span>
+        <span class="hash-value">${display}</span>
+        <button class="hash-copy" title="Copy" onclick="copyHash('${display}')"><i class="fas fa-copy"></i></button>
+      </div>`;
+    })
+  );
+
+  out.innerHTML = rows.join('');
+  card.style.display = 'block';
+  compareHash();
+}
+
+function clearText() {
+  document.getElementById('textInput').value = '';
+  document.getElementById('outputCard').style.display = 'none';
+  document.getElementById('compareInput').value = '';
+  document.getElementById('matchBadge').className = 'match-badge';
+  lastHashes = {};
+}
+
+function compareHash() {
+  const val = document.getElementById('compareInput').value.trim().toLowerCase();
+  const badge = document.getElementById('matchBadge');
+  if (!val) { badge.className = 'match-badge'; return; }
+  const hashes = Object.values(lastHashes).map(h => h.toLowerCase());
+  const matched = hashes.includes(val);
+  badge.className = 'match-badge ' + (matched ? 'match' : 'nomatch');
+  badge.textContent = matched ? '✓ Match' : '✗ No match';
+}
+
+function copyHash(h) {
+  navigator.clipboard.writeText(h).then(() => showToast());
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// File hashing
+function dragOver(e) { e.preventDefault(); document.getElementById('fileDrop').classList.add('drag'); }
+function dragLeave() { document.getElementById('fileDrop').classList.remove('drag'); }
+function dropFile(e) {
+  e.preventDefault();
+  dragLeave();
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+
+function hashFile() {
+  const file = document.getElementById('fileInput').files[0];
+  if (file) processFile(file);
+}
+
+async function processFile(file) {
+  document.getElementById('fileName').textContent = `${file.name} (${formatBytes(file.size)})`;
+  const outEl = document.getElementById('fileHashOutput');
+  outEl.style.display = 'block';
+  outEl.innerHTML = '<div class="hash-row"><span class="hash-value hash-placeholder">Computing hashes…</span></div>';
+
+  const buf = await file.arrayBuffer();
+  const rows = await Promise.all(
+    ALGOS.map(async a => {
+      const h = await digest(a, new Uint8Array(buf));
+      return `<div class="hash-row">
+        <span class="hash-label">${a}</span>
+        <span class="hash-value">${h}</span>
+        <button class="hash-copy" title="Copy" onclick="copyHash('${h}')"><i class="fas fa-copy"></i></button>
+      </div>`;
+    })
+  );
+  outEl.innerHTML = rows.join('');
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(2) + ' MB';
+}
+
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  s.style.left = s.style.left === '0px' ? '-270px' : '0px';
+}
+</script>
+</body>
+</html>

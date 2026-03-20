@@ -1,228 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Playwright Action Code Generator - QA Test Utility Hub</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Playwright Action Generator — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
+    .home-btn:hover { color: #fff; }
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(79,70,229,0.15); border-left-color: #4f46e5; }
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 620px; margin: auto; }
+    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 22px; margin-bottom: 18px; }
+    .card-title { font-size: 0.92em; font-weight: 700; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #4f46e5; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.82em; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.92em; background: #fafafa; color: #1a1a2e; font-family: inherit; transition: border-color 0.15s; }
+    input:focus, select:focus { outline: none; border-color: #4f46e5; background: #fff; }
+    input[type=text] { font-family: 'SF Mono','Fira Code','Consolas',monospace; }
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-outline { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
+    .btn-outline:hover { background: #f3f4f6; }
+    .code-block { background: #0f1117; border-radius: 10px; padding: 16px; font-family: 'SF Mono','Fira Code','Consolas',monospace; font-size: 0.84em; color: #e2e8f0; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+    .code-comment { color: #6b7280; }
+    .code-kw { color: #c084fc; }
+    .code-fn { color: #60a5fa; }
+    .code-str { color: #86efac; }
+    .copy-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85em; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 8px; }
+    .toast.show { opacity: 1; }
+  </style>
 </head>
-<body class="utility-page">
+<body>
 <header>
   <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
-  <h1><i class="fas fa-code"></i> Playwright Action Code Generator</h1>
-  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+  <h1><i class="fas fa-robot" style="color:#4f46e5;margin-right:8px"></i>Playwright Action Generator</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
 </header>
-<div class="sidebar" id="sidebar"></div>
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html">Color Contrast Checker</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html" class="active">Playwright Action Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <a href="string-utils.html">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html">HTTP Status Reference</a>
+  <a href="hash-generator.html">Hash Generator</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
 <div class="content">
-  <div class="container">
-    <h2><i class="fas fa-code"></i> Generate Playwright Action Code</h2>
-    <form id="actionCodeForm">
-      <label for="selectorInput">CSS Selector or Locator:</label>
-      <input type="text" id="selectorInput" placeholder="e.g., .button, #main-header, text=Submit" required>
-      <label for="actionType">Choose Action:</label>
-      <select id="actionType" onchange="toggleAdditionalInputs()" required>
-        <option value="click">Click</option>
-        <option value="type">Type</option>
-        <option value="fill">Fill</option>
-        <option value="press">Press Key</option>
-        <option value="upload">Upload File</option>
-        <option value="hover">Hover</option>
-        <option value="waitFor">Wait for Visibility</option>
-        <option value="screenshot">Take Screenshot</option>
-        <option value="select">Select Option</option>
-        <option value="check">Check Checkbox</option>
-        <option value="uncheck">Uncheck Checkbox</option>
-        <option value="dragDrop">Drag and Drop</option>
-      </select>
-      <div id="valueContainer" style="display: none;">
-        <label for="actionValue" id="valueLabel">Value:</label>
-        <input type="text" id="actionValue" placeholder="Enter value">
+  <div class="main-container">
+    <div class="page-title">Playwright Action Generator</div>
+    <div class="page-subtitle">Generate Playwright code snippets for click, fill, type, hover, upload, and wait actions.</div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-robot"></i> Configure Action</div>
+      <div class="form-group">
+        <label for="selectorInput">CSS Selector</label>
+        <input type="text" id="selectorInput" placeholder='e.g., #submit-btn  .login-form  [data-testid="email"]' />
       </div>
-      <div id="secondValueContainer" style="display: none;">
-        <label for="secondValue" id="secondValueLabel">Second Value:</label>
-        <input type="text" id="secondValue" placeholder="Enter second value">
+      <div class="form-group">
+        <label for="actionType">Action</label>
+        <select id="actionType" onchange="toggleAdditionalInputs()">
+          <option value="click">Click</option>
+          <option value="type">Type (keypress by keypress)</option>
+          <option value="fill">Fill (set value directly)</option>
+          <option value="press">Press Key</option>
+          <option value="upload">Upload File</option>
+          <option value="hover">Hover</option>
+          <option value="waitFor">Wait for Visibility</option>
+        </select>
       </div>
-      <label>
-        <input type="checkbox" id="useLocator" style="width: auto; margin-right: 8px;">
-        Use Locator API (recommended)
-      </label>
-      <button type="button" onclick="generateActionCode()">
-        <i class="fas fa-code"></i> GENERATE CODE
-      </button>
-    </form>
-    <div class="result" id="actionCodeResult" style="display: none;">
-      <div id="codeOutput"></div>
-      <button class="copy-btn secondary" onclick="copyCode()">
-        <i class="fas fa-copy"></i> Copy Code
-      </button>
+      <div class="form-group" id="valueGroup" style="display:none">
+        <label for="actionValue" id="valueLabel">Value</label>
+        <input type="text" id="actionValue" placeholder="e.g., Hello World" />
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="generateActionCode()"><i class="fas fa-code"></i> Generate Code</button>
+        <button class="btn btn-outline" onclick="clearAll()"><i class="fas fa-redo"></i> Reset</button>
+      </div>
+    </div>
+    <div class="card" id="outputCard" style="display:none">
+      <div class="card-title"><i class="fas fa-code"></i> Generated Code</div>
+      <div class="code-block" id="codeOutput"></div>
+      <div class="copy-row">
+        <button class="btn btn-outline" onclick="copyCode()"><i class="fas fa-copy"></i> Copy</button>
+      </div>
     </div>
   </div>
 </div>
-<script src="common.js"></script>
+<div class="toast" id="toast"><i class="fas fa-check"></i> Copied!</div>
 <script>
-  let generatedCode = '';
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-270px' : '0px';
+  }
   function toggleAdditionalInputs() {
     const actionType = document.getElementById("actionType").value;
-    const valueContainer = document.getElementById("valueContainer");
-    const secondValueContainer = document.getElementById("secondValueContainer");
-    const valueLabel = document.getElementById("valueLabel");
-    const actionValue = document.getElementById("actionValue");
-    if (actionType === "type" || actionType === "fill" || actionType === "press" || 
-        actionType === "upload" || actionType === "select" || actionType === "dragDrop") {
-      valueContainer.style.display = "block";
-      if (actionType === "press") {
-        valueLabel.innerText = "Key:";
-        actionValue.placeholder = "e.g., Enter, Escape, ArrowDown";
-      } else if (actionType === "upload") {
-        valueLabel.innerText = "File Path:";
-        actionValue.placeholder = "e.g., /path/to/file.pdf";
-      } else if (actionType === "select") {
-        valueLabel.innerText = "Option Value:";
-        actionValue.placeholder = "e.g., option1 or text=Option 1";
-      } else if (actionType === "dragDrop") {
-        valueLabel.innerText = "Target Selector:";
-        actionValue.placeholder = "e.g., #drop-zone";
-      } else {
-        valueLabel.innerText = "Text:";
-        actionValue.placeholder = "e.g., Hello World";
-      }
-      if (actionType === "dragDrop") {
-        secondValueContainer.style.display = "block";
-        document.getElementById("secondValueLabel").innerText = "Target Selector:";
-        document.getElementById("secondValue").placeholder = "e.g., #drop-zone";
-      } else {
-        secondValueContainer.style.display = "none";
-      }
-    } else {
-      valueContainer.style.display = "none";
-      secondValueContainer.style.display = "none";
-    }
+    const needs = ["type","fill","press","upload"].includes(actionType);
+    document.getElementById("valueGroup").style.display = needs ? "block" : "none";
+    const lbl = document.getElementById("valueLabel");
+    const inp = document.getElementById("actionValue");
+    if (actionType === "press") { lbl.textContent = "Key"; inp.placeholder = "e.g., Enter, Tab, Escape"; }
+    else if (actionType === "upload") { lbl.textContent = "File Path"; inp.placeholder = "e.g., /path/to/file.pdf"; }
+    else { lbl.textContent = "Text"; inp.placeholder = "e.g., Hello World"; }
   }
+  function esc(s) { return String(s).replace(/'/g, "\\'"); }
   function generateActionCode() {
-    const selector = document.getElementById("selectorInput").value;
+    const selector = document.getElementById("selectorInput").value.trim();
     const actionType = document.getElementById("actionType").value;
     const actionValue = document.getElementById("actionValue").value;
-    const secondValue = document.getElementById("secondValue").value;
-    const useLocator = document.getElementById("useLocator").checked;
-    const resultDiv = document.getElementById("actionCodeResult");
-    const codeDiv = document.getElementById("codeOutput");
-    let codeSnippet = "";
-    const locatorVar = selector.includes('=') || selector.includes('(') ? `page.locator('${selector}')` : `page.locator('${selector}')`;
-    const selectorVar = `page.locator('${selector}')`;
-    const api = useLocator ? selectorVar : `page`;
+    const card = document.getElementById("outputCard");
+    const out = document.getElementById("codeOutput");
+    if (!selector) { card.style.display = 'none'; alert('Please enter a CSS selector.'); return; }
+    let snippet = '';
     switch (actionType) {
-      case "click":
-        codeSnippet = useLocator 
-          ? `// Click on element\nawait ${selectorVar}.click();`
-          : `// Click on element\nawait page.click('${selector}');`;
-        break;
-      case "type":
-        if (!actionValue) {
-          codeDiv.innerHTML = "<p class='error'>Please provide text to type.</p>";
-          resultDiv.style.display = 'block';
-          return;
-        }
-        codeSnippet = useLocator
-          ? `// Type into element\nawait ${selectorVar}.type('${actionValue}');`
-          : `// Type into element\nawait page.type('${selector}', '${actionValue}');`;
-        break;
-      case "fill":
-        if (!actionValue) {
-          codeDiv.innerHTML = "<p class='error'>Please provide text to fill.</p>";
-          resultDiv.style.display = 'block';
-          return;
-        }
-        codeSnippet = useLocator
-          ? `// Fill input field\nawait ${selectorVar}.fill('${actionValue}');`
-          : `// Fill input field\nawait page.fill('${selector}', '${actionValue}');`;
-        break;
-      case "press":
-        if (!actionValue) {
-          codeDiv.innerHTML = "<p class='error'>Please provide a key to press.</p>";
-          resultDiv.style.display = 'block';
-          return;
-        }
-        codeSnippet = useLocator
-          ? `// Press a key\nawait ${selectorVar}.press('${actionValue}');`
-          : `// Press a key\nawait page.press('${selector}', '${actionValue}');`;
-        break;
-      case "upload":
-        if (!actionValue) {
-          codeDiv.innerHTML = "<p class='error'>Please provide a file path to upload.</p>";
-          resultDiv.style.display = 'block';
-          return;
-        }
-        codeSnippet = useLocator
-          ? `// Upload a file\nawait ${selectorVar}.setInputFiles('${actionValue}');`
-          : `// Upload a file\nawait page.setInputFiles('${selector}', '${actionValue}');`;
-        break;
-      case "hover":
-        codeSnippet = useLocator
-          ? `// Hover over element\nawait ${selectorVar}.hover();`
-          : `// Hover over element\nawait page.hover('${selector}');`;
-        break;
-      case "waitFor":
-        codeSnippet = useLocator
-          ? `// Wait for element to be visible\nawait ${selectorVar}.waitFor({ state: 'visible' });`
-          : `// Wait for element to be visible\nawait page.waitForSelector('${selector}', { state: 'visible' });`;
-        break;
-      case "screenshot":
-        codeSnippet = useLocator
-          ? `// Take screenshot of element\nawait ${selectorVar}.screenshot({ path: 'screenshot.png' });`
-          : `// Take screenshot\nawait page.screenshot({ path: 'screenshot.png' });`;
-        break;
-      case "select":
-        if (!actionValue) {
-          codeDiv.innerHTML = "<p class='error'>Please provide an option value.</p>";
-          resultDiv.style.display = 'block';
-          return;
-        }
-        codeSnippet = useLocator
-          ? `// Select option\nawait ${selectorVar}.selectOption('${actionValue}');`
-          : `// Select option\nawait page.selectOption('${selector}', '${actionValue}');`;
-        break;
-      case "check":
-        codeSnippet = useLocator
-          ? `// Check checkbox\nawait ${selectorVar}.check();`
-          : `// Check checkbox\nawait page.check('${selector}');`;
-        break;
-      case "uncheck":
-        codeSnippet = useLocator
-          ? `// Uncheck checkbox\nawait ${selectorVar}.uncheck();`
-          : `// Uncheck checkbox\nawait page.uncheck('${selector}');`;
-        break;
-      case "dragDrop":
-        if (!actionValue || !secondValue) {
-          codeDiv.innerHTML = "<p class='error'>Please provide both source and target selectors.</p>";
-          resultDiv.style.display = 'block';
-          return;
-        }
-        const sourceLocator = useLocator ? `page.locator('${selector}')` : `page.locator('${selector}')`;
-        const targetLocator = useLocator ? `page.locator('${secondValue}')` : `page.locator('${secondValue}')`;
-        codeSnippet = `// Drag and drop\nawait ${sourceLocator}.dragTo(${targetLocator});`;
-        break;
-      default:
-        codeSnippet = "// Select a valid action.";
+      case "click":    snippet = `// Click on element\nawait page.click('${esc(selector)}');`; break;
+      case "type":     if (!actionValue) { alert('Please enter text to type.'); return; } snippet = `// Type into element (character by character)\nawait page.type('${esc(selector)}', '${esc(actionValue)}');`; break;
+      case "fill":     if (!actionValue) { alert('Please enter text to fill.'); return; } snippet = `// Fill input (sets value directly)\nawait page.fill('${esc(selector)}', '${esc(actionValue)}');`; break;
+      case "press":    if (!actionValue) { alert('Please enter a key to press.'); return; } snippet = `// Press a key\nawait page.press('${esc(selector)}', '${esc(actionValue)}');`; break;
+      case "upload":   if (!actionValue) { alert('Please enter a file path.'); return; } snippet = `// Upload a file\nawait page.setInputFiles('${esc(selector)}', '${esc(actionValue)}');`; break;
+      case "hover":    snippet = `// Hover over element\nawait page.hover('${esc(selector)}');`; break;
+      case "waitFor":  snippet = `// Wait for element to be visible\nawait page.waitForSelector('${esc(selector)}', { state: 'visible' });`; break;
     }
-    generatedCode = codeSnippet;
-    codeDiv.innerHTML = `
-      <p class="success">Generated Playwright Code:</p>
-      <div class="code-output">${escapeHtml(codeSnippet)}</div>
-    `;
-    resultDiv.style.display = 'block';
+    out.textContent = snippet;
+    card.style.display = 'block';
   }
   function copyCode() {
-    if (generatedCode) {
-      copyToClipboard(generatedCode, event.target.closest('button'));
-    }
+    const text = document.getElementById('codeOutput').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    });
   }
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  function clearAll() {
+    document.getElementById('selectorInput').value = '';
+    document.getElementById('actionValue').value = '';
+    document.getElementById('actionType').value = 'click';
+    document.getElementById('valueGroup').style.display = 'none';
+    document.getElementById('outputCard').style.display = 'none';
   }
-  window.onload = () => toggleAdditionalInputs();
+  toggleAdditionalInputs();
 </script>
 </body>
 </html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>String Utilities — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; }
+    .home-btn:hover { color: #fff; }
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(47,138,16,0.15); border-left-color: #2f8a10; }
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 900px; margin: auto; }
+    .page-title { font-size: 1.5em; font-weight: 700; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 22px; margin-bottom: 18px; }
+    .card-title { font-size: 0.92em; font-weight: 700; color: #374151; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #0891b2; }
+    label { font-size: 0.82em; font-weight: 600; color: #374151; display: block; margin-bottom: 5px; }
+    textarea { width: 100%; padding: 12px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; background: #0f1117; color: #e2e8f0; resize: vertical; line-height: 1.6; font-family: 'SF Mono','Fira Code','Consolas',monospace; transition: border-color 0.15s; }
+    textarea:focus { outline: none; border-color: #0891b2; }
+    .btn { padding: 8px 14px; border: none; border-radius: 8px; font-size: 0.82em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #0891b2; color: #fff; }
+    .btn-primary:hover { background: #0e7490; }
+    .btn-outline { background: #f3f4f6; color: #374151; border: 1.5px solid #e5e7eb; }
+    .btn-outline:hover { background: #e5e7eb; }
+    .btn-copy { background: #4f46e5; color: #fff; }
+    .btn-copy:hover { background: #4338ca; }
+    .btn-danger { background: #e53e3e; color: #fff; }
+
+    /* Stats row */
+    .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .stat { background: #f3f4f6; border-radius: 8px; padding: 10px 16px; text-align: center; min-width: 80px; }
+    .stat-val { font-size: 1.3em; font-weight: 800; color: #1a1a2e; }
+    .stat-lbl { font-size: 0.68em; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
+
+    /* Case conversion grid */
+    .case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 4px; }
+    .case-item { background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; }
+    .case-label { font-size: 0.72em; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .case-value { font-family: 'SF Mono','Fira Code','Consolas',monospace; font-size: 0.88em; color: #1a1a2e; word-break: break-all; min-height: 20px; }
+
+    /* Operations grid */
+    .ops-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .output-box { background: #0f1117; border-radius: 8px; padding: 14px; font-family: 'SF Mono','Fira Code','Consolas',monospace; font-size: 0.85em; color: #e2e8f0; min-height: 60px; white-space: pre-wrap; word-break: break-all; border: 1.5px solid #e5e7eb; line-height: 1.6; }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85em; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 8px; }
+    .toast.show { opacity: 1; }
+    @media(max-width:600px) { .case-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-font" style="color:#0891b2;margin-right:8px"></i>String Utilities</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
+</header>
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html">Color Contrast Checker</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <a href="string-utils.html" class="active">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html">HTTP Status Reference</a>
+  <a href="hash-generator.html">Hash Generator</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
+<div class="content">
+  <div class="main-container">
+    <div class="page-title">String Utilities</div>
+    <div class="page-subtitle">Case conversion, text analysis, and string operations — useful for variable naming, test data, and API field mapping.</div>
+
+    <!-- Input -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-keyboard"></i> Input</div>
+      <label>Enter your text</label>
+      <textarea id="input" rows="4" placeholder="e.g.  hello world example  OR  helloWorldExample  OR  hello_world_example" oninput="processAll()"></textarea>
+      <div class="stats-row" id="statsRow">
+        <div class="stat"><div class="stat-val" id="sChars">0</div><div class="stat-lbl">Characters</div></div>
+        <div class="stat"><div class="stat-val" id="sNoSpace">0</div><div class="stat-lbl">No Spaces</div></div>
+        <div class="stat"><div class="stat-val" id="sWords">0</div><div class="stat-lbl">Words</div></div>
+        <div class="stat"><div class="stat-val" id="sLines">0</div><div class="stat-lbl">Lines</div></div>
+        <div class="stat"><div class="stat-val" id="sSentences">0</div><div class="stat-lbl">Sentences</div></div>
+        <div class="stat"><div class="stat-val" id="sBytes">0</div><div class="stat-lbl">Bytes</div></div>
+      </div>
+    </div>
+
+    <!-- Case Conversions -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-exchange-alt"></i> Case Conversions</div>
+      <div class="case-grid" id="caseGrid"></div>
+    </div>
+
+    <!-- Operations -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-tools"></i> Operations</div>
+      <div class="ops-grid" id="opsGrid">
+        <button class="btn btn-outline" onclick="applyOp('trim')"><i class="fas fa-cut"></i> Trim</button>
+        <button class="btn btn-outline" onclick="applyOp('squash')"><i class="fas fa-compress"></i> Squash spaces</button>
+        <button class="btn btn-outline" onclick="applyOp('reverse')"><i class="fas fa-undo"></i> Reverse</button>
+        <button class="btn btn-outline" onclick="applyOp('sort')"><i class="fas fa-sort-alpha-down"></i> Sort lines A→Z</button>
+        <button class="btn btn-outline" onclick="applyOp('sortDesc')"><i class="fas fa-sort-alpha-up"></i> Sort lines Z→A</button>
+        <button class="btn btn-outline" onclick="applyOp('dedup')"><i class="fas fa-filter"></i> Remove duplicates</button>
+        <button class="btn btn-outline" onclick="applyOp('slug')"><i class="fas fa-link"></i> URL Slug</button>
+        <button class="btn btn-outline" onclick="applyOp('htmlEnc')"><i class="fas fa-code"></i> HTML Encode</button>
+        <button class="btn btn-outline" onclick="applyOp('htmlDec')"><i class="fas fa-code"></i> HTML Decode</button>
+        <button class="btn btn-outline" onclick="applyOp('escQuotes')"><i class="fas fa-quote-right"></i> Escape quotes</button>
+        <button class="btn btn-outline" onclick="applyOp('stripHtml')"><i class="fas fa-eraser"></i> Strip HTML tags</button>
+        <button class="btn btn-outline" onclick="applyOp('repeat')"><i class="fas fa-redo"></i> Repeat ×3</button>
+      </div>
+      <div style="margin-top:14px">
+        <label>Result</label>
+        <div class="output-box" id="opOutput">Result will appear here...</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-copy" onclick="copyEl('opOutput')"><i class="fas fa-copy"></i> Copy</button>
+          <button class="btn btn-primary" onclick="sendToInput()"><i class="fas fa-arrow-up"></i> Send to Input</button>
+          <button class="btn btn-danger" onclick="document.getElementById('input').value='';processAll()"><i class="fas fa-trash"></i> Clear input</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div class="toast" id="toast"><i class="fas fa-check"></i> Copied!</div>
+<script>
+  const CASES = [
+    { id:'camel',   label:'camelCase',            fn: s => words(s).map((w,i)=>i===0?w.toLowerCase():cap(w)).join('') },
+    { id:'pascal',  label:'PascalCase',            fn: s => words(s).map(cap).join('') },
+    { id:'snake',   label:'snake_case',            fn: s => words(s).map(w=>w.toLowerCase()).join('_') },
+    { id:'screaming',label:'SCREAMING_SNAKE_CASE', fn: s => words(s).map(w=>w.toUpperCase()).join('_') },
+    { id:'kebab',   label:'kebab-case',            fn: s => words(s).map(w=>w.toLowerCase()).join('-') },
+    { id:'dot',     label:'dot.case',              fn: s => words(s).map(w=>w.toLowerCase()).join('.') },
+    { id:'title',   label:'Title Case',            fn: s => words(s).map(cap).join(' ') },
+    { id:'sentence',label:'Sentence case',         fn: s => { const r=words(s).map(w=>w.toLowerCase()).join(' '); return r.charAt(0).toUpperCase()+r.slice(1); } },
+    { id:'upper',   label:'UPPER CASE',            fn: s => s.toUpperCase() },
+    { id:'lower',   label:'lower case',            fn: s => s.toLowerCase() },
+    { id:'alternating',label:'aLtErNaTiNg CaSe',   fn: s => [...s].map((c,i)=>i%2===0?c.toLowerCase():c.toUpperCase()).join('') },
+    { id:'inverse', label:'iNVERSE cASE',          fn: s => [...s].map(c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()).join('') },
+  ];
+
+  function words(s) {
+    // Split on spaces, underscores, hyphens, dots, or camelCase boundaries
+    return s.replace(/([a-z])([A-Z])/g,'$1 $2')
+            .replace(/([A-Z]+)([A-Z][a-z])/g,'$1 $2')
+            .split(/[\s_\-\.]+/)
+            .filter(Boolean);
+  }
+  function cap(w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }
+
+  function processAll() {
+    const s = document.getElementById('input').value;
+    updateStats(s);
+    updateCases(s);
+  }
+
+  function updateStats(s) {
+    document.getElementById('sChars').textContent    = s.length;
+    document.getElementById('sNoSpace').textContent  = s.replace(/\s/g,'').length;
+    document.getElementById('sWords').textContent    = s.trim() ? s.trim().split(/\s+/).length : 0;
+    document.getElementById('sLines').textContent    = s ? s.split('\n').length : 0;
+    document.getElementById('sSentences').textContent= s.split(/[.!?]+/).filter(x=>x.trim()).length;
+    document.getElementById('sBytes').textContent    = new Blob([s]).size;
+  }
+
+  function updateCases(s) {
+    const grid = document.getElementById('caseGrid');
+    if (!s.trim()) { grid.innerHTML = '<div style="color:#9ca3af;font-size:0.85em;grid-column:1/-1">Type something above to see case conversions.</div>'; return; }
+    grid.innerHTML = CASES.map(c => {
+      const val = c.fn(s);
+      return `<div class="case-item">
+        <div class="case-label">${c.label}
+          <button class="btn btn-copy" style="padding:3px 8px;font-size:0.72em" onclick="copyText('${esc(val)}')"><i class="fas fa-copy"></i></button>
+        </div>
+        <div class="case-value">${esc(val)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function applyOp(op) {
+    const s = document.getElementById('input').value;
+    let result = s;
+    switch(op) {
+      case 'trim':      result = s.trim(); break;
+      case 'squash':    result = s.replace(/\s+/g,' ').trim(); break;
+      case 'reverse':   result = [...s].reverse().join(''); break;
+      case 'sort':      result = s.split('\n').sort().join('\n'); break;
+      case 'sortDesc':  result = s.split('\n').sort().reverse().join('\n'); break;
+      case 'dedup':     result = [...new Set(s.split('\n'))].join('\n'); break;
+      case 'slug':      result = s.toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/[\s_]+/g,'-'); break;
+      case 'htmlEnc':   result = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); break;
+      case 'htmlDec':   const d=document.createElement('div'); d.innerHTML=s; result=d.textContent; break;
+      case 'escQuotes': result = s.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/'/g,"\\'"); break;
+      case 'stripHtml': result = s.replace(/<[^>]*>/g,''); break;
+      case 'repeat':    result = s.repeat(3); break;
+    }
+    document.getElementById('opOutput').textContent = result;
+  }
+
+  function sendToInput() {
+    const v = document.getElementById('opOutput').textContent;
+    if (v && v !== 'Result will appear here...') { document.getElementById('input').value = v; processAll(); }
+  }
+
+  function copyEl(id) {
+    copyText(document.getElementById(id).textContent);
+  }
+  function copyText(s) {
+    navigator.clipboard.writeText(s).then(showToast).catch(()=>{});
+  }
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function toggleSidebar() { const s=document.getElementById('sidebar'); s.style.left=s.style.left==='0px'?'-270px':'0px'; }
+  processAll();
+</script>
+</body>
+</html>

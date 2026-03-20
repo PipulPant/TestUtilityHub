@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assertion Helper — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; letter-spacing: 0.3px; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
+    .home-btn:hover { color: #fff; }
+
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(47,138,16,0.15); border-left-color: #2f8a10; }
+
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 820px; margin: auto; }
+
+    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
+
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 24px; margin-bottom: 20px; }
+    .card-title { font-size: 0.95em; font-weight: 700; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #2f8a10; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.82em; font-weight: 600; color: #374151; }
+    input, select, textarea {
+      padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+      font-size: 0.9em; width: 100%; background: #fafafa; color: #1a1a2e;
+      transition: border-color 0.15s, box-shadow 0.15s; font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #2f8a10; box-shadow: 0 0 0 3px rgba(47,138,16,0.1); background: #fff; }
+    textarea { resize: vertical; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.85em; }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: #2f8a10; color: #fff; }
+    .btn-primary:hover { background: #267a0d; }
+    .btn-secondary { background: #f3f4f6; color: #374151; border: 1.5px solid #e5e7eb; }
+    .btn-secondary:hover { background: #e5e7eb; }
+    .btn-copy { background: #4f46e5; color: #fff; }
+    .btn-copy:hover { background: #4338ca; }
+
+    /* Tag chips for assertion type */
+    .tag-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .assertion-tag {
+      padding: 6px 14px; border-radius: 20px; font-size: 0.8em; font-weight: 600;
+      cursor: pointer; border: 1.5px solid #e5e7eb; background: #f9fafb; color: #374151;
+      transition: all 0.15s;
+    }
+    .assertion-tag:hover { border-color: #2f8a10; color: #2f8a10; }
+    .assertion-tag.selected { background: #2f8a10; color: #fff; border-color: #2f8a10; }
+
+    /* Output */
+    .output-box {
+      background: #0f1117; border-radius: 10px; padding: 18px 20px;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.85em; line-height: 1.7; color: #e2e8f0;
+      white-space: pre-wrap; overflow-x: auto; position: relative;
+      min-height: 80px; display: flex; align-items: center;
+    }
+    .output-placeholder { color: #4b5563; font-style: italic; font-family: inherit; }
+    .copy-overlay { position: absolute; top: 10px; right: 10px; }
+
+    .kw { color: #c792ea; }
+    .fn { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .cmt { color: #546e7a; }
+
+    /* Snippet tabs */
+    .tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid #e5e7eb; }
+    .tab-btn { padding: 8px 16px; background: none; border: none; cursor: pointer; font-size: 0.85em; font-weight: 600; color: #9ca3af; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+    .tab-btn.active { color: #2f8a10; border-bottom-color: #2f8a10; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .hint { font-size: 0.78em; color: #9ca3af; margin-top: 4px; }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85em; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 8px; }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .btn-row { flex-direction: column; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+  <h1><i class="fas fa-check-double" style="color:#2f8a10;margin-right:8px"></i>Assertion Helper</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
+</header>
+
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html">Color Contrast Checker</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+  <a href="assertion-helper.html" class="active">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <a href="string-utils.html">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html">HTTP Status Reference</a>
+  <a href="hash-generator.html">Hash Generator</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
+
+<div class="content">
+  <div class="main-container">
+    <div class="page-title">Assertion Helper</div>
+    <div class="page-subtitle">Generate Playwright assertion code snippets instantly.</div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('single')">Single Assertion</button>
+      <button class="tab-btn" onclick="switchTab('chain')">Assertion Chain</button>
+    </div>
+
+    <!-- Single Assertion Tab -->
+    <div class="tab-panel active" id="tab-single">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-code"></i> Configure Assertion</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Locator Type</label>
+            <select id="locatorType" onchange="updateLocatorHint()">
+              <option value="css">CSS Selector</option>
+              <option value="testid">data-testid</option>
+              <option value="role">Role</option>
+              <option value="text">Text</option>
+              <option value="label">Label</option>
+              <option value="placeholder">Placeholder</option>
+              <option value="nth">Nth Element</option>
+              <option value="xpath">XPath</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Locator Value</label>
+            <input type="text" id="locatorValue" placeholder=".submit-button" />
+            <div class="hint" id="locatorHint">e.g. .button, #form, [data-id="x"]</div>
+          </div>
+          <div class="form-group full">
+            <label>Assertion Type</label>
+            <div class="tag-grid" id="assertionTags"></div>
+          </div>
+          <div class="form-group" id="expectedGroup">
+            <label id="expectedLabel">Expected Value</label>
+            <input type="text" id="expectedValue" placeholder="Enter expected value" />
+            <div class="hint" id="expectedHint"></div>
+          </div>
+          <div class="form-group" id="optionsGroup" style="display:none">
+            <label>Options (JSON)</label>
+            <input type="text" id="optionsValue" placeholder='{ "timeout": 5000 }' />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="generateAssertion()"><i class="fas fa-magic"></i> Generate</button>
+          <button class="btn btn-secondary" onclick="resetSingle()"><i class="fas fa-redo"></i> Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fas fa-terminal"></i> Generated Code</div>
+        <div class="output-box" id="outputBox">
+          <span class="output-placeholder">Your assertion code will appear here...</span>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-copy" onclick="copyOutput()"><i class="fas fa-copy"></i> Copy Code</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chain Tab -->
+    <div class="tab-panel" id="tab-chain">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-link"></i> Build Assertion Chain</div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label>Locator</label>
+          <div style="display:flex;gap:8px">
+            <select id="chainLocatorType" style="width:180px;flex-shrink:0;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.9em;background:#fafafa">
+              <option value="css">CSS</option>
+              <option value="testid">data-testid</option>
+              <option value="role">Role</option>
+              <option value="text">Text</option>
+            </select>
+            <input type="text" id="chainLocator" placeholder="e.g. .submit-btn" />
+          </div>
+        </div>
+        <div id="chainItems"></div>
+        <button class="btn btn-secondary" onclick="addChainItem()" style="margin-top:8px"><i class="fas fa-plus"></i> Add Assertion</button>
+        <div class="btn-row" style="margin-top:16px">
+          <button class="btn btn-primary" onclick="generateChain()"><i class="fas fa-magic"></i> Generate Chain</button>
+          <button class="btn btn-secondary" onclick="resetChain()"><i class="fas fa-redo"></i> Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-terminal"></i> Generated Chain</div>
+        <div class="output-box" id="chainOutput">
+          <span class="output-placeholder">Your assertion chain will appear here...</span>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-copy" onclick="copyChain()"><i class="fas fa-copy"></i> Copy Code</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-check"></i> Copied to clipboard!</div>
+
+<script>
+  // ── Assertion definitions ──────────────────────────────────────────────────
+  const ASSERTIONS = [
+    { id: 'toBeVisible',      label: 'toBeVisible',      hasValue: false, hint: '' },
+    { id: 'toBeHidden',       label: 'toBeHidden',       hasValue: false, hint: '' },
+    { id: 'toBeEnabled',      label: 'toBeEnabled',      hasValue: false, hint: '' },
+    { id: 'toBeDisabled',     label: 'toBeDisabled',     hasValue: false, hint: '' },
+    { id: 'toBeChecked',      label: 'toBeChecked',      hasValue: false, hint: '' },
+    { id: 'toBeFocused',      label: 'toBeFocused',      hasValue: false, hint: '' },
+    { id: 'toBeEmpty',        label: 'toBeEmpty',        hasValue: false, hint: '' },
+    { id: 'toHaveText',       label: 'toHaveText',       hasValue: true,  hint: 'Exact or regex text content', valuePlaceholder: 'Expected text' },
+    { id: 'toContainText',    label: 'toContainText',    hasValue: true,  hint: 'Partial text match', valuePlaceholder: 'Substring' },
+    { id: 'toHaveValue',      label: 'toHaveValue',      hasValue: true,  hint: 'Input/select value', valuePlaceholder: 'Expected value' },
+    { id: 'toHaveAttribute',  label: 'toHaveAttribute',  hasValue: true,  hint: 'Format: attr=value  e.g. href=/home', valuePlaceholder: 'attr=value' },
+    { id: 'toHaveClass',      label: 'toHaveClass',      hasValue: true,  hint: 'CSS class name(s)', valuePlaceholder: 'class-name' },
+    { id: 'toHaveCount',      label: 'toHaveCount',      hasValue: true,  hint: 'Number of matched elements', valuePlaceholder: '3' },
+    { id: 'toHaveURL',        label: 'toHaveURL',        hasValue: true,  hint: 'Exact or partial URL', valuePlaceholder: 'https://...' },
+    { id: 'toHaveTitle',      label: 'toHaveTitle',      hasValue: true,  hint: 'Page title', valuePlaceholder: 'My Page Title' },
+    { id: 'toHaveCSS',        label: 'toHaveCSS',        hasValue: true,  hint: 'Format: property=value e.g. color=rgb(0,0,0)', valuePlaceholder: 'property=value' },
+  ];
+
+  const LOCATOR_HINTS = {
+    css:         'e.g. .button, #form-id, [data-cy="submit"]',
+    testid:      'e.g. submit-button (maps to getByTestId)',
+    role:        'e.g. button, heading, link, checkbox',
+    text:        'e.g. Submit Form (maps to getByText)',
+    label:       'e.g. Email address (maps to getByLabel)',
+    placeholder: 'e.g. Enter email (maps to getByPlaceholder)',
+    nth:         'e.g. .item >> 2  (selector >> index)',
+    xpath:       'e.g. //button[@type="submit"]',
+  };
+
+  let selectedAssertion = 'toBeVisible';
+  let chainItemCount = 0;
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  function init() {
+    const tags = document.getElementById('assertionTags');
+    tags.innerHTML = ASSERTIONS.map(a =>
+      `<span class="assertion-tag${a.id === 'toBeVisible' ? ' selected' : ''}"
+        onclick="selectAssertion('${a.id}')" id="tag-${a.id}">${a.label}</span>`
+    ).join('');
+    updateExpectedGroup();
+    addChainItem();
+  }
+
+  function selectAssertion(id) {
+    selectedAssertion = id;
+    document.querySelectorAll('.assertion-tag').forEach(t => t.classList.remove('selected'));
+    document.getElementById('tag-' + id).classList.add('selected');
+    updateExpectedGroup();
+  }
+
+  function updateExpectedGroup() {
+    const a = ASSERTIONS.find(x => x.id === selectedAssertion);
+    const grp = document.getElementById('expectedGroup');
+    const optGrp = document.getElementById('optionsGroup');
+    if (a.hasValue) {
+      grp.style.display = 'flex';
+      document.getElementById('expectedLabel').textContent = 'Expected Value';
+      document.getElementById('expectedHint').textContent = a.hint;
+      document.getElementById('expectedValue').placeholder = a.valuePlaceholder || '';
+      optGrp.style.display = 'flex';
+    } else {
+      grp.style.display = 'none';
+      optGrp.style.display = 'flex';
+    }
+  }
+
+  function updateLocatorHint() {
+    const type = document.getElementById('locatorType').value;
+    document.getElementById('locatorHint').textContent = LOCATOR_HINTS[type];
+  }
+
+  // ── Locator builder ────────────────────────────────────────────────────────
+  function buildLocator(type, value) {
+    if (!value) return 'page.locator(\'...\')';
+    switch(type) {
+      case 'css':         return `page.locator('${value}')`;
+      case 'testid':      return `page.getByTestId('${value}')`;
+      case 'role':        return `page.getByRole('${value}')`;
+      case 'text':        return `page.getByText('${value}')`;
+      case 'label':       return `page.getByLabel('${value}')`;
+      case 'placeholder': return `page.getByPlaceholder('${value}')`;
+      case 'xpath':       return `page.locator('xpath=${value}')`;
+      case 'nth': {
+        const parts = value.split('>>');
+        const sel = (parts[0] || '').trim();
+        const idx = parseInt((parts[1] || '0').trim(), 10);
+        return `page.locator('${sel}').nth(${idx})`;
+      }
+      default: return `page.locator('${value}')`;
+    }
+  }
+
+  // ── Assertion builder ──────────────────────────────────────────────────────
+  function buildAssertionCall(assertionId, rawValue, options) {
+    const a = ASSERTIONS.find(x => x.id === assertionId);
+    let argStr = '';
+    if (a.hasValue && rawValue) {
+      if (assertionId === 'toHaveAttribute' || assertionId === 'toHaveCSS') {
+        const [k, ...rest] = rawValue.split('=');
+        const v = rest.join('=');
+        argStr = `'${k.trim()}', '${v.trim()}'`;
+      } else if (assertionId === 'toHaveCount') {
+        argStr = parseInt(rawValue, 10) || 0;
+      } else {
+        argStr = `'${rawValue}'`;
+      }
+    }
+    let optStr = '';
+    if (options) {
+      try { JSON.parse(options); optStr = (argStr ? ', ' : '') + options; } catch(e) {}
+    }
+    return `.${assertionId}(${argStr}${optStr})`;
+  }
+
+  // ── Generate single ────────────────────────────────────────────────────────
+  function generateAssertion() {
+    const type    = document.getElementById('locatorType').value;
+    const value   = document.getElementById('locatorValue').value.trim();
+    const expVal  = document.getElementById('expectedValue').value.trim();
+    const options = document.getElementById('optionsValue').value.trim();
+
+    const locator = buildLocator(type, value);
+    const call    = buildAssertionCall(selectedAssertion, expVal, options);
+
+    const code = `await expect(${locator})${call};`;
+    renderCode(code);
+  }
+
+  function renderCode(code) {
+    // Simple syntax highlighting
+    const highlighted = code
+      .replace(/\bawait\b/g, '<span class="kw">await</span>')
+      .replace(/\bexpect\b/g, '<span class="fn">expect</span>')
+      .replace(/\b(page)\b/g, '<span class="fn">page</span>')
+      .replace(/(\.(?:locator|getBy\w+|nth|toHaveText|toBeVisible|toBeHidden|toBeEnabled|toBeDisabled|toBeChecked|toBeFocused|toBeEmpty|toContainText|toHaveValue|toHaveAttribute|toHaveClass|toHaveCount|toHaveURL|toHaveTitle|toHaveCSS))/g, '<span class="fn">$1</span>')
+      .replace(/('.*?')/g, '<span class="str">$1</span>');
+
+    document.getElementById('outputBox').innerHTML = highlighted;
+  }
+
+  // ── Generate chain ─────────────────────────────────────────────────────────
+  function addChainItem() {
+    chainItemCount++;
+    const id = 'chain-' + chainItemCount;
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;';
+    div.innerHTML = `
+      <select style="width:160px;flex-shrink:0;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85em;background:#fafafa" onchange="updateChainValue(this,'val-${id}','hint-${id}')">
+        ${ASSERTIONS.map(a => `<option value="${a.id}" data-has="${a.hasValue}" data-hint="${a.hint}" data-ph="${a.valuePlaceholder||''}">${a.label}</option>`).join('')}
+      </select>
+      <div style="flex:1">
+        <input id="val-${id}" type="text" placeholder="" style="padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85em;width:100%;background:#fafafa;display:none" />
+        <div id="hint-${id}" class="hint"></div>
+      </div>
+      <button onclick="document.getElementById('${id}').remove()" style="background:none;border:none;color:#e53e3e;cursor:pointer;font-size:1em;padding:8px;"><i class="fas fa-times"></i></button>
+    `;
+    document.getElementById('chainItems').appendChild(div);
+  }
+
+  function updateChainValue(sel, inputId, hintId) {
+    const opt = sel.selectedOptions[0];
+    const hasVal = opt.dataset.has === 'true';
+    const input = document.getElementById(inputId);
+    const hint  = document.getElementById(hintId);
+    input.style.display = hasVal ? 'block' : 'none';
+    input.placeholder   = opt.dataset.ph || '';
+    hint.textContent    = opt.dataset.hint || '';
+  }
+
+  function generateChain() {
+    const locType  = document.getElementById('chainLocatorType').value;
+    const locVal   = document.getElementById('chainLocator').value.trim();
+    const locator  = buildLocator(locType, locVal);
+
+    const items = document.querySelectorAll('#chainItems > div');
+    if (!items.length) { alert('Add at least one assertion.'); return; }
+
+    const calls = Array.from(items).map(item => {
+      const sel   = item.querySelector('select');
+      const input = item.querySelector('input');
+      const aId   = sel.value;
+      const val   = input ? input.value.trim() : '';
+      return buildAssertionCall(aId, val, '');
+    });
+
+    const lines = calls.map((c, i) => {
+      const prefix = i === 0 ? `await expect(${locator})` : '  ';
+      return prefix + (i < calls.length - 1 ? c : c + ';');
+    });
+
+    document.getElementById('chainOutput').innerHTML = lines.join('\n')
+      .replace(/\bawait\b/g, '<span class="kw">await</span>')
+      .replace(/\bexpect\b/g, '<span class="fn">expect</span>')
+      .replace(/\b(page)\b/g, '<span class="fn">page</span>');
+  }
+
+  // ── Copy ───────────────────────────────────────────────────────────────────
+  function copyOutput() {
+    const text = document.getElementById('outputBox').innerText;
+    copy(text);
+  }
+  function copyChain() {
+    const text = document.getElementById('chainOutput').innerText;
+    copy(text);
+  }
+  function copy(text) {
+    navigator.clipboard.writeText(text).then(showToast).catch(() => {});
+  }
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // ── Reset ──────────────────────────────────────────────────────────────────
+  function resetSingle() {
+    document.getElementById('locatorValue').value = '';
+    document.getElementById('expectedValue').value = '';
+    document.getElementById('optionsValue').value = '';
+    document.getElementById('outputBox').innerHTML = '<span class="output-placeholder">Your assertion code will appear here...</span>';
+    selectAssertion('toBeVisible');
+  }
+  function resetChain() {
+    document.getElementById('chainLocator').value = '';
+    document.getElementById('chainItems').innerHTML = '';
+    chainItemCount = 0;
+    document.getElementById('chainOutput').innerHTML = '<span class="output-placeholder">Your assertion chain will appear here...</span>';
+    addChainItem();
+  }
+
+  // ── Tabs ───────────────────────────────────────────────────────────────────
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', ['single','chain'][i] === name));
+    document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', ['tab-single','tab-chain'][i] === 'tab-'+name));
+  }
+
+  // ── Sidebar ────────────────────────────────────────────────────────────────
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-270px' : '0px';
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -1,148 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Request Tester - QA Test Utility Hub</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Request Tester — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
+    .home-btn:hover { color: #fff; }
+
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(47,138,16,0.15); border-left-color: #2f8a10; }
+
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 700px; margin: auto; }
+    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
+
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 22px; margin-bottom: 18px; }
+    .card-title { font-size: 0.92em; font-weight: 700; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #0891b2; }
+
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.82em; font-weight: 600; color: #374151; margin-bottom: 5px; }
+    select, input, textarea {
+      width: 100%; padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+      font-size: 0.9em; background: #fafafa; color: #1a1a2e; font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    select:focus, input:focus, textarea:focus { outline: none; border-color: #0891b2; background: #fff; }
+    textarea { resize: vertical; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.85em; }
+
+    .method-url-row { display: flex; gap: 10px; }
+    .method-select { width: 110px; flex-shrink: 0; font-weight: 700; }
+    .method-select option[value="GET"]    { color: #2f8a10; }
+    .method-select option[value="POST"]   { color: #d97706; }
+    .method-select option[value="PUT"]    { color: #4f46e5; }
+    .method-select option[value="DELETE"] { color: #e53e3e; }
+    .method-select option[value="PATCH"]  { color: #0891b2; }
+
+    .method-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72em; font-weight: 800; }
+    .badge-GET    { background: #f0fdf4; color: #2f8a10; }
+    .badge-POST   { background: #fffbeb; color: #d97706; }
+    .badge-PUT    { background: #eef2ff; color: #4f46e5; }
+    .badge-DELETE { background: #fef2f2; color: #e53e3e; }
+    .badge-PATCH  { background: #ecfeff; color: #0891b2; }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #0891b2; color: #fff; }
+    .btn-primary:hover { background: #0e7490; }
+    .btn-outline { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
+    .btn-outline:hover { background: #f3f4f6; }
+    .btn-danger { background: #e53e3e; color: #fff; }
+
+    /* Response */
+    .response-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 700; }
+    .status-2xx { background: #f0fdf4; color: #166534; }
+    .status-3xx { background: #eff6ff; color: #1e40af; }
+    .status-4xx { background: #fff3cd; color: #856404; }
+    .status-5xx { background: #fef2f2; color: #991b1b; }
+    .status-err { background: #fef2f2; color: #991b1b; }
+
+    .response-meta { display: flex; gap: 12px; font-size: 0.78em; color: #9ca3af; margin-bottom: 10px; flex-wrap: wrap; }
+    .response-meta span strong { color: #374151; }
+
+    .code-output {
+      background: #0f1117; color: #e2e8f0; padding: 16px; border-radius: 8px;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.82em;
+      white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .spinner { display: none; width: 20px; height: 20px; border: 2px solid #e5e7eb; border-top-color: #0891b2; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85em; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 8px; }
+    .toast.show { opacity: 1; }
+  </style>
 </head>
-<body class="utility-page">
+<body>
+
 <header>
   <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
-  <h1><i class="fas fa-plug"></i> API Request Tester</h1>
-  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+  <h1><i class="fas fa-plug" style="color:#0891b2;margin-right:8px"></i>API Request Tester</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
 </header>
-<div class="sidebar" id="sidebar"></div>
+
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html" class="active">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
+
 <div class="content">
-  <div class="container">
-    <h2><i class="fas fa-plug"></i> Test API Requests</h2>
-    <form id="apiRequestForm">
-      <label for="requestMethod">HTTP Method:</label>
-      <select id="requestMethod" required>
-        <option value="GET">GET</option>
-        <option value="POST">POST</option>
-        <option value="PUT">PUT</option>
-        <option value="DELETE">DELETE</option>
-        <option value="PATCH">PATCH</option>
-      </select>
-      <label for="requestUrl">Request URL:</label>
-      <input type="url" id="requestUrl" placeholder="e.g., https://api.example.com/data" required>
-      <label for="requestHeaders">Headers (JSON format):</label>
-      <textarea id="requestHeaders" placeholder='e.g., {"Authorization": "Bearer token", "Content-Type": "application/json"}' rows="4"></textarea>
-      <label for="requestBody">Body (for POST/PUT/PATCH requests):</label>
-      <textarea id="requestBody" placeholder='e.g., {"key": "value"}' rows="6"></textarea>
-      <button type="button" onclick="performApiRequest()">
-        <i class="fas fa-paper-plane"></i> SEND REQUEST
-      </button>
-    </form>
-    <div class="result" id="apiResult" style="display: none;">
-      <div id="responseStatus"></div>
-      <div id="responseHeaders"></div>
-      <div id="responseBody"></div>
-      <button class="copy-btn secondary" onclick="copyResponse()">
-        <i class="fas fa-copy"></i> Copy Response
-      </button>
+  <div class="main-container">
+    <div class="page-title">API Request Tester</div>
+    <div class="page-subtitle">Send HTTP requests and inspect responses — useful for API testing and debugging.</div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-paper-plane"></i> Request</div>
+
+      <div class="form-group">
+        <label>Method &amp; URL</label>
+        <div class="method-url-row">
+          <select id="requestMethod" class="method-select" onchange="toggleBody()">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+          </select>
+          <input type="text" id="requestUrl" placeholder="https://api.example.com/endpoint" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Headers <span style="font-weight:400;color:#9ca3af">(JSON)</span></label>
+        <textarea id="requestHeaders" rows="3" placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'></textarea>
+      </div>
+
+      <div class="form-group" id="bodyGroup">
+        <label>Body <span style="font-weight:400;color:#9ca3af">(JSON — for POST / PUT / PATCH)</span></label>
+        <textarea id="requestBody" rows="4" placeholder='{"key": "value"}'></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="performApiRequest()">
+          <i class="fas fa-paper-plane"></i> Send Request
+          <div class="spinner" id="spinner"></div>
+        </button>
+        <button class="btn btn-outline" onclick="clearAll()"><i class="fas fa-trash"></i> Clear</button>
+      </div>
     </div>
+
+    <div class="card" id="responseCard" style="display:none">
+      <div class="response-header">
+        <div class="card-title" style="margin-bottom:0"><i class="fas fa-inbox"></i> Response</div>
+        <span id="statusPill" class="status-pill"></span>
+      </div>
+      <div class="response-meta" id="responseMeta"></div>
+      <div class="code-output" id="apiResult"></div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-outline" onclick="copyResponse()"><i class="fas fa-copy"></i> Copy Response</button>
+      </div>
+    </div>
+
   </div>
 </div>
-<script src="common.js"></script>
+
+<div class="toast" id="toast"><i class="fas fa-check"></i> Copied!</div>
+
 <script>
-  let lastResponse = '';
+  function toggleBody() {
+    const method = document.getElementById('requestMethod').value;
+    document.getElementById('bodyGroup').style.display = ['POST','PUT','PATCH'].includes(method) ? 'block' : 'none';
+  }
+
   async function performApiRequest() {
-    const method = document.getElementById("requestMethod").value;
-    const url = document.getElementById("requestUrl").value;
-    const headersInput = document.getElementById("requestHeaders").value;
-    const bodyInput = document.getElementById("requestBody").value;
-    const resultDiv = document.getElementById("apiResult");
-    const statusDiv = document.getElementById("responseStatus");
-    const headersDiv = document.getElementById("responseHeaders");
-    const bodyDiv = document.getElementById("responseBody");
-    resultDiv.style.display = 'none';
-    resultDiv.innerHTML = '<div class="spinner"></div>';
-    let headers = {};
-    let body = null;
-    try {
-      headers = headersInput ? JSON.parse(headersInput) : {};
-    } catch (error) {
-      resultDiv.style.display = 'block';
-      resultDiv.innerHTML = `<p class="error">Invalid JSON format in headers: ${error.message}</p>`;
-      return;
-    }
-    try {
-      body = bodyInput ? JSON.parse(bodyInput) : null;
-    } catch (error) {
-      resultDiv.style.display = 'block';
-      resultDiv.innerHTML = `<p class="error">Invalid JSON format in body: ${error.message}</p>`;
-      return;
-    }
-    const options = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...headers
-      },
-    };
-    if ((method === "POST" || method === "PUT" || method === "PATCH") && body) {
+    const method  = document.getElementById('requestMethod').value;
+    const url     = document.getElementById('requestUrl').value.trim();
+    const hdrRaw  = document.getElementById('requestHeaders').value.trim();
+    const bodyRaw = document.getElementById('requestBody').value.trim();
+
+    if (!url) { alert('Please enter a URL.'); return; }
+
+    let headers = {}, body;
+    try { headers = hdrRaw ? JSON.parse(hdrRaw) : {}; }
+    catch(e) { showResult(null, 'Invalid JSON in Headers: ' + e.message, true); return; }
+    try { body = bodyRaw ? JSON.parse(bodyRaw) : null; }
+    catch(e) { showResult(null, 'Invalid JSON in Body: ' + e.message, true); return; }
+
+    const options = { method, headers };
+    if (['POST','PUT','PATCH'].includes(method) && body) {
       options.body = JSON.stringify(body);
+      if (!headers['Content-Type']) options.headers['Content-Type'] = 'application/json';
     }
+
+    setLoading(true);
+    const t0 = Date.now();
     try {
-      const startTime = performance.now();
-      const response = await fetch(url, options);
-      const endTime = performance.now();
-      const responseTime = (endTime - startTime).toFixed(2);
-      let responseData;
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        responseData = await response.json();
-      } else {
-        responseData = await response.text();
-      }
-      const statusClass = response.ok ? 'success' : 'error';
-      statusDiv.innerHTML = `
-        <p class="${statusClass}">
-          <strong>Status:</strong> ${response.status} ${response.statusText} | 
-          <strong>Time:</strong> ${responseTime}ms
-        </p>
-      `;
-      const headersArray = [];
-      response.headers.forEach((value, key) => {
-        headersArray.push(`${key}: ${value}`);
-      });
-      headersDiv.innerHTML = `
-        <p><strong>Response Headers:</strong></p>
-        <div class="code-output">${headersArray.join('\n')}</div>
-      `;
-      bodyDiv.innerHTML = `
-        <p><strong>Response Body:</strong></p>
-        <div class="code-output">${typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2)}</div>
-      `;
-      lastResponse = typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2);
-      resultDiv.style.display = 'block';
-      resultDiv.innerHTML = `
-        <div id="responseStatus"></div>
-        <div id="responseHeaders"></div>
-        <div id="responseBody"></div>
-        <button class="copy-btn secondary" onclick="copyResponse()">
-          <i class="fas fa-copy"></i> Copy Response
-        </button>
-      `;
-      document.getElementById("responseStatus").innerHTML = statusDiv.innerHTML;
-      document.getElementById("responseHeaders").innerHTML = headersDiv.innerHTML;
-      document.getElementById("responseBody").innerHTML = bodyDiv.innerHTML;
-    } catch (error) {
-      resultDiv.style.display = 'block';
-      resultDiv.innerHTML = `
-        <p class="error">Request failed: ${error.message}</p>
-        <p class="warning">Note: CORS restrictions may prevent requests to external APIs. Use a browser extension or test from the same origin.</p>
-      `;
+      const res = await fetch(url, options);
+      const elapsed = Date.now() - t0;
+      const contentType = res.headers.get('content-type') || '';
+      let data;
+      if (contentType.includes('json')) data = await res.json();
+      else data = await res.text();
+      showResult(res.status, typeof data === 'string' ? data : JSON.stringify(data, null, 2), !res.ok, elapsed, res.headers);
+    } catch(err) {
+      showResult(null, 'Request failed: ' + err.message, true, Date.now() - t0);
     }
+    setLoading(false);
   }
+
+  function showResult(status, body, isError, elapsed) {
+    document.getElementById('responseCard').style.display = 'block';
+    document.getElementById('apiResult').textContent = body;
+
+    const pill = document.getElementById('statusPill');
+    if (status) {
+      const cls = status < 300 ? 'status-2xx' : status < 400 ? 'status-3xx' : status < 500 ? 'status-4xx' : 'status-5xx';
+      pill.className = 'status-pill ' + cls;
+      pill.textContent = status;
+    } else {
+      pill.className = 'status-pill status-err';
+      pill.textContent = 'Error';
+    }
+
+    document.getElementById('responseMeta').innerHTML = [
+      elapsed !== undefined ? `<span><strong>Time:</strong> ${elapsed}ms</span>` : '',
+      status ? `<span><strong>Status:</strong> ${status}</span>` : '',
+    ].filter(Boolean).join('');
+  }
+
+  function setLoading(on) {
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+  }
+
+  function clearAll() {
+    document.getElementById('requestUrl').value = '';
+    document.getElementById('requestHeaders').value = '';
+    document.getElementById('requestBody').value = '';
+    document.getElementById('responseCard').style.display = 'none';
+  }
+
   function copyResponse() {
-    if (lastResponse) {
-      copyToClipboard(lastResponse, event.target.closest('button'));
-    }
+    const text = document.getElementById('apiResult').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    });
   }
+
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-270px' : '0px';
+  }
+
+  toggleBody();
 </script>
 </body>
 </html>

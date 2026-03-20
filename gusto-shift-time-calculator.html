@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gusto Shift Time Calculator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      position: relative;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4em;
+    }
+
+    .hamburger {
+      font-size: 24px;
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      cursor: pointer;
+      color: #fff;
+    }
+
+    .home-icon {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 24px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -260px;
+      width: 260px;
+      height: 100%;
+      background-color: #333;
+      color: #fff;
+      transition: left 0.3s;
+      padding-top: 60px;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 12px 15px;
+      color: #ccc;
+      text-decoration: none;
+      font-size: 0.9em;
+    }
+
+    .sidebar a:hover {
+      background-color: #444;
+      color: #fff;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .main-container {
+      max-width: 860px;
+      margin: auto;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 1.1em;
+      color: #2f8a10;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95em;
+      width: 100%;
+      background: #fafafa;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #2f8a10;
+      background: #fff;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95em;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.88;
+    }
+
+    .btn-primary {
+      background-color: #2f8a10;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background-color: #1e90ff;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background-color: #e53e3e;
+      color: #fff;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.82em;
+    }
+
+    /* Result panel */
+    .result-panel {
+      display: none;
+    }
+
+    .result-panel.visible {
+      display: block;
+    }
+
+    .alert {
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 0.9em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alert-warning {
+      background: #fff8e1;
+      border-left: 4px solid #f59e0b;
+      color: #92400e;
+    }
+
+    .alert-info {
+      background: #e8f5e9;
+      border-left: 4px solid #2f8a10;
+      color: #1b5e20;
+    }
+
+    .alert-error {
+      background: #fff0f0;
+      border-left: 4px solid #e53e3e;
+      color: #9b1c1c;
+    }
+
+    .alert i {
+      font-size: 1.1em;
+      flex-shrink: 0;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .result-box {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .result-box h4 {
+      font-size: 0.85em;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .result-box .time-value {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .result-box .date-label {
+      font-size: 0.8em;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    .result-box .epoch-value {
+      font-size: 0.8em;
+      color: #1e90ff;
+      margin-top: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .result-box .epoch-value:hover {
+      text-decoration: underline;
+    }
+
+    .overnight-badge {
+      display: inline-block;
+      background: #2d3748;
+      color: #fbd38d;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 0.75em;
+      margin-left: 8px;
+    }
+
+    .breakdown-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .breakdown-pill {
+      background: #e8f5e9;
+      color: #2f8a10;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.82em;
+      font-weight: bold;
+    }
+
+    .breakdown-pill.ot {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .breakdown-pill.dot {
+      background: #fce8e8;
+      color: #c0392b;
+    }
+
+    /* Gusto Preview */
+    .gusto-preview {
+      border: 1px solid #dde;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 4px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .gusto-preview-header {
+      background: #f7f7f8;
+      border-bottom: 1px solid #dde;
+      padding: 10px 16px;
+      font-weight: 700;
+      font-size: 0.9em;
+      color: #1a1a2e;
+    }
+
+    .gusto-preview-row {
+      display: grid;
+      grid-template-columns: 2fr 2fr 1.5fr auto;
+      align-items: start;
+      gap: 16px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+
+    .gusto-time-range {
+      font-size: 0.92em;
+      color: #444;
+    }
+
+    .gusto-project {
+      font-size: 0.88em;
+      color: #666;
+    }
+
+    .gusto-breakdown-col {
+      font-size: 0.85em;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    .gusto-total {
+      font-weight: 700;
+      font-size: 0.95em;
+      color: #1a1a2e;
+      white-space: nowrap;
+    }
+
+    .gusto-overnight-icon {
+      font-size: 0.75em;
+      margin-left: 4px;
+    }
+
+    /* Comparison table */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85em;
+    }
+
+    thead tr {
+      background: #2f8a10;
+      color: #fff;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: #f0f9f0;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    tbody tr:nth-child(even):hover {
+      background: #e8f5e9;
+    }
+
+    .tag {
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 0.78em;
+      font-weight: bold;
+    }
+
+    .tag-ok {
+      background: #c6f6d5;
+      color: #276749;
+    }
+
+    .tag-ow {
+      background: #fefcbf;
+      color: #744210;
+    }
+
+    .tag-on {
+      background: #e9d8fd;
+      color: #553c9a;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #aaa;
+      padding: 30px;
+      font-size: 0.9em;
+    }
+
+    .del-btn {
+      background: none;
+      border: none;
+      color: #e53e3e;
+      cursor: pointer;
+      font-size: 1em;
+      padding: 4px;
+    }
+
+    .del-btn:hover {
+      color: #9b1c1c;
+    }
+
+    .copied-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #333;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 0.85em;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .copied-toast.show {
+      opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+
+      .form-grid,
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
+    <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+    <h1>Gusto Shift Time Calculator</h1>
+  </header>
+
+  <div class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+    <div class="sidebar-section">QA Testing</div>
+    <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+    <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+    <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+    <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+    <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+    <a href="selector-stability-checker.html">Selector Stability Checker</a>
+    <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+    <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+    <a href="color-contrast-checker.html">Color Contrast Checker</a>
+    <div class="sidebar-section">Code Generators</div>
+    <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+    <a href="assertion-helper.html">Assertion Helper</a>
+    <div class="sidebar-section">Dev Utilities</div>
+    <a href="api-request-tester.html">API Request Tester</a>
+    <a href="json-formatter.html">JSON Formatter</a>
+    <a href="regex-tester.html">Regex Tester</a>
+    <a href="base64-tool.html">Base64 / URL Encoder</a>
+    <a href="string-utils.html">String Utilities</a>
+    <a href="cron-builder.html">Cron Expression Builder</a>
+    <a href="http-status-reference.html">HTTP Status Reference</a>
+    <a href="hash-generator.html">Hash Generator</a>
+    <div class="sidebar-section">Test Data</div>
+    <a href="test-data-generator.html">Test Data Generator</a>
+    <div class="sidebar-section">Integration</div>
+    <a href="gusto-shift-time-calculator.html" class="active">Gusto Shift Time Calculator</a>
+  </div>
+
+  <div class="content">
+    <div class="main-container">
+
+      <!-- Input Card -->
+      <div class="card">
+        <h2><i class="fas fa-calculator"></i> Calculate Shift Times</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="shiftDate">Date</label>
+            <input type="date" id="shiftDate" />
+          </div>
+          <div class="form-group">
+            <label for="timezone">Display Timezone</label>
+            <select id="timezone">
+              <option value="5.75">NPT — Nepal Time (UTC+5:45)</option>
+              <option value="0">UTC — Coordinated Universal Time</option>
+              <option value="5.5">IST — India Standard Time (UTC+5:30)</option>
+              <option value="-8">PST — Pacific Standard Time (UTC-8)</option>
+              <option value="-7">PDT — Pacific Daylight Time (UTC-7)</option>
+              <option value="-5">EST — Eastern Standard Time (UTC-5)</option>
+              <option value="-4">EDT — Eastern Daylight Time (UTC-4)</option>
+              <option value="1">CET — Central European Time (UTC+1)</option>
+              <option value="2">CEST — Central European Summer Time (UTC+2)</option>
+              <option value="8">CST — China Standard Time (UTC+8)</option>
+              <option value="9">JST — Japan Standard Time (UTC+9)</option>
+              <option value="5.5">PKT — Pakistan Standard Time (UTC+5)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="hours">Hours</label>
+            <input type="number" id="hours" placeholder="0" min="0" max="24" step="1" />
+          </div>
+          <div class="form-group">
+            <label for="minutes">Minutes</label>
+            <select id="minutes">
+              <option value="0">00</option>
+              <option value="15">15</option>
+              <option value="30">30</option>
+              <option value="45">45</option>
+            </select>
+          </div>
+        </div>
+        <div id="validationMsg" class="alert alert-error" style="display:none; margin-top:14px;"></div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="calculate()"><i class="fas fa-play"></i> Calculate</button>
+          <button class="btn-secondary" onclick="addToComparison()"><i class="fas fa-plus"></i> Add to
+            Comparison</button>
+          <button class="btn-danger" onclick="resetForm()"><i class="fas fa-redo"></i> Reset</button>
+        </div>
+      </div>
+
+      <!-- Result Card -->
+      <div class="card result-panel" id="resultPanel">
+        <h2><i class="fas fa-check-circle"></i> Calculated Shift Times</h2>
+        <div id="alerts"></div>
+
+        <div class="result-grid">
+          <div class="result-box">
+            <h4>Shift Start</h4>
+            <div class="time-value" id="resStartUTC"></div>
+            <div class="date-label" id="resStartUTCDate"></div>
+            <div class="epoch-value" id="resStartEpoch" onclick="copyEpoch('start')" title="Click to copy epoch">
+              <i class="fas fa-copy"></i> <span id="resStartEpochVal"></span>
+            </div>
+          </div>
+          <div class="result-box">
+            <h4>Shift End</h4>
+            <div class="time-value" id="resEndUTC"></div>
+            <div class="date-label" id="resEndUTCDate"></div>
+            <div class="epoch-value" id="resEndEpoch" onclick="copyEpoch('end')" title="Click to copy epoch">
+              <i class="fas fa-copy"></i> <span id="resEndEpochVal"></span>
+            </div>
+          </div>
+          <div class="result-box">
+            <h4 id="localTzLabel">Local Time — Start</h4>
+            <div class="time-value" id="resStartLocal"></div>
+            <div class="date-label" id="resStartLocalDate"></div>
+          </div>
+          <div class="result-box">
+            <h4 id="localTzLabelEnd">Local Time — End</h4>
+            <div class="time-value" id="resEndLocal"></div>
+            <div class="date-label" id="resEndLocalDate"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <label style="font-weight:bold; font-size:0.9em; color:#555; display:block; margin-bottom:8px;">Hours
+            Breakdown</label>
+          <div class="breakdown-row" id="breakdown"></div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <label style="font-weight:bold; font-size:0.9em; color:#555; display:block; margin-bottom:8px;">
+            <i class="fas fa-eye"></i> Expected Gusto Display
+          </label>
+          <div class="gusto-preview">
+            <div class="gusto-preview-header" id="gustoDateHeader"></div>
+            <div class="gusto-preview-row">
+              <div class="gusto-time-range" id="gustoTimeRange"></div>
+              <div class="gusto-project">Project Name</div>
+              <div class="gusto-breakdown-col" id="gustoBreakdownCol"></div>
+              <div class="gusto-total" id="gustoTotal"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Table Card -->
+      <div class="card">
+        <h2><i class="fas fa-table"></i> Comparison Table</h2>
+        <div class="table-wrapper">
+          <table id="compTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Duration</th>
+                <th>UTC Start</th>
+                <th>UTC End</th>
+                <th>Local Start</th>
+                <th>Local End</th>
+                <th>Start Epoch (ms)</th>
+                <th>End Epoch (ms)</th>
+                <th>Overflow?</th>
+                <th>Overnight?</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="compBody">
+              <tr>
+                <td colspan="12" class="empty-state">No entries yet. Calculate a shift and click "+ Add to Comparison".
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn-danger btn-sm" onclick="clearTable()"><i class="fas fa-trash"></i> Clear Table</button>
+          <button class="btn-secondary btn-sm" onclick="exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="copied-toast" id="toast">Copied to clipboard!</div>
+
+  <script>
+    // ─── State ────────────────────────────────────────────────────────────────
+    let lastResult = null;
+    let compRows = [];
+
+    // ─── Helpers ─────────────────────────────────────────────────────────────
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function formatUTC(ms) {
+      const d = new Date(ms);
+      return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) + ' UTC';
+    }
+
+    function formatUTCDate(ms) {
+      const d = new Date(ms);
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return days[d.getUTCDay()] + ', ' + months[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
+    }
+
+    function formatLocal(ms, offsetHours) {
+      const shifted = ms + offsetHours * 3600 * 1000;
+      const d = new Date(shifted);
+      let h = d.getUTCHours(), m = d.getUTCMinutes(), s = d.getUTCSeconds();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return pad(h) + ':' + pad(m) + ':' + pad(s) + ' ' + ampm;
+    }
+
+    function formatLocalDate(ms, offsetHours) {
+      const shifted = ms + offsetHours * 3600 * 1000;
+      const d = new Date(shifted);
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return days[d.getUTCDay()] + ', ' + months[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
+    }
+
+    function tzLabel(offsetHours) {
+      const sign = offsetHours >= 0 ? '+' : '';
+      const h = Math.floor(Math.abs(offsetHours));
+      const m = Math.round((Math.abs(offsetHours) - h) * 60);
+      return 'UTC' + sign + offsetHours + (m ? ':' + pad(m) : '');
+    }
+
+    // ─── Gusto-style formatting ───────────────────────────────────────────────
+    function gustoTime(ms, offsetHours) {
+      // Format: "1:45pm" — no leading zero, no seconds, lowercase
+      const shifted = ms + offsetHours * 3600 * 1000;
+      const d = new Date(shifted);
+      let h = d.getUTCHours(), m = d.getUTCMinutes();
+      const ampm = h >= 12 ? 'pm' : 'am';
+      h = h % 12 || 12;
+      return h + ':' + pad(m) + ampm;
+    }
+
+    function gustoGMTLabel(offsetHours) {
+      // Format: "GMT+5:45" or "GMT-8" or "GMT+0"
+      const sign = offsetHours >= 0 ? '+' : '-';
+      const abs = Math.abs(offsetHours);
+      const h = Math.floor(abs);
+      const m = Math.round((abs - h) * 60);
+      return 'GMT' + sign + h + (m ? ':' + pad(m) : '');
+    }
+
+    function gustoDateHeader(ms, offsetHours) {
+      // Format: "Mon, Mar 16"
+      const shifted = ms + offsetHours * 3600 * 1000;
+      const d = new Date(shifted);
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return days[d.getUTCDay()] + ', ' + months[d.getUTCMonth()] + ' ' + d.getUTCDate();
+    }
+
+    function getBreakdown(totalHours) {
+      const pills = [];
+      const reg = Math.min(totalHours, 8);
+      if (reg > 0) pills.push({ label: reg.toFixed(2).replace(/\.00$/, '') + 'h Regular', cls: '' });
+      if (totalHours > 8) {
+        const ot = Math.min(totalHours - 8, 4);
+        pills.push({ label: ot.toFixed(2).replace(/\.00$/, '') + 'h Overtime', cls: 'ot' });
+      }
+      if (totalHours > 12) {
+        const dot = totalHours - 12;
+        pills.push({ label: dot.toFixed(2).replace(/\.00$/, '') + 'h Double OT', cls: 'dot' });
+      }
+      return pills;
+    }
+
+    // ─── Core Calculation ─────────────────────────────────────────────────────
+    function computeShift(dateStr, totalHours) {
+      const DEFAULT_START = 8;
+      const sum = DEFAULT_START + totalHours;
+      const overflow = sum > 24;
+      const startHour = overflow ? DEFAULT_START - (sum - 24) : DEFAULT_START;
+
+      const baseMs = new Date(dateStr + 'T00:00:00.000Z').getTime();
+      const startMs = baseMs + startHour * 3600 * 1000;
+      const endMs = startMs + totalHours * 3600 * 1000;
+
+      const startDateUTC = new Date(startMs).toISOString().split('T')[0];
+      const endDateUTC = new Date(endMs).toISOString().split('T')[0];
+      const overnight = endDateUTC > startDateUTC;
+      const startMismatch = startDateUTC !== dateStr;
+
+      return { startMs, endMs, startHour, overflow, overnight, startMismatch, totalHours };
+    }
+
+    // ─── Validate ─────────────────────────────────────────────────────────────
+    function validate() {
+      const dateStr = document.getElementById('shiftDate').value;
+      const hours = parseFloat(document.getElementById('hours').value) || 0;
+      const minutes = parseFloat(document.getElementById('minutes').value) || 0;
+      const total = hours + minutes / 60;
+
+      const msgEl = document.getElementById('validationMsg');
+      msgEl.style.display = 'none';
+
+      if (!dateStr) { showValidation('Please select a date.'); return null; }
+      if (total <= 0) { showValidation('Duration must be greater than 0.'); return null; }
+      if (total > 24) { showValidation('Duration cannot exceed 24 hours (Gusto limit).'); return null; }
+      return { dateStr, total };
+    }
+
+    function showValidation(msg) {
+      const el = document.getElementById('validationMsg');
+      el.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + msg;
+      el.style.display = 'flex';
+    }
+
+    // ─── Calculate ────────────────────────────────────────────────────────────
+    function calculate() {
+      const v = validate();
+      if (!v) return;
+
+      const { dateStr, total } = v;
+      const offset = parseFloat(document.getElementById('timezone').value);
+      const result = computeShift(dateStr, total);
+      result.offset = offset;
+      result.dateStr = dateStr;
+      lastResult = result;
+
+      // Alerts
+      const alertsEl = document.getElementById('alerts');
+      alertsEl.innerHTML = '';
+
+      if (result.startMismatch) {
+        alertsEl.innerHTML += `<div class="alert alert-error"><i class="fas fa-times-circle"></i>
+        <strong>Date Mismatch Error:</strong> Calculated start date (${new Date(result.startMs).toISOString().split('T')[0]}) does not match entry date (${dateStr}).
+        This would throw an error in <code>getShiftDatesForTimeTracks</code> at helper.js:108.</div>`;
+      } else if (result.overflow) {
+        const hrs = total.toFixed(2).replace(/\.00$/, '');
+        alertsEl.innerHTML += `<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i>
+        <strong>Overflow detected:</strong> ${hrs}h shift exceeds 8 + duration > 24 threshold.
+        Start shifted back to ${pad(result.startHour)}:00 UTC to keep shift within the same calendar date.</div>`;
+      } else {
+        alertsEl.innerHTML += `<div class="alert alert-info"><i class="fas fa-check-circle"></i>
+        No overflow — shift starts at 8:00 AM UTC as expected.</div>`;
+      }
+
+      if (result.overnight && !result.startMismatch) {
+        alertsEl.innerHTML += `<div class="alert alert-warning"><i class="fas fa-moon"></i>
+        <strong>Overnight shift:</strong> This shift crosses midnight UTC and ends on the next calendar day.</div>`;
+      }
+
+      // Populate results
+      const tzName = document.getElementById('timezone').selectedOptions[0].text.split('—')[0].trim();
+      document.getElementById('localTzLabel').textContent = 'Shift Start — ' + tzName;
+      document.getElementById('localTzLabelEnd').textContent = 'Shift End — ' + tzName;
+
+      document.getElementById('resStartUTC').textContent = formatUTC(result.startMs);
+      document.getElementById('resStartUTCDate').textContent = formatUTCDate(result.startMs);
+      document.getElementById('resStartEpochVal').textContent = result.startMs;
+
+      document.getElementById('resEndUTC').innerHTML = formatUTC(result.endMs) +
+        (result.overnight ? '<span class="overnight-badge">🌙 Overnight</span>' : '');
+      document.getElementById('resEndUTCDate').textContent = formatUTCDate(result.endMs);
+      document.getElementById('resEndEpochVal').textContent = result.endMs;
+
+      document.getElementById('resStartLocal').textContent = formatLocal(result.startMs, offset);
+      document.getElementById('resStartLocalDate').textContent = formatLocalDate(result.startMs, offset);
+      document.getElementById('resEndLocal').innerHTML = formatLocal(result.endMs, offset) +
+        (result.overnight ? '<span class="overnight-badge">🌙</span>' : '');
+      document.getElementById('resEndLocalDate').textContent = formatLocalDate(result.endMs, offset);
+
+      // Breakdown
+      const pills = getBreakdown(total);
+      document.getElementById('breakdown').innerHTML = pills.map(p =>
+        `<span class="breakdown-pill ${p.cls}">${p.label}</span>`
+      ).join('');
+
+      // Gusto preview
+      const gmt = gustoGMTLabel(offset);
+      const gustoStart = gustoTime(result.startMs, offset);
+      const gustoEnd = gustoTime(result.endMs, offset);
+      const onIcon = result.overnight ? ' <span class="gusto-overnight-icon">🌙</span>' : '';
+
+      document.getElementById('gustoDateHeader').textContent = gustoDateHeader(result.startMs, offset);
+      document.getElementById('gustoTimeRange').innerHTML =
+        gustoStart + '–' + gustoEnd + ' ' + gmt + onIcon;
+
+      const bkd = getBreakdown(total);
+      document.getElementById('gustoBreakdownCol').innerHTML = bkd.map(p => {
+        const label = p.label.replace('Regular', 'regular').replace('Overtime', 'overtime').replace('Double OT', 'double overtime');
+        return label;
+      }).join('<br>');
+
+      const totalH = Math.floor(total);
+      const totalM = Math.round((total % 1) * 60);
+      document.getElementById('gustoTotal').textContent = totalH + 'h' + (totalM ? ' ' + totalM + 'm' : '');
+
+      document.getElementById('resultPanel').classList.add('visible');
+    }
+
+    // ─── Comparison Table ─────────────────────────────────────────────────────
+    function addToComparison() {
+      const v = validate();
+      if (!v) return;
+
+      const { dateStr, total } = v;
+      const offset = parseFloat(document.getElementById('timezone').value);
+      const result = computeShift(dateStr, total);
+      const tzName = document.getElementById('timezone').selectedOptions[0].text.split('—')[0].trim();
+
+      const row = { dateStr, total, offset, tzName, ...result, id: Date.now() };
+      compRows.push(row);
+      renderTable();
+      calculate(); // also show result
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('compBody');
+      if (!compRows.length) {
+        tbody.innerHTML = '<tr><td colspan="12" class="empty-state">No entries yet. Calculate a shift and click "+ Add to Comparison".</td></tr>';
+        return;
+      }
+      tbody.innerHTML = compRows.map((r, i) => {
+        const ovTag = r.overflow ? '<span class="tag tag-ow">Yes</span>' : '<span class="tag tag-ok">No</span>';
+        const onTag = r.overnight ? '<span class="tag tag-on">🌙 Yes</span>' : '<span class="tag tag-ok">No</span>';
+        const durStr = Math.floor(r.total) + 'h ' + Math.round((r.total % 1) * 60) + 'm';
+        return `<tr>
+        <td>${i + 1}</td>
+        <td>${r.dateStr}</td>
+        <td>${durStr}</td>
+        <td>${formatUTC(r.startMs)}<br><small style="color:#999">${formatUTCDate(r.startMs)}</small></td>
+        <td>${formatUTC(r.endMs)}<br><small style="color:#999">${formatUTCDate(r.endMs)}</small></td>
+        <td>${formatLocal(r.startMs, r.offset)} ${r.tzName}<br><small style="color:#999">${formatLocalDate(r.startMs, r.offset)}</small></td>
+        <td>${formatLocal(r.endMs, r.offset)} ${r.tzName}<br><small style="color:#999">${formatLocalDate(r.endMs, r.offset)}</small></td>
+        <td style="font-family:monospace">${r.startMs}</td>
+        <td style="font-family:monospace">${r.endMs}</td>
+        <td>${ovTag}</td>
+        <td>${onTag}</td>
+        <td><button class="del-btn" onclick="deleteRow(${r.id})" title="Remove"><i class="fas fa-times"></i></button></td>
+      </tr>`;
+      }).join('');
+    }
+
+    function deleteRow(id) {
+      compRows = compRows.filter(r => r.id !== id);
+      renderTable();
+    }
+
+    function clearTable() {
+      compRows = [];
+      renderTable();
+    }
+
+    // ─── Export CSV ───────────────────────────────────────────────────────────
+    function exportCSV() {
+      if (!compRows.length) { alert('No data to export.'); return; }
+      const headers = ['#', 'Date', 'Duration (h)', 'UTC Start', 'UTC Start Date', 'UTC End', 'UTC End Date', 'Local Start', 'Local Start Date', 'Local End', 'Local End Date', 'Start Epoch (ms)', 'End Epoch (ms)', 'Overflow', 'Overnight'];
+      const rows = compRows.map((r, i) => [
+        i + 1, r.dateStr,
+        r.total.toFixed(4),
+        formatUTC(r.startMs), formatUTCDate(r.startMs),
+        formatUTC(r.endMs), formatUTCDate(r.endMs),
+        formatLocal(r.startMs, r.offset) + ' ' + r.tzName, formatLocalDate(r.startMs, r.offset),
+        formatLocal(r.endMs, r.offset) + ' ' + r.tzName, formatLocalDate(r.endMs, r.offset),
+        r.startMs, r.endMs,
+        r.overflow ? 'Yes' : 'No',
+        r.overnight ? 'Yes' : 'No'
+      ]);
+      const csv = [headers, ...rows].map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'gusto-shift-times.csv';
+      a.click();
+    }
+
+    // ─── Copy Epoch ───────────────────────────────────────────────────────────
+    function copyEpoch(type) {
+      if (!lastResult) return;
+      const val = type === 'start' ? lastResult.startMs : lastResult.endMs;
+      navigator.clipboard.writeText(String(val)).then(() => showToast()).catch(() => { });
+    }
+
+    function showToast() {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    // ─── Reset ────────────────────────────────────────────────────────────────
+    function resetForm() {
+      document.getElementById('shiftDate').value = '';
+      document.getElementById('hours').value = '';
+      document.getElementById('minutes').value = '0';
+      document.getElementById('validationMsg').style.display = 'none';
+      document.getElementById('resultPanel').classList.remove('visible');
+      document.getElementById('alerts').innerHTML = '';
+      lastResult = null;
+    }
+
+    // ─── Sidebar ──────────────────────────────────────────────────────────────
+    function toggleSidebar() {
+      const s = document.getElementById('sidebar');
+      s.style.left = s.style.left === '0px' ? '-260px' : '0px';
+    }
+
+    // ─── Default date to today ────────────────────────────────────────────────
+    (function () {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('shiftDate').value = today;
+    })();
+  </script>
+
+</body>
+
+</html>

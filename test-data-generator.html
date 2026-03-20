@@ -1,179 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Data Generator - QA Test Utility Hub</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Data Generator — Utility Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+    header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.1em; font-weight: 600; }
+    .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+    .hamburger:hover { color: #fff; }
+    .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
+    .home-btn:hover { color: #fff; }
+    .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-home:hover { background: rgba(255,255,255,0.06); }
+    .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
+    .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(217,119,6,0.15); border-left-color: #d97706; }
+    .content { padding: 24px 20px; }
+    .main-container { max-width: 580px; margin: auto; }
+    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 22px; margin-bottom: 18px; }
+    .card-title { font-size: 0.92em; font-weight: 700; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #d97706; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.82em; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.92em; background: #fafafa; color: #1a1a2e; font-family: inherit; transition: border-color 0.15s; }
+    input:focus, select:focus { outline: none; border-color: #d97706; background: #fff; }
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #d97706; color: #fff; }
+    .btn-primary:hover { background: #b45309; }
+    .btn-outline { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
+    .btn-outline:hover { background: #f3f4f6; }
+    .output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .output-count { font-size: 0.8em; color: #9ca3af; }
+    .code-block { background: #0f1117; border-radius: 10px; padding: 16px; font-family: 'SF Mono','Fira Code','Consolas',monospace; font-size: 0.84em; color: #e2e8f0; white-space: pre-wrap; line-height: 1.8; max-height: 360px; overflow-y: auto; }
+    .copy-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85em; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 8px; }
+    .toast.show { opacity: 1; }
+  </style>
 </head>
-<body class="utility-page">
+<body>
 <header>
   <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
-  <h1><i class="fas fa-database"></i> Test Data Generator</h1>
-  <a href="index.html" class="home-icon"><i class="fas fa-home"></i></a>
+  <h1><i class="fas fa-database" style="color:#d97706;margin-right:8px"></i>Test Data Generator</h1>
+  <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
 </header>
-<div class="sidebar" id="sidebar"></div>
+<div class="sidebar" id="sidebar">
+  <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
+  <div class="sidebar-section">QA Testing</div>
+  <a href="parallel-worker-calculator.html">Parallel Worker Calculator</a>
+  <a href="resource-requirement-calculator.html">Resource Requirement Calculator</a>
+  <a href="test-duration-estimator.html">Test Run Duration Estimator</a>
+  <a href="test-time-calculator.html">Test Execution Time Calculator</a>
+  <a href="timeout-configuration-helper.html">Timeout Config Helper</a>
+  <a href="selector-stability-checker.html">Selector Stability Checker</a>
+  <a href="locator-coverage-checker.html">Locator Coverage Checker</a>
+  <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html">Color Contrast Checker</a>
+  <div class="sidebar-section">Code Generators</div>
+  <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
+  <a href="assertion-helper.html">Assertion Helper</a>
+  <div class="sidebar-section">Dev Utilities</div>
+  <a href="api-request-tester.html">API Request Tester</a>
+  <a href="json-formatter.html">JSON Formatter</a>
+  <a href="regex-tester.html">Regex Tester</a>
+  <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <a href="string-utils.html">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html">HTTP Status Reference</a>
+  <a href="hash-generator.html">Hash Generator</a>
+  <div class="sidebar-section">Test Data</div>
+  <a href="test-data-generator.html" class="active">Test Data Generator</a>
+  <div class="sidebar-section">Integration</div>
+  <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
+</div>
 <div class="content">
-  <div class="container">
-    <h2><i class="fas fa-database"></i> Generate Random Test Data</h2>
-    <form id="dataGeneratorForm">
-      <label for="dataType">Select Data Type:</label>
-      <select id="dataType" required>
-        <option value="name">Full Name</option>
-        <option value="email">Email Address</option>
-        <option value="phone">Phone Number</option>
-        <option value="address">Address</option>
-        <option value="date">Date</option>
-        <option value="uuid">UUID</option>
-        <option value="password">Password</option>
-        <option value="username">Username</option>
-        <option value="creditCard">Credit Card Number</option>
-        <option value="ipAddress">IP Address</option>
-      </select>
-      <label for="dataQuantity">Quantity:</label>
-      <input type="number" id="dataQuantity" placeholder="e.g., 10" min="1" max="1000" value="10" required>
-      <button type="button" onclick="generateTestData()">
-        <i class="fas fa-magic"></i> GENERATE DATA
-      </button>
-    </form>
-    <div class="result" id="dataResult" style="display: none;">
-      <div id="generatedData"></div>
-      <button class="copy-btn secondary" onclick="copyGeneratedData()">
-        <i class="fas fa-copy"></i> Copy All Data
-      </button>
+  <div class="main-container">
+    <div class="page-title">Test Data Generator</div>
+    <div class="page-subtitle">Generate random names, emails, and phone numbers for use in test scenarios.</div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-sliders-h"></i> Configuration</div>
+      <div class="form-group">
+        <label for="dataType">Data Type</label>
+        <select id="dataType">
+          <option value="name">Full Name</option>
+          <option value="email">Email Address</option>
+          <option value="phone">Phone Number</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="dataQuantity">Quantity</label>
+        <input type="number" id="dataQuantity" placeholder="e.g., 10" min="1" max="100" />
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="generateTestData()"><i class="fas fa-dice"></i> Generate Data</button>
+        <button class="btn btn-outline" onclick="clearAll()"><i class="fas fa-redo"></i> Reset</button>
+      </div>
+    </div>
+    <div class="card" id="outputCard" style="display:none">
+      <div class="card-title"><i class="fas fa-list"></i> Generated Data</div>
+      <div class="output-header">
+        <span class="output-count" id="outputCount"></span>
+        <button class="btn btn-outline" style="padding:5px 12px;font-size:0.8em" onclick="regenerate()"><i class="fas fa-sync-alt"></i> Regenerate</button>
+      </div>
+      <div class="code-block" id="dataOutput"></div>
+      <div class="copy-row">
+        <button class="btn btn-outline" onclick="copyData()"><i class="fas fa-copy"></i> Copy All</button>
+      </div>
     </div>
   </div>
 </div>
-<script src="common.js"></script>
+<div class="toast" id="toast"><i class="fas fa-check"></i> Copied!</div>
 <script>
-  let generatedDataArray = [];
-  const firstNames = ["John", "Jane", "Alice", "Bob", "Charlie", "Dana", "Emma", "Frank", "Grace", "Henry", "Ivy", "Jack", "Kate", "Liam", "Mia"];
-  const lastNames = ["Smith", "Johnson", "Brown", "Williams", "Jones", "Miller", "Davis", "Garcia", "Rodriguez", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson"];
-  const domains = ["example.com", "test.com", "sample.org", "demo.net", "qa.io", "testing.dev"];
-  function generateRandomName() {
-    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-    return `${firstName} ${lastName}`;
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-270px' : '0px';
   }
+  const FIRST = ["James","Maria","John","Emma","Robert","Olivia","Michael","Ava","William","Sophia","David","Isabella","Richard","Mia","Joseph","Charlotte","Thomas","Amelia","Charles","Harper"];
+  const LAST  = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Wilson","Taylor","Anderson","Thomas","Jackson","White","Harris","Martin","Thompson","Moore","Lee","Clark"];
+  const DOMAINS = ["example.com","test.com","sample.org","demo.net","qa-mail.io","testenv.dev"];
+  function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function generateRandomName() { return `${rand(FIRST)} ${rand(LAST)}`; }
   function generateRandomEmail() {
-    const name = generateRandomName().toLowerCase().replace(" ", ".");
-    const randomNum = Math.floor(Math.random() * 1000);
-    return `${name}${randomNum}@${domains[Math.floor(Math.random() * domains.length)]}`;
+    const name = generateRandomName().toLowerCase().replace(' ', '.') + Math.floor(Math.random()*99);
+    return `${name}@${rand(DOMAINS)}`;
   }
   function generateRandomPhone() {
-    const areaCode = Math.floor(100 + Math.random() * 900);
-    const middle = Math.floor(100 + Math.random() * 900);
-    const last = Math.floor(1000 + Math.random() * 9000);
-    return `(${areaCode}) ${middle}-${last}`;
-  }
-  function generateRandomAddress() {
-    const streets = ["Main St", "Oak Ave", "Elm Dr", "Park Blvd", "First St", "Second Ave"];
-    const cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia"];
-    const states = ["NY", "CA", "IL", "TX", "AZ", "PA"];
-    const streetNum = Math.floor(100 + Math.random() * 9000);
-    const zip = Math.floor(10000 + Math.random() * 90000);
-    return `${streetNum} ${streets[Math.floor(Math.random() * streets.length)]}, ${cities[Math.floor(Math.random() * cities.length)]}, ${states[Math.floor(Math.random() * states.length)]} ${zip}`;
-  }
-  function generateRandomDate() {
-    const start = new Date(2020, 0, 1);
-    const end = new Date();
-    const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-    return date.toISOString().split('T')[0];
-  }
-  function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
-  function generatePassword(length = 12) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-    let password = '';
-    for (let i = 0; i < length; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return password;
-  }
-  function generateUsername() {
-    const name = generateRandomName().toLowerCase().replace(" ", "");
-    const num = Math.floor(Math.random() * 1000);
-    return `${name}${num}`;
-  }
-  function generateCreditCard() {
-    // Luhn algorithm compatible test card number
-    const prefix = ['4', '5', '3', '6'][Math.floor(Math.random() * 4)];
-    let card = prefix;
-    for (let i = 0; i < 14; i++) {
-      card += Math.floor(Math.random() * 10);
-    }
-    // Simple check digit
-    card += Math.floor(Math.random() * 10);
-    return card.replace(/(.{4})/g, '$1 ').trim();
-  }
-  function generateIPAddress() {
-    return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+    const a = Math.floor(100+Math.random()*900), b = Math.floor(100+Math.random()*900), c = Math.floor(1000+Math.random()*9000);
+    return `(${a}) ${b}-${c}`;
   }
   function generateTestData() {
     const dataType = document.getElementById("dataType").value;
-    const dataQuantity = parseInt(document.getElementById("dataQuantity").value, 10);
-    const resultDiv = document.getElementById("dataResult");
-    const dataDiv = document.getElementById("generatedData");
-    if (!dataQuantity || dataQuantity <= 0 || dataQuantity > 1000) {
-      resultDiv.style.display = 'block';
-      dataDiv.innerHTML = "<p class='error'>Please enter a valid quantity (1-1000).</p>";
-      return;
+    const qty = parseInt(document.getElementById("dataQuantity").value, 10);
+    if (!qty || qty <= 0) { alert("Please enter a valid quantity."); return; }
+    const data = [];
+    for (let i = 0; i < qty; i++) {
+      if (dataType === "name") data.push(generateRandomName());
+      else if (dataType === "email") data.push(generateRandomEmail());
+      else data.push(generateRandomPhone());
     }
-    generatedDataArray = [];
-    for (let i = 0; i < dataQuantity; i++) {
-      let data;
-      switch(dataType) {
-        case "name":
-          data = generateRandomName();
-          break;
-        case "email":
-          data = generateRandomEmail();
-          break;
-        case "phone":
-          data = generateRandomPhone();
-          break;
-        case "address":
-          data = generateRandomAddress();
-          break;
-        case "date":
-          data = generateRandomDate();
-          break;
-        case "uuid":
-          data = generateUUID();
-          break;
-        case "password":
-          data = generatePassword();
-          break;
-        case "username":
-          data = generateUsername();
-          break;
-        case "creditCard":
-          data = generateCreditCard();
-          break;
-        case "ipAddress":
-          data = generateIPAddress();
-          break;
-        default:
-          data = generateRandomName();
-      }
-      generatedDataArray.push(data);
-    }
-    dataDiv.innerHTML = `
-      <p class="success">Generated ${dataQuantity} ${dataType}(s):</p>
-      <div class="data-output">${generatedDataArray.join("\n")}</div>
-    `;
-    resultDiv.style.display = 'block';
+    document.getElementById("dataOutput").textContent = data.join("\n");
+    document.getElementById("outputCount").textContent = `${qty} item${qty>1?'s':''} generated`;
+    document.getElementById("outputCard").style.display = 'block';
   }
-  function copyGeneratedData() {
-    if (generatedDataArray.length > 0) {
-      copyToClipboard(generatedDataArray.join("\n"), event.target.closest('button'));
-    }
+  function regenerate() { generateTestData(); }
+  function clearAll() {
+    document.getElementById('dataQuantity').value = '';
+    document.getElementById('outputCard').style.display = 'none';
+  }
+  function copyData() {
+    const text = document.getElementById('dataOutput').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    });
   }
 </script>
 </body>
