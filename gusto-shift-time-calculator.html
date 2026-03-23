@@ -724,6 +724,7 @@
     function fmtHM(hours) {
       const h = Math.floor(hours);
       const m = Math.round((hours - h) * 60);
+      if (h === 0) return m + 'm';
       return h + 'h' + (m ? ' ' + m + 'm' : '');
     }
 
@@ -743,20 +744,25 @@
     }
 
     // ─── Core Calculation ─────────────────────────────────────────────────────
-    function computeShift(dateStr, totalHours) {
+    function computeShift(dateStr, totalHours, offsetHours) {
       const DEFAULT_START = 8;
-      const END_OF_DAY = 23 + 59 / 60; // 23:59 in fractional hours
-      const startHour = Math.min(DEFAULT_START, END_OF_DAY - totalHours);
+      const END_OF_DAY = 23 + 59 / 60; // 23:59 in local time
+      const startHour = Math.min(DEFAULT_START, END_OF_DAY - totalHours); // local hours
       const overflow = startHour < DEFAULT_START;
 
-      const baseMs = new Date(dateStr + 'T00:00:00.000Z').getTime();
-      const startMs = baseMs + startHour * 3600 * 1000;
+      // midnight of dateStr in local timezone, expressed as UTC ms
+      const localMidnightMs = new Date(dateStr + 'T00:00:00.000Z').getTime() - offsetHours * 3600 * 1000;
+      const startMs = localMidnightMs + startHour * 3600 * 1000;
       const endMs = startMs + totalHours * 3600 * 1000;
 
-      const startDateUTC = new Date(startMs).toISOString().split('T')[0];
-      const endDateUTC = new Date(endMs).toISOString().split('T')[0];
-      const overnight = endDateUTC > startDateUTC;
-      const startMismatch = startDateUTC !== dateStr;
+      // overnight = end crosses midnight in local time
+      const endLocalHour = startHour + totalHours;
+      const overnight = endLocalHour > 24;
+
+      // startMismatch: start local date doesn't match entered date
+      const startLocalShifted = startMs + offsetHours * 3600 * 1000;
+      const startLocalDate = new Date(startLocalShifted).toISOString().split('T')[0];
+      const startMismatch = startLocalDate !== dateStr;
 
       return { startMs, endMs, startHour, overflow, overnight, startMismatch, totalHours };
     }
@@ -791,7 +797,7 @@
 
       const { dateStr, total } = v;
       const offset = parseFloat(document.getElementById('timezone').value);
-      const result = computeShift(dateStr, total);
+      const result = computeShift(dateStr, total, offset);
       result.offset = offset;
       result.dateStr = dateStr;
       lastResult = result;
@@ -846,14 +852,13 @@
       ).join('');
 
       // Gusto preview
-      const gmt = gustoGMTLabel(offset);
-      const gustoStart = gustoTime(result.startMs, offset);
-      const gustoEnd = gustoTime(result.endMs, offset);
+      const gustoStart = gustoTime(result.startMs, 0);
+      const gustoEnd = gustoTime(result.endMs, 0);
       const onIcon = result.overnight ? ' <span class="gusto-overnight-icon">🌙</span>' : '';
 
-      document.getElementById('gustoDateHeader').textContent = gustoDateHeader(result.startMs, offset);
+      document.getElementById('gustoDateHeader').textContent = gustoDateHeader(result.startMs, 0);
       document.getElementById('gustoTimeRange').innerHTML =
-        gustoStart + '–' + gustoEnd + ' ' + gmt + onIcon;
+        gustoStart + '–' + gustoEnd + ' UTC' + onIcon;
 
       const bkd = getBreakdown(total);
       document.getElementById('gustoBreakdownCol').innerHTML = bkd.map(p => p.label).join('<br>');
@@ -872,7 +877,7 @@
 
       const { dateStr, total } = v;
       const offset = parseFloat(document.getElementById('timezone').value);
-      const result = computeShift(dateStr, total);
+      const result = computeShift(dateStr, total, offset);
       const tzName = document.getElementById('timezone').selectedOptions[0].text.split('—')[0].trim();
 
       const row = { dateStr, total, offset, tzName, ...result, id: Date.now() };
