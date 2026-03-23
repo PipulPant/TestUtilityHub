@@ -24,7 +24,7 @@
     .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(47,138,16,0.15); border-left-color: #2f8a10; }
 
     .content { padding: 24px 20px; }
-    .main-container { max-width: 680px; margin: auto; }
+    .main-container { max-width: 900px; margin: auto; }
     .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
     .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
 
@@ -33,12 +33,13 @@
     .card-title i { color: #2f8a10; }
 
     label { display: block; font-size: 0.82em; font-weight: 600; color: #374151; margin-bottom: 6px; }
-    input {
+    textarea {
       width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
-      font-size: 0.92em; background: #fafafa; color: #1a1a2e; font-family: 'SF Mono','Fira Code','Consolas',monospace;
-      transition: border-color 0.15s;
+      font-size: 0.82em; background: #fafafa; color: #1a1a2e;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      resize: vertical; line-height: 1.5; transition: border-color 0.15s;
     }
-    input:focus { outline: none; border-color: #2f8a10; background: #fff; }
+    textarea:focus { outline: none; border-color: #2f8a10; background: #fff; }
 
     .btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
     .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
@@ -48,26 +49,78 @@
     .btn-outline { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
     .btn-outline:hover { background: #f3f4f6; }
 
-    /* Result */
-    .result-box { border-radius: 10px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 14px; }
-    .result-box.success { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
-    .result-box.warning { background: #fffbeb; border: 1.5px solid #fde68a; }
-    .result-box.error   { background: #fef2f2; border: 1.5px solid #fecaca; }
-    .result-icon { font-size: 1.3em; margin-top: 2px; flex-shrink: 0; }
-    .result-box.success .result-icon { color: #2f8a10; }
-    .result-box.warning .result-icon { color: #d97706; }
-    .result-box.error   .result-icon { color: #e53e3e; }
-    .result-title { font-weight: 700; font-size: 0.92em; margin-bottom: 4px; }
-    .result-box.success .result-title { color: #166534; }
-    .result-box.warning .result-title { color: #92400e; }
-    .result-box.error   .result-title { color: #991b1b; }
-    .result-desc { font-size: 0.84em; color: #6b7280; line-height: 1.5; }
+    /* Framework tabs */
+    .fw-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .fw-tab { padding: 7px 16px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.84em; font-weight: 600; cursor: pointer; background: #fff; color: #6b7280; transition: all 0.15s; }
+    .fw-tab:hover { border-color: #2f8a10; color: #2f8a10; }
+    .fw-tab.active { background: #2f8a10; color: #fff; border-color: #2f8a10; }
+    .fw-tab i { margin-right: 5px; }
+
+    /* Summary */
+    .summary-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    .summary-chip { border-radius: 20px; padding: 4px 12px; font-size: 0.8em; font-weight: 600; }
+    .chip-total    { background: #f0f2f5; color: #374151; }
+    .chip-stable   { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .chip-moderate { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .chip-fragile  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* Element block */
+    .el-block { border: 1.5px solid #e5e7eb; border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
+    .el-block-header { background: #f9fafb; padding: 10px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
+    .el-tag { background: #1a1a2e; color: #fff; border-radius: 5px; padding: 2px 8px; font-family: monospace; font-size: 0.8em; font-weight: 600; flex-shrink: 0; }
+    .el-preview { font-size: 0.78em; color: #6b7280; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+
+    /* Locator row */
+    .locator-row { display: grid; grid-template-columns: auto auto auto 1fr auto auto; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid #f3f4f6; }
+    .locator-row:last-child { border-bottom: none; }
+    .locator-row:hover { background: #f9fafb; }
+
+    /* Selenium has two rows (CSS + XPath) */
+    .locator-row-group { border-bottom: 1px solid #f3f4f6; }
+    .locator-row-group:last-child { border-bottom: none; }
+    .locator-row-inner { display: grid; grid-template-columns: auto auto auto 1fr auto auto; align-items: center; gap: 8px; padding: 7px 14px; }
+    .locator-row-inner:hover { background: #f9fafb; }
+    .locator-row-inner + .locator-row-inner { border-top: 1px dashed #f3f4f6; padding-top: 6px; }
+    .locator-row-inner .el-tag { background: #6b7280; font-size: 0.72em; }
+
+    /* Badges */
+    .badge { border-radius: 5px; padding: 2px 7px; font-size: 0.7em; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+    .badge-stable   { background: #dcfce7; color: #166534; }
+    .badge-moderate { background: #fef9c3; color: #854d0e; }
+    .badge-fragile  { background: #fee2e2; color: #991b1b; }
+    .type-badge { background: #e0e7ff; color: #3730a3; border-radius: 5px; padding: 2px 7px; font-size: 0.7em; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+    .best-badge { background: #2f8a10; color: #fff; border-radius: 5px; padding: 2px 7px; font-size: 0.68em; font-weight: 700; flex-shrink: 0; }
+    .match-badge { font-size: 0.72em; white-space: nowrap; flex-shrink: 0; }
+    .match-unique { color: #2f8a10; font-weight: 600; }
+    .match-multi  { color: #d97706; font-weight: 600; }
+    .match-na     { color: #9ca3af; }
+
+    /* Code */
+    .locator-code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8em; color: #1a1a2e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+
+    /* Copy button */
+    .btn-copy { background: none; border: 1px solid #e5e7eb; color: #6b7280; border-radius: 6px; padding: 3px 9px; font-size: 0.74em; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; font-weight: 600; }
+    .btn-copy:hover  { background: #f0fdf4; border-color: #2f8a10; color: #2f8a10; }
+    .btn-copy.copied { background: #f0fdf4; border-color: #2f8a10; color: #2f8a10; }
+
+    /* Alert */
+    .alert { border-radius: 8px; padding: 12px 16px; font-size: 0.88em; display: flex; align-items: flex-start; gap: 10px; }
+    .alert-error { background: #fef2f2; border: 1.5px solid #fecaca; color: #991b1b; }
+    .alert-info  { background: #f0fdf4; border: 1.5px solid #bbf7d0; color: #166534; }
 
     /* Tips */
     .tip-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
     .tip-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.86em; color: #374151; }
-    .tip-list li i { color: #2f8a10; margin-top: 2px; flex-shrink: 0; }
+    .tip-list li i { margin-top: 2px; flex-shrink: 0; }
     .tip-code { font-family: monospace; background: #f3f4f6; padding: 1px 6px; border-radius: 4px; font-size: 0.9em; }
+
+    .copied-toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85em; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; }
+    .copied-toast.show { opacity: 1; }
+
+    @media (max-width: 640px) {
+      .locator-row, .locator-row-inner { grid-template-columns: auto auto 1fr auto; }
+      .locator-row .badge, .locator-row-inner .badge { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -89,6 +142,7 @@
   <a href="selector-stability-checker.html">Selector Stability Checker</a>
   <a href="locator-coverage-checker.html" class="active">Locator Coverage Checker</a>
   <a href="page-load-speed-monitor.html">Page Load Speed Monitor</a>
+  <a href="color-contrast-checker.html">Color Contrast Checker</a>
   <div class="sidebar-section">Code Generators</div>
   <a href="playwright-action-code-generator.html">Playwright Action Generator</a>
   <a href="assertion-helper.html">Assertion Helper</a>
@@ -97,6 +151,10 @@
   <a href="json-formatter.html">JSON Formatter</a>
   <a href="regex-tester.html">Regex Tester</a>
   <a href="base64-tool.html">Base64 / URL Encoder</a>
+  <a href="string-utils.html">String Utilities</a>
+  <a href="cron-builder.html">Cron Expression Builder</a>
+  <a href="http-status-reference.html">HTTP Status Reference</a>
+  <a href="hash-generator.html">Hash Generator</a>
   <div class="sidebar-section">Test Data</div>
   <a href="test-data-generator.html">Test Data Generator</a>
   <div class="sidebar-section">Integration</div>
@@ -106,112 +164,528 @@
 <div class="content">
   <div class="main-container">
     <div class="page-title">Locator Coverage Checker</div>
-    <div class="page-subtitle">Verify a CSS selector matches exactly one element — safe and stable for Playwright automation.</div>
+    <div class="page-subtitle">Paste HTML from DevTools Inspect — extracts stable Playwright, Cypress and Selenium selectors ranked by reliability.</div>
 
+    <!-- Input Card -->
     <div class="card">
-      <div class="card-title"><i class="fas fa-crosshairs"></i> Check Locator</div>
-      <label for="locatorInput">CSS Selector</label>
-      <input type="text" id="locatorInput" placeholder='e.g.  .submit-btn   #login-form   [data-testid="email"]' />
+      <div class="card-title"><i class="fas fa-code"></i> Paste Inspected HTML</div>
+      <label for="htmlInput">HTML from DevTools (right-click element → Copy → Copy element / Copy outerHTML)</label>
+      <textarea id="htmlInput" rows="9" placeholder='<button class="submit-btn" data-testid="submit-form" aria-label="Submit">Submit</button>
+
+<!-- Or paste a larger section with multiple elements -->
+<form id="login-form">
+  <input type="email" name="email" placeholder="Enter email" />
+  <input type="password" name="password" placeholder="Password" />
+  <button type="submit" aria-label="Sign In">Sign In</button>
+</form>'></textarea>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="checkLocator()"><i class="fas fa-search"></i> Check Coverage</button>
-        <button class="btn btn-outline" onclick="clearResult()"><i class="fas fa-redo"></i> Reset</button>
+        <button class="btn btn-primary" onclick="extractSelectors()"><i class="fas fa-magic"></i> Extract Selectors</button>
+        <button class="btn btn-outline" onclick="clearAll()"><i class="fas fa-redo"></i> Reset</button>
       </div>
     </div>
 
-    <div id="resultContainer" style="display:none" class="card">
-      <div class="card-title"><i class="fas fa-chart-bar"></i> Result</div>
-      <div id="locatorResult"></div>
+    <!-- Results Card -->
+    <div id="resultsCard" style="display:none" class="card">
+      <div class="card-title"><i class="fas fa-list-ul"></i> Extracted Selectors</div>
+
+      <!-- Framework tabs -->
+      <div class="fw-tabs">
+        <button class="fw-tab active" onclick="switchFw('playwright', this)"><i class="fas fa-theater-masks"></i> Playwright</button>
+        <button class="fw-tab" onclick="switchFw('cypress', this)"><i class="fas fa-tree"></i> Cypress</button>
+        <button class="fw-tab" onclick="switchFw('selenium', this)"><i class="fas fa-robot"></i> Selenium (Python)</button>
+      </div>
+
+      <div id="summaryBar" class="summary-bar"></div>
+      <div id="resultsBody"></div>
     </div>
 
+    <!-- Tips Card -->
     <div class="card">
-      <div class="card-title"><i class="fas fa-lightbulb"></i> Best Practice Tips</div>
+      <div class="card-title"><i class="fas fa-lightbulb"></i> Selector Priority Guide</div>
       <ul class="tip-list">
-        <li><i class="fas fa-check-circle"></i><span>Prefer <span class="tip-code">data-testid</span> attributes — they're stable and automation-specific.</span></li>
-        <li><i class="fas fa-check-circle"></i><span>ID selectors like <span class="tip-code">#submit-btn</span> are unique by definition — great for automation.</span></li>
-        <li><i class="fas fa-check-circle"></i><span>Avoid deeply nested selectors like <span class="tip-code">.a > .b > .c > span</span> — they break on layout changes.</span></li>
-        <li><i class="fas fa-times-circle" style="color:#e53e3e"></i><span>Never use <span class="tip-code">:nth-child()</span> — the index shifts when elements are added or removed.</span></li>
-        <li><i class="fas fa-times-circle" style="color:#e53e3e"></i><span>Dynamic class names like <span class="tip-code">.sc-abc123</span> (CSS-in-JS) change on every build.</span></li>
-        <li><i class="fas fa-info-circle" style="color:#0891b2"></i><span>In Playwright, prefer <span class="tip-code">getByTestId()</span>, <span class="tip-code">getByRole()</span> or <span class="tip-code">getByLabel()</span> over raw CSS selectors.</span></li>
+        <li><i class="fas fa-check-circle" style="color:#2f8a10"></i><span><span class="tip-code">data-testid</span> / <span class="tip-code">data-cy</span> / <span class="tip-code">data-test</span> — Best choice. Purpose-built for automation, never changes with UI redesign.</span></li>
+        <li><i class="fas fa-check-circle" style="color:#2f8a10"></i><span><span class="tip-code">id</span> — Unique by definition. Use if it's a stable, human-written ID (not auto-generated).</span></li>
+        <li><i class="fas fa-check-circle" style="color:#2f8a10"></i><span><span class="tip-code">aria-label</span> / <span class="tip-code">role</span> — Semantic and accessibility-driven. Playwright's <span class="tip-code">getByRole()</span> and <span class="tip-code">getByLabel()</span> are strongly preferred.</span></li>
+        <li><i class="fas fa-check-circle" style="color:#2f8a10"></i><span><span class="tip-code">name</span> / <span class="tip-code">placeholder</span> — Reliable for form inputs without test IDs.</span></li>
+        <li><i class="fas fa-exclamation-triangle" style="color:#d97706"></i><span><span class="tip-code">text content</span> — Breaks if copy changes. Use only when no stable attribute exists.</span></li>
+        <li><i class="fas fa-times-circle" style="color:#e53e3e"></i><span><span class="tip-code">class</span> — Fragile. CSS-in-JS hashes like <span class="tip-code">.sc-abc123</span> change on every build. Only use stable BEM classes.</span></li>
       </ul>
     </div>
   </div>
 </div>
 
+<div class="copied-toast" id="toast">Copied!</div>
+
 <script>
-  function checkLocator() {
-    const selector = document.getElementById('locatorInput').value.trim();
-    const container = document.getElementById('resultContainer');
-    const resultDiv = document.getElementById('locatorResult');
+  let currentFw = 'playwright';
+  let lastResults = [];
 
-    if (!selector) {
-      resultDiv.innerHTML = `<div class="result-box error"><i class="fas fa-exclamation-circle result-icon"></i><div><div class="result-title">No selector entered</div><div class="result-desc">Please type a CSS selector above.</div></div></div>`;
-      container.style.display = 'block';
-      return;
+  // ─── Implicit ARIA roles ────────────────────────────────────────────────────
+  function implicitRole(tag, el) {
+    const type = (el.getAttribute('type') || '').toLowerCase();
+    switch (tag) {
+      case 'button': return 'button';
+      case 'a':      return el.getAttribute('href') != null ? 'link' : null;
+      case 'input':
+        if (type === 'checkbox') return 'checkbox';
+        if (type === 'radio')    return 'radio';
+        if (type === 'submit' || type === 'button') return 'button';
+        if (!type || ['text','email','password','search','tel','url','number'].includes(type)) return 'textbox';
+        return null;
+      case 'select':   return 'combobox';
+      case 'textarea': return 'textbox';
+      case 'h1': case 'h2': case 'h3': case 'h4': case 'h5': case 'h6': return 'heading';
+      case 'img':      return 'img';
+      case 'nav':      return 'navigation';
+      case 'main':     return 'main';
+      case 'form':     return 'form';
+      case 'table':    return 'table';
+      case 'ul': case 'ol': return 'list';
+      case 'li':       return 'listitem';
+      case 'dialog':   return 'dialog';
+      default:         return null;
     }
-
-    try {
-      const elements = document.querySelectorAll(selector);
-      const count = elements.length;
-
-      if (count === 1) {
-        resultDiv.innerHTML = `
-          <div class="result-box success">
-            <i class="fas fa-check-circle result-icon"></i>
-            <div>
-              <div class="result-title">1 element matched — good for automation</div>
-              <div class="result-desc">The selector <code style="font-family:monospace;background:#dcfce7;padding:1px 5px;border-radius:3px">${escHtml(selector)}</code> uniquely identifies one element on this page. It is safe to use in Playwright.</div>
-            </div>
-          </div>`;
-      } else if (count > 1) {
-        resultDiv.innerHTML = `
-          <div class="result-box warning">
-            <i class="fas fa-exclamation-triangle result-icon"></i>
-            <div>
-              <div class="result-title">${count} elements matched — too broad</div>
-              <div class="result-desc">The selector matches ${count} elements. Make it more specific by adding an ID, a <code style="font-family:monospace;background:#fef3c7;padding:1px 5px;border-radius:3px">data-testid</code>, or a parent context to narrow it down to exactly one.</div>
-            </div>
-          </div>`;
-      } else {
-        resultDiv.innerHTML = `
-          <div class="result-box error">
-            <i class="fas fa-times-circle result-icon"></i>
-            <div>
-              <div class="result-title">No elements found</div>
-              <div class="result-desc">No elements on this page match <code style="font-family:monospace;background:#fee2e2;padding:1px 5px;border-radius:3px">${escHtml(selector)}</code>. Check the selector spelling or try it in your actual application page.</div>
-            </div>
-          </div>`;
-      }
-    } catch(e) {
-      resultDiv.innerHTML = `
-        <div class="result-box error">
-          <i class="fas fa-bug result-icon"></i>
-          <div>
-            <div class="result-title">Invalid selector syntax</div>
-            <div class="result-desc">${escHtml(e.message)}</div>
-          </div>
-        </div>`;
-    }
-
-    container.style.display = 'block';
   }
 
-  function clearResult() {
-    document.getElementById('locatorInput').value = '';
-    document.getElementById('resultContainer').style.display = 'none';
+  // ─── Detect auto-generated IDs/class names ──────────────────────────────────
+  function isDynamic(str) {
+    if (!str) return false;
+    return (
+      /^[0-9]+$/.test(str) ||
+      /[a-f0-9]{8,}/i.test(str) ||
+      /^(sc-|css-|emotion-|jss-|styled-|r-|ng-|svelte-)/i.test(str) ||
+      /\b\d{4,}\b/.test(str)
+    );
+  }
+
+  // ─── Escape helpers ─────────────────────────────────────────────────────────
+  function escQ(s) {
+    return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   }
 
   function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // XPath string literal: prefer double-quote wrapping; fall back to single-quote; else use concat()
+  function xpathStr(s) {
+    s = String(s);
+    if (!s.includes('"')) return `"${s}"`;
+    if (!s.includes("'")) return `'${s}'`;
+    // Contains both — use concat()
+    const parts = s.split('"').map((p, i, arr) =>
+      i < arr.length - 1 ? `"${p}", '"'` : `"${p}"`
+    ).join(', ');
+    return `concat(${parts})`;
+  }
+
+  function safeCount(doc, selector) {
+    try { return doc.querySelectorAll(selector).length; }
+    catch (e) { return null; }
+  }
+
+  // ─── Build element preview ───────────────────────────────────────────────────
+  function elementPreview(el) {
+    const tag = el.tagName.toLowerCase();
+    const importantAttrs = ['id','name','type','href','placeholder','aria-label','data-testid','data-test','data-cy','data-qa','role','class'];
+    const parts = [];
+    for (const a of importantAttrs) {
+      const v = el.getAttribute(a);
+      if (v) parts.push(`${a}="${v.trim().replace(/\s+/g,' ')}"`);
+      if (parts.length >= 3) break;
+    }
+    const text = el.textContent.trim().replace(/\s+/g, ' ').slice(0, 35);
+    const inner = text ? `>${text}${text.length === 35 ? '…' : ''}</${tag}>` : ' />';
+    return `<${tag}${parts.length ? ' ' + parts.join(' ') : ''}${inner}`;
+  }
+
+  // ─── Extract locators for one element ───────────────────────────────────────
+  function getLocators(el, doc) {
+    const tag = el.tagName.toLowerCase();
+    const results = [];
+
+    // ── 1. data-testid / data-test / data-cy / data-qa ────────────────────────
+    for (const attr of ['data-testid', 'data-test', 'data-cy', 'data-qa', 'data-test-id']) {
+      const val = el.getAttribute(attr);
+      if (!val) continue;
+      const css = `[${attr}="${val}"]`;
+      const xpath = `//*[@${attr}=${xpathStr(val)}]`;
+      const matchCount = safeCount(doc, css);
+      results.push({
+        priority: 1, type: attr, stability: 'stable', matchCount,
+        pw:  `page.getByTestId('${escQ(val)}')`,
+        cy:  `cy.get('[${attr}="${escQ(val)}"]')`,
+        sel: [`driver.find_element(By.CSS_SELECTOR, '${escQ(css)}')`,
+              `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+      });
+    }
+
+    // ── 2. id ─────────────────────────────────────────────────────────────────
+    const id = el.getAttribute('id');
+    if (id) {
+      const stable = !isDynamic(id);
+      const xpath = `//*[@id=${xpathStr(id)}]`;
+      results.push({
+        priority: 2, type: 'id', stability: stable ? 'stable' : 'fragile',
+        matchCount: safeCount(doc, `#${CSS.escape(id)}`),
+        pw:  `page.locator('#${escQ(id)}')`,
+        cy:  `cy.get('#${escQ(id)}')`,
+        sel: [`driver.find_element(By.ID, '${escQ(id)}')`,
+              `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+      });
+    }
+
+    // ── 3. aria-label ─────────────────────────────────────────────────────────
+    const ariaLabel = el.getAttribute('aria-label');
+    if (ariaLabel) {
+      const css = `[aria-label="${ariaLabel}"]`;
+      const xpath = `//*[@aria-label=${xpathStr(ariaLabel)}]`;
+      results.push({
+        priority: 3, type: 'aria-label', stability: 'stable',
+        matchCount: safeCount(doc, css),
+        pw:  `page.getByLabel('${escQ(ariaLabel)}')`,
+        cy:  `cy.get('[aria-label="${escQ(ariaLabel)}"]')`,
+        sel: [`driver.find_element(By.CSS_SELECTOR, '${escQ(css)}')`,
+              `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+      });
+    }
+
+    // ── 4. role + accessible name ─────────────────────────────────────────────
+    const explicitRole = el.getAttribute('role');
+    const role = explicitRole || implicitRole(tag, el);
+    if (role) {
+      const accName = ariaLabel
+        || el.getAttribute('title')
+        || el.textContent.trim().replace(/\s+/g, ' ').slice(0, 80);
+      const roleAttr = explicitRole ? `[role="${explicitRole}"]` : tag;
+      const xpathBase = explicitRole ? `//*[@role=${xpathStr(explicitRole)}]` : `//${tag}`;
+      const xpathFull = accName
+        ? `${xpathBase}[normalize-space()=${xpathStr(accName)}]`
+        : xpathBase;
+      results.push({
+        priority: 4,
+        type: explicitRole ? 'role (explicit)' : 'role (implicit)',
+        stability: 'stable', matchCount: null,
+        pw:  accName
+              ? `page.getByRole('${role}', { name: '${escQ(accName)}' })`
+              : `page.getByRole('${role}')`,
+        cy:  accName
+              ? `cy.contains('${escQ(roleAttr)}', '${escQ(accName)}')`
+              : `cy.get('${escQ(roleAttr)}')`,
+        sel: [
+          `driver.find_element(By.CSS_SELECTOR, '${escQ(roleAttr)}')`,
+          `driver.find_element(By.XPATH, '${escQ(xpathFull)}')`
+        ]
+      });
+    }
+
+    // ── 5. name attribute (form elements) ─────────────────────────────────────
+    const nameAttr = el.getAttribute('name');
+    if (nameAttr && ['input','select','textarea','button'].includes(tag)) {
+      const css = `${tag}[name="${nameAttr}"]`;
+      const xpath = `//${tag}[@name=${xpathStr(nameAttr)}]`;
+      results.push({
+        priority: 5, type: 'name', stability: 'stable',
+        matchCount: safeCount(doc, css),
+        pw:  `page.locator('${tag}[name="${escQ(nameAttr)}"]')`,
+        cy:  `cy.get('${escQ(css)}')`,
+        sel: [`driver.find_element(By.NAME, '${escQ(nameAttr)}')`,
+              `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+      });
+    }
+
+    // ── 6. placeholder ────────────────────────────────────────────────────────
+    const ph = el.getAttribute('placeholder');
+    if (ph) {
+      const css = `[placeholder="${ph}"]`;
+      const xpath = `//*[@placeholder=${xpathStr(ph)}]`;
+      results.push({
+        priority: 6, type: 'placeholder', stability: 'stable',
+        matchCount: safeCount(doc, css),
+        pw:  `page.getByPlaceholder('${escQ(ph)}')`,
+        cy:  `cy.get('[placeholder="${escQ(ph)}"]')`,
+        sel: [`driver.find_element(By.CSS_SELECTOR, '${escQ(css)}')`,
+              `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+      });
+    }
+
+    // ── 7. title attribute ────────────────────────────────────────────────────
+    const title = el.getAttribute('title');
+    if (title) {
+      const css = `[title="${title}"]`;
+      const xpath = `//*[@title=${xpathStr(title)}]`;
+      results.push({
+        priority: 7, type: 'title', stability: 'moderate',
+        matchCount: safeCount(doc, css),
+        pw:  `page.locator('[title="${escQ(title)}"]')`,
+        cy:  `cy.get('[title="${escQ(title)}"]')`,
+        sel: [`driver.find_element(By.CSS_SELECTOR, '${escQ(css)}')`,
+              `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+      });
+    }
+
+    // ── 8. text content (interactive/heading tags) ────────────────────────────
+    const textTags = ['button','a','label','h1','h2','h3','h4','h5','h6','th','li','span','p','td'];
+    if (textTags.includes(tag)) {
+      const text = el.textContent.trim().replace(/\s+/g, ' ');
+      if (text && text.length > 0 && text.length <= 100) {
+        const xpath = `//${tag}[normalize-space()=${xpathStr(text)}]`;
+        const isLink = tag === 'a';
+        results.push({
+          priority: 8, type: 'text', stability: 'moderate', matchCount: null,
+          pw:  `page.getByText('${escQ(text)}')`,
+          cy:  `cy.contains('${escQ(tag)}', '${escQ(text)}')`,
+          sel: isLink
+            ? [`driver.find_element(By.LINK_TEXT, '${escQ(text)}')`,
+               `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+            : [`driver.find_element(By.XPATH, '${escQ(xpath)}')`,
+               `driver.find_element(By.PARTIAL_LINK_TEXT, '${escQ(text.slice(0,30))}')`]
+        });
+      }
+    }
+
+    // ── 9. input type ─────────────────────────────────────────────────────────
+    if (tag === 'input') {
+      const type = el.getAttribute('type');
+      if (type) {
+        const css = `input[type="${type}"]`;
+        const xpath = `//input[@type=${xpathStr(type)}]`;
+        results.push({
+          priority: 9, type: 'input[type]', stability: 'moderate',
+          matchCount: safeCount(doc, css),
+          pw:  `page.locator('input[type="${escQ(type)}"]')`,
+          cy:  `cy.get('input[type="${escQ(type)}"]')`,
+          sel: [`driver.find_element(By.CSS_SELECTOR, '${escQ(css)}')`,
+                `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+        });
+      }
+    }
+
+    // ── 10. href (anchor links) ───────────────────────────────────────────────
+    if (tag === 'a') {
+      const href = el.getAttribute('href');
+      if (href && !href.startsWith('#') && !href.startsWith('javascript')) {
+        const css = `a[href="${href}"]`;
+        const xpath = `//a[@href=${xpathStr(href)}]`;
+        results.push({
+          priority: 10, type: 'href', stability: 'moderate',
+          matchCount: safeCount(doc, css),
+          pw:  `page.locator('a[href="${escQ(href)}"]')`,
+          cy:  `cy.get('a[href="${escQ(href)}"]')`,
+          sel: [`driver.find_element(By.CSS_SELECTOR, '${escQ(css)}')`,
+                `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+        });
+      }
+    }
+
+    // ── 11. class names ───────────────────────────────────────────────────────
+    const cls = el.getAttribute('class');
+    if (cls) {
+      const allCls = cls.split(/\s+/).filter(Boolean);
+      const stable  = allCls.filter(c => !isDynamic(c));
+      const dynamic = allCls.filter(c => isDynamic(c));
+
+      if (stable.length > 0) {
+        const selector    = tag + stable.map(c => `.${c}`).join('');
+        const selectorEsc = tag + stable.map(c => `.${CSS.escape(c)}`).join('');
+        const xpath = `//${tag}[${stable.map(c => `contains(@class,${xpathStr(c)})`).join(' and ')}]`;
+        results.push({
+          priority: 11, type: 'class', stability: 'fragile',
+          matchCount: safeCount(doc, selectorEsc),
+          pw:  `page.locator('${escQ(selector)}')`,
+          cy:  `cy.get('${escQ(selector)}')`,
+          sel: [`driver.find_element(By.CSS_SELECTOR, '${escQ(selector)}')`,
+                `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+        });
+      }
+
+      if (dynamic.length > 0) {
+        const selector    = tag + dynamic.map(c => `.${c}`).join('');
+        const selectorEsc = tag + dynamic.map(c => `.${CSS.escape(c)}`).join('');
+        const xpath = `//${tag}[${dynamic.map(c => `contains(@class,${xpathStr(c)})`).join(' and ')}]`;
+        results.push({
+          priority: 12, type: 'class (dynamic ⚠)', stability: 'fragile',
+          matchCount: safeCount(doc, selectorEsc),
+          pw:  `page.locator('${escQ(selector)}')`,
+          cy:  `cy.get('${escQ(selector)}')`,
+          sel: [`driver.find_element(By.CSS_SELECTOR, '${escQ(selector)}')`,
+                `driver.find_element(By.XPATH, '${escQ(xpath)}')`]
+        });
+      }
+    }
+
+    return results.sort((a, b) => a.priority - b.priority);
+  }
+
+  // ─── Switch framework tab ────────────────────────────────────────────────────
+  function switchFw(fw, btn) {
+    currentFw = fw;
+    document.querySelectorAll('.fw-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderResults(lastResults);
+  }
+
+  // ─── Main extract ────────────────────────────────────────────────────────────
+  function extractSelectors() {
+    const html = document.getElementById('htmlInput').value.trim();
+    const resultsCard = document.getElementById('resultsCard');
+    resultsCard.style.display = 'block';
+
+    if (!html) {
+      document.getElementById('summaryBar').innerHTML = '';
+      document.getElementById('resultsBody').innerHTML =
+        `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> Please paste some HTML first.</div>`;
+      return;
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const allEls = [...doc.body.querySelectorAll('*')];
+
+    if (!allEls.length) {
+      document.getElementById('summaryBar').innerHTML = '';
+      document.getElementById('resultsBody').innerHTML =
+        `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> No HTML elements found. Make sure you pasted valid HTML.</div>`;
+      return;
+    }
+
+    const results = [];
+    for (const el of allEls) {
+      const locators = getLocators(el, doc);
+      if (locators.length > 0) results.push({ el, locators });
+    }
+
+    if (!results.length) {
+      document.getElementById('summaryBar').innerHTML = '';
+      document.getElementById('resultsBody').innerHTML =
+        `<div class="alert alert-info"><i class="fas fa-info-circle"></i> No actionable selectors found. Elements have no <code>id</code>, <code>data-testid</code>, <code>aria-label</code>, <code>name</code>, <code>placeholder</code>, or text content.</div>`;
+      return;
+    }
+
+    lastResults = results;
+    renderResults(results);
+    resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ─── Render results for current framework ────────────────────────────────────
+  function renderResults(results) {
+    // Count stability totals (count unique locator strategies, not per-framework)
+    let stable = 0, moderate = 0, fragile = 0, totalLoc = 0;
+    for (const r of results) {
+      for (const l of r.locators) {
+        totalLoc++;
+        if (l.stability === 'stable') stable++;
+        else if (l.stability === 'moderate') moderate++;
+        else fragile++;
+      }
+    }
+
+    document.getElementById('summaryBar').innerHTML = `
+      <span class="summary-chip chip-total">${results.length} element${results.length !== 1 ? 's' : ''} · ${totalLoc} locators</span>
+      <span class="summary-chip chip-stable">✅ ${stable} stable</span>
+      <span class="summary-chip chip-moderate">⚠️ ${moderate} moderate</span>
+      <span class="summary-chip chip-fragile">❌ ${fragile} fragile</span>
+    `;
+
+    let html = '';
+    let copyIdx = 0;
+    const copyValues = [];
+
+    for (const r of results) {
+      const tag = r.el.tagName.toLowerCase();
+      const preview = escHtml(elementPreview(r.el));
+
+      html += `<div class="el-block">
+        <div class="el-block-header">
+          <span class="el-tag">&lt;${tag}&gt;</span>
+          <span class="el-preview" title="${preview}">${preview}</span>
+        </div>`;
+
+      r.locators.forEach((loc, i) => {
+        const stabClass = `badge-${loc.stability}`;
+        const stabLabel = loc.stability === 'stable' ? '✅ Stable' : loc.stability === 'moderate' ? '⚠️ Moderate' : '❌ Fragile';
+        const matchHtml = loc.matchCount === null
+          ? `<span class="match-badge match-na">scope: page</span>`
+          : loc.matchCount === 1
+            ? `<span class="match-badge match-unique">✔ unique</span>`
+            : `<span class="match-badge match-multi">${loc.matchCount} matches</span>`;
+        const isBest = i === 0;
+
+        if (currentFw === 'selenium') {
+          // Show both CSS and XPath rows
+          const sel0 = loc.sel[0];
+          const sel1 = loc.sel[1];
+          const idx0 = copyIdx++; copyValues.push(sel0);
+          const idx1 = copyIdx++; copyValues.push(sel1);
+
+          html += `<div class="locator-row-group">
+            <div class="locator-row-inner">
+              ${isBest ? '<span class="best-badge">BEST</span>' : '<span></span>'}
+              <span class="type-badge">${escHtml(loc.type)}</span>
+              <span class="badge ${stabClass}">${stabLabel}</span>
+              <span class="locator-code" title="${escHtml(sel0)}">${escHtml(sel0)}</span>
+              ${matchHtml}
+              <button class="btn-copy" onclick="copyValue(${idx0}, this)"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+            <div class="locator-row-inner">
+              <span></span>
+              <span class="el-tag">xpath</span>
+              <span></span>
+              <span class="locator-code" title="${escHtml(sel1)}">${escHtml(sel1)}</span>
+              <span></span>
+              <button class="btn-copy" onclick="copyValue(${idx1}, this)"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+          </div>`;
+        } else {
+          const code = currentFw === 'playwright' ? loc.pw : loc.cy;
+          const idx = copyIdx++; copyValues.push(code);
+
+          html += `<div class="locator-row">
+            ${isBest ? '<span class="best-badge">BEST</span>' : '<span></span>'}
+            <span class="type-badge">${escHtml(loc.type)}</span>
+            <span class="badge ${stabClass}">${stabLabel}</span>
+            <span class="locator-code" title="${escHtml(code)}">${escHtml(code)}</span>
+            ${matchHtml}
+            <button class="btn-copy" onclick="copyValue(${idx}, this)"><i class="fas fa-copy"></i> Copy</button>
+          </div>`;
+        }
+      });
+
+      html += `</div>`;
+    }
+
+    // Store copy values on window for the onclick handlers
+    window.__copyValues = copyValues;
+    document.getElementById('resultsBody').innerHTML = html;
+  }
+
+  // ─── Copy ────────────────────────────────────────────────────────────────────
+  function copyValue(idx, btn) {
+    const val = window.__copyValues[idx];
+    navigator.clipboard.writeText(val).then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+      }, 1800);
+    }).catch(() => {});
+  }
+
+  // ─── Reset ────────────────────────────────────────────────────────────────────
+  function clearAll() {
+    document.getElementById('htmlInput').value = '';
+    document.getElementById('resultsCard').style.display = 'none';
+    document.getElementById('resultsBody').innerHTML = '';
+    document.getElementById('summaryBar').innerHTML = '';
+    lastResults = [];
+  }
+
+  // ─── Sidebar ──────────────────────────────────────────────────────────────────
   function toggleSidebar() {
     const s = document.getElementById('sidebar');
     s.style.left = s.style.left === '0px' ? '-270px' : '0px';
   }
-
-  document.getElementById('locatorInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkLocator();
-  });
 </script>
 </body>
 </html>

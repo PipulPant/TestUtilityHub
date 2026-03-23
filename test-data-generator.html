@@ -8,50 +8,82 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
     header { background: #1a1a2e; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
     header h1 { font-size: 1.1em; font-weight: 600; }
     .hamburger { position: absolute; left: 16px; font-size: 20px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
     .hamburger:hover { color: #fff; }
     .home-btn { position: absolute; right: 16px; color: #9ca3af; text-decoration: none; font-size: 18px; transition: color 0.2s; }
     .home-btn:hover { color: #fff; }
+
     .sidebar { position: fixed; top: 0; left: -270px; width: 270px; height: 100%; background: #1a1a2e; transition: left 0.3s; padding-top: 56px; z-index: 1000; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); }
     .sidebar-home { display: flex; align-items: center; gap: 8px; padding: 14px 16px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .sidebar-home:hover { background: rgba(255,255,255,0.06); }
     .sidebar-section { padding: 10px 16px 4px; font-size: 0.68em; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; font-weight: 700; margin-top: 6px; }
     .sidebar a:not(.sidebar-home) { display: block; padding: 8px 16px 8px 20px; color: #9ca3af; text-decoration: none; font-size: 0.86em; border-left: 3px solid transparent; transition: all 0.15s; }
     .sidebar a:not(.sidebar-home):hover, .sidebar a.active { color: #fff; background: rgba(217,119,6,0.15); border-left-color: #d97706; }
+
     .content { padding: 24px 20px; }
-    .main-container { max-width: 580px; margin: auto; }
-    .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
-    .page-subtitle { color: #6b7280; font-size: 0.9em; margin-bottom: 24px; }
-    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); padding: 22px; margin-bottom: 18px; }
-    .card-title { font-size: 0.92em; font-weight: 700; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .card-title i { color: #d97706; }
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 0.82em; font-weight: 600; color: #374151; margin-bottom: 6px; }
-    input, select { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.92em; background: #fafafa; color: #1a1a2e; font-family: inherit; transition: border-color 0.15s; }
-    input:focus, select:focus { outline: none; border-color: #d97706; background: #fff; }
-    .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .main-container { max-width: 1100px; margin: auto; }
+
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .page-header-left .page-title { font-size: 1.5em; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .page-header-left .page-subtitle { color: #6b7280; font-size: 0.9em; }
+
     .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
     .btn:active { transform: scale(0.97); }
     .btn-primary { background: #d97706; color: #fff; }
     .btn-primary:hover { background: #b45309; }
     .btn-outline { background: #fff; color: #374151; border: 1.5px solid #e5e7eb; }
     .btn-outline:hover { background: #f3f4f6; }
-    .output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .output-count { font-size: 0.8em; color: #9ca3af; }
-    .code-block { background: #0f1117; border-radius: 10px; padding: 16px; font-family: 'SF Mono','Fira Code','Consolas',monospace; font-size: 0.84em; color: #e2e8f0; white-space: pre-wrap; line-height: 1.8; max-height: 360px; overflow-y: auto; }
-    .copy-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .btn-icon { background: none; border: none; color: #9ca3af; cursor: pointer; padding: 4px 6px; border-radius: 6px; font-size: 0.9em; transition: all 0.15s; }
+    .btn-icon:hover { color: #d97706; background: #fef3c7; }
+
+    /* Data grid */
+    .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    /* Data card */
+    .data-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04); overflow: hidden; }
+    .data-card-header { padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f3f4f6; }
+    .data-card-title { display: flex; align-items: center; gap: 8px; font-size: 0.84em; font-weight: 700; color: #374151; }
+    .data-card-title i { color: #d97706; font-size: 0.95em; }
+    .data-card-body { padding: 0; }
+
+    /* Value rows */
+    .data-value-row { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid #f9fafb; }
+    .data-value-row:last-child { border-bottom: none; }
+    .data-value-row:hover { background: #fffbf0; }
+
+    .data-value-index { font-size: 0.7em; color: #d1d5db; font-weight: 700; width: 14px; flex-shrink: 0; text-align: right; }
+
+    .data-value { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.8em; color: #1a1a2e; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+
+    .color-swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+
+    .btn-copy-val { background: none; border: 1px solid #e5e7eb; color: #9ca3af; border-radius: 5px; padding: 2px 7px; font-size: 0.7em; cursor: pointer; transition: all 0.15s; white-space: nowrap; font-weight: 600; flex-shrink: 0; }
+    .btn-copy-val:hover { background: #fef3c7; border-color: #d97706; color: #d97706; }
+    .btn-copy-val.copied { background: #fef3c7; border-color: #d97706; color: #d97706; }
+
+    /* Copy-all footer */
+    .data-card-footer { padding: 8px 14px; background: #fafafa; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; }
+    .btn-copy-all { background: none; border: none; font-size: 0.75em; color: #6b7280; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; padding: 3px 0; transition: color 0.15s; }
+    .btn-copy-all:hover { color: #d97706; }
+
     .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.85em; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; display: flex; align-items: center; gap: 8px; }
     .toast.show { opacity: 1; }
+
+    @media (max-width: 900px) { .data-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .data-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
+
 <header>
   <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
   <h1><i class="fas fa-database" style="color:#d97706;margin-right:8px"></i>Test Data Generator</h1>
   <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
 </header>
+
 <div class="sidebar" id="sidebar">
   <a href="index.html" class="sidebar-home"><i class="fas fa-home"></i> Utility Hub</a>
   <div class="sidebar-section">QA Testing</div>
@@ -81,88 +113,302 @@
   <div class="sidebar-section">Integration</div>
   <a href="gusto-shift-time-calculator.html">Gusto Shift Time Calculator</a>
 </div>
+
 <div class="content">
   <div class="main-container">
-    <div class="page-title">Test Data Generator</div>
-    <div class="page-subtitle">Generate random names, emails, and phone numbers for use in test scenarios.</div>
-    <div class="card">
-      <div class="card-title"><i class="fas fa-sliders-h"></i> Configuration</div>
-      <div class="form-group">
-        <label for="dataType">Data Type</label>
-        <select id="dataType">
-          <option value="name">Full Name</option>
-          <option value="email">Email Address</option>
-          <option value="phone">Phone Number</option>
-        </select>
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-title">Test Data Generator</div>
+        <div class="page-subtitle">Instant random test values across all common data types — click any value to copy.</div>
       </div>
-      <div class="form-group">
-        <label for="dataQuantity">Quantity</label>
-        <input type="number" id="dataQuantity" placeholder="e.g., 10" min="1" max="100" />
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="generateTestData()"><i class="fas fa-dice"></i> Generate Data</button>
-        <button class="btn btn-outline" onclick="clearAll()"><i class="fas fa-redo"></i> Reset</button>
-      </div>
+      <button class="btn btn-primary" onclick="regenerateAll()"><i class="fas fa-sync-alt"></i> Regenerate All</button>
     </div>
-    <div class="card" id="outputCard" style="display:none">
-      <div class="card-title"><i class="fas fa-list"></i> Generated Data</div>
-      <div class="output-header">
-        <span class="output-count" id="outputCount"></span>
-        <button class="btn btn-outline" style="padding:5px 12px;font-size:0.8em" onclick="regenerate()"><i class="fas fa-sync-alt"></i> Regenerate</button>
-      </div>
-      <div class="code-block" id="dataOutput"></div>
-      <div class="copy-row">
-        <button class="btn btn-outline" onclick="copyData()"><i class="fas fa-copy"></i> Copy All</button>
-      </div>
-    </div>
+
+    <div class="data-grid" id="dataGrid"></div>
+
   </div>
 </div>
-<div class="toast" id="toast"><i class="fas fa-check"></i> Copied!</div>
+
+<div class="toast" id="toast"><i class="fas fa-check"></i> <span id="toastMsg">Copied!</span></div>
+
 <script>
+  // ─── Data pools ───────────────────────────────────────────────────────────
+  const FIRST = ["James","Maria","John","Emma","Robert","Olivia","Michael","Ava","William","Sophia","David","Isabella","Richard","Mia","Joseph","Charlotte","Thomas","Amelia","Charles","Harper","Lucas","Evelyn","Henry","Abigail","Alexander","Emily","Daniel","Elizabeth","Matthew","Sofia","Jackson","Scarlett","Aiden","Grace","Samuel","Chloe","Julian","Ella","Sebastian","Avery"];
+  const LAST  = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Wilson","Taylor","Anderson","Thomas","Jackson","White","Harris","Martin","Thompson","Moore","Lee","Clark","Lewis","Robinson","Walker","Hall","Allen","Young","Hernandez","King","Wright","Lopez","Hill","Scott","Green","Adams","Baker","Nelson","Carter","Mitchell","Perez","Roberts"];
+  const DOMAINS = ["example.com","test.com","sample.org","demo.net","qa-mail.io","testenv.dev","mail-test.com","fake-email.net","testuser.io","noreply-test.com"];
+  const STREETS = ["Main St","Oak Ave","Maple Dr","Cedar Ln","Pine Blvd","Elm St","Washington Ave","Park Rd","Lake Dr","River Rd","Hill Ct","Forest Way","Valley Ln","Spring St","Sunset Blvd","Broadway","First Ave","Second St","Market St","Harbor Rd"];
+  const CITIES  = ["Springfield","Portland","Madison","Burlington","Salem","Greenville","Fairview","Georgetown","Franklin","Clinton","Riverside","Kingston","Manchester","Ashland","Lakewood","Millville","Oakdale","Rosewood","Hillside","Maplewood"];
+  const STATES  = ["CA","NY","TX","FL","IL","PA","OH","GA","NC","MI","NJ","WA","AZ","MA","TN","CO","MN","MO","IN","WI"];
+  const CO_PREFIX = ["Acme","Apex","Blue","Bright","Dynamic","Elite","Epic","Global","Horizon","Infinite","Mega","Nova","Peak","Prime","Quick","Smart","Swift","Tech","Ultra","Vertex","Vivid","Zen","Alpha","Beta","Delta"];
+  const CO_SUFFIX = ["Corp","Inc","LLC","Group","Solutions","Systems","Tech","Digital","Services","Labs","Ventures","Works","Studio","Hub","Partners","Consulting","Agency","Innovations","Industries","Enterprises"];
+  const URL_PATHS = ["/home","/about","/contact","/products","/services","/blog","/login","/signup","/dashboard","/settings","/profile","/api/v1/users","/search","/checkout","/help","/faq","/pricing","/docs","/reports","/admin"];
+  const URL_DOMS  = ["example.com","test-site.com","demo-app.io","sample.dev","qa-env.net","staging.example.com","uat.testapp.com","mock-api.dev","fake-store.io","test-portal.net"];
+  const ADJ   = ["swift","bright","cool","dark","fast","happy","keen","lazy","mad","nice","odd","quick","rad","slim","tiny","wild","bold","calm","dull","epic"];
+  const NOUNS = ["cat","dog","fox","hawk","lion","panda","tiger","wolf","eagle","bear","shark","whale","zebra","cobra","pixel","ninja","storm","comet","spark","blaze"];
+  const LOREM_WORDS = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum".split(" ");
+
+  // ─── Primitive helpers ────────────────────────────────────────────────────
+  function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function rInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function pad(n, w=2) { return String(n).padStart(w, '0'); }
+
+  // ─── Generators ───────────────────────────────────────────────────────────
+  const GEN = {
+    name() {
+      return `${rand(FIRST)} ${rand(LAST)}`;
+    },
+    email() {
+      const f = rand(FIRST).toLowerCase();
+      const l = rand(LAST).toLowerCase();
+      const sep = rand(['.','_','']);
+      const num = Math.random() > 0.5 ? rInt(1,99) : '';
+      return `${f}${sep}${l}${num}@${rand(DOMAINS)}`;
+    },
+    phone() {
+      const formats = [
+        () => `(${rInt(200,999)}) ${rInt(200,999)}-${rInt(1000,9999)}`,
+        () => `+1-${rInt(200,999)}-${rInt(200,999)}-${rInt(1000,9999)}`,
+        () => `${rInt(200,999)}.${rInt(200,999)}.${rInt(1000,9999)}`,
+      ];
+      return rand(formats)();
+    },
+    username() {
+      const styles = [
+        () => `${rand(ADJ)}_${rand(NOUNS)}${rInt(1,99)}`,
+        () => `${rand(FIRST).toLowerCase()}${rand(LAST).toLowerCase().slice(0,4)}${rInt(10,99)}`,
+        () => `${rand(NOUNS)}${rInt(100,9999)}`,
+        () => `${rand(ADJ)}${rand(NOUNS).charAt(0).toUpperCase()+rand(NOUNS).slice(1)}`,
+      ];
+      return rand(styles)();
+    },
+    password() {
+      const lower = 'abcdefghijklmnopqrstuvwxyz';
+      const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const digits = '0123456789';
+      const special = '!@#$%&*_-+=?';
+      const all = lower + upper + digits + special;
+      const len = rInt(12, 18);
+      // Ensure at least one of each type
+      let pwd = [
+        lower[rInt(0,lower.length-1)],
+        upper[rInt(0,upper.length-1)],
+        digits[rInt(0,digits.length-1)],
+        special[rInt(0,special.length-1)],
+        ...Array.from({length: len - 4}, () => all[rInt(0, all.length-1)])
+      ];
+      // Shuffle
+      for (let i = pwd.length - 1; i > 0; i--) {
+        const j = rInt(0, i);
+        [pwd[i], pwd[j]] = [pwd[j], pwd[i]];
+      }
+      return pwd.join('');
+    },
+    uuid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    },
+    dob() {
+      const year = rInt(new Date().getFullYear() - 65, new Date().getFullYear() - 18);
+      const month = rInt(1, 12);
+      const day = rInt(1, 28);
+      return `${pad(month)}/${pad(day)}/${year}`;
+    },
+    address() {
+      return `${rInt(1,9999)} ${rand(STREETS)}, ${rand(CITIES)}, ${rand(STATES)} ${rInt(10000,99999)}`;
+    },
+    company() {
+      return `${rand(CO_PREFIX)} ${rand(CO_SUFFIX)}`;
+    },
+    url() {
+      const protocol = Math.random() > 0.2 ? 'https' : 'http';
+      return `${protocol}://${rand(URL_DOMS)}${rand(URL_PATHS)}`;
+    },
+    ipv4() {
+      return [rInt(1,223), rInt(0,255), rInt(0,255), rInt(1,254)].join('.');
+    },
+    ipv6() {
+      return Array.from({length: 8}, () => rInt(0, 0xffff).toString(16).padStart(4,'0')).join(':');
+    },
+    color() {
+      const hex = '#' + rInt(0, 0xFFFFFF).toString(16).padStart(6, '0').toUpperCase();
+      const r = parseInt(hex.slice(1,3),16);
+      const g = parseInt(hex.slice(3,5),16);
+      const b = parseInt(hex.slice(5,7),16);
+      return { hex, rgb: `rgb(${r}, ${g}, ${b})`, raw: hex };
+    },
+    date() {
+      const start = new Date(2020, 0, 1).getTime();
+      const end   = new Date(2026, 11, 31).getTime();
+      const d = new Date(start + Math.random() * (end - start));
+      return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${d.getFullYear()}`;
+    },
+    number() {
+      const types = [
+        () => String(rInt(1, 999999)),
+        () => (Math.random() * 10000).toFixed(2),
+        () => rInt(0, 100) + '%',
+        () => rInt(-1000, 1000).toFixed(0),
+      ];
+      return rand(types)();
+    },
+    lorem() {
+      const wordCount = rInt(8, 18);
+      const words = Array.from({length: wordCount}, () => rand(LOREM_WORDS));
+      const sentence = words.join(' ');
+      return sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.';
+    },
+    creditcard() {
+      // Luhn-valid test card numbers (well-known test values, not real)
+      const testCards = [
+        '4111 1111 1111 1111',  // Visa
+        '5500 0000 0000 0004',  // Mastercard
+        '3714 496353 98431',    // Amex
+        '6011 1111 1111 1117',  // Discover
+        '4012 8888 8888 1881',  // Visa
+        '5105 1051 0510 5100',  // Mastercard
+        '4222 2222 2222 2',     // Visa
+        '3782 822463 10005',    // Amex
+      ];
+      return rand(testCards);
+    },
+    ssn() {
+      return `${rInt(100,999)}-${rInt(10,99)}-${rInt(1000,9999)}`;
+    }
+  };
+
+  // ─── Card definitions ──────────────────────────────────────────────────────
+  const CARDS = [
+    { id: 'name',      icon: 'fas fa-user',          title: 'Full Name',       gen: () => GEN.name(),       rows: 5 },
+    { id: 'email',     icon: 'fas fa-envelope',      title: 'Email Address',   gen: () => GEN.email(),      rows: 5 },
+    { id: 'phone',     icon: 'fas fa-phone',         title: 'Phone Number',    gen: () => GEN.phone(),      rows: 5 },
+    { id: 'username',  icon: 'fas fa-at',            title: 'Username',        gen: () => GEN.username(),   rows: 5 },
+    { id: 'password',  icon: 'fas fa-lock',          title: 'Password',        gen: () => GEN.password(),   rows: 4 },
+    { id: 'uuid',      icon: 'fas fa-fingerprint',   title: 'UUID / GUID',     gen: () => GEN.uuid(),       rows: 4 },
+    { id: 'dob',       icon: 'fas fa-birthday-cake', title: 'Date of Birth',   gen: () => GEN.dob(),        rows: 5 },
+    { id: 'date',      icon: 'fas fa-calendar-alt',  title: 'Random Date',     gen: () => GEN.date(),       rows: 5 },
+    { id: 'address',   icon: 'fas fa-map-marker-alt',title: 'Street Address',  gen: () => GEN.address(),    rows: 4 },
+    { id: 'company',   icon: 'fas fa-building',      title: 'Company Name',    gen: () => GEN.company(),    rows: 5 },
+    { id: 'url',       icon: 'fas fa-globe',         title: 'Website URL',     gen: () => GEN.url(),        rows: 4 },
+    { id: 'ipv4',      icon: 'fas fa-network-wired', title: 'IPv4 Address',    gen: () => GEN.ipv4(),       rows: 5 },
+    { id: 'ipv6',      icon: 'fas fa-server',        title: 'IPv6 Address',    gen: () => GEN.ipv6(),       rows: 4 },
+    { id: 'color',     icon: 'fas fa-palette',       title: 'Hex Color',       gen: () => GEN.color(),      rows: 5, isColor: true },
+    { id: 'number',    icon: 'fas fa-hashtag',       title: 'Number',          gen: () => GEN.number(),     rows: 5 },
+    { id: 'lorem',     icon: 'fas fa-align-left',    title: 'Lorem Text',      gen: () => GEN.lorem(),      rows: 3 },
+    { id: 'creditcard',icon: 'fas fa-credit-card',   title: 'Test Card No.',   gen: () => GEN.creditcard(), rows: 4 },
+    { id: 'ssn',       icon: 'fas fa-id-card',       title: 'SSN (Fake)',      gen: () => GEN.ssn(),        rows: 5 },
+  ];
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+  function renderCard(card) {
+    const values = Array.from({ length: card.rows }, () => card.gen());
+
+    const rowsHtml = values.map((v, i) => {
+      const displayVal = card.isColor ? v.hex : v;
+      const copyVal    = card.isColor ? v.hex : v;
+      const swatch     = card.isColor
+        ? `<span class="color-swatch" style="background:${v.hex}"></span>` : '';
+      return `<div class="data-value-row">
+        <span class="data-value-index">${i + 1}</span>
+        ${swatch}
+        <span class="data-value" title="${escHtml(displayVal)}">${escHtml(displayVal)}</span>
+        <button class="btn-copy-val" onclick="copyVal('${escAttr(copyVal)}', this)">Copy</button>
+      </div>`;
+    }).join('');
+
+    const allVals = values.map(v => card.isColor ? v.hex : v).join('\n');
+
+    return `<div class="data-card" id="card-${card.id}">
+      <div class="data-card-header">
+        <span class="data-card-title"><i class="${card.icon}"></i> ${card.title}</span>
+        <button class="btn-icon" onclick="regenCard('${card.id}')" title="Regenerate"><i class="fas fa-sync-alt"></i></button>
+      </div>
+      <div class="data-card-body" id="body-${card.id}">${rowsHtml}</div>
+      <div class="data-card-footer">
+        <button class="btn-copy-all" onclick="copyAll('${card.id}', '${escAttr(allVals)}')">
+          <i class="fas fa-copy"></i> Copy all
+        </button>
+      </div>
+    </div>`;
+  }
+
+  function renderAll() {
+    document.getElementById('dataGrid').innerHTML = CARDS.map(renderCard).join('');
+  }
+
+  function regenCard(cardId) {
+    const card = CARDS.find(c => c.id === cardId);
+    if (!card) return;
+    const values = Array.from({ length: card.rows }, () => card.gen());
+    const allVals = values.map(v => card.isColor ? v.hex : v).join('\n');
+
+    const rowsHtml = values.map((v, i) => {
+      const displayVal = card.isColor ? v.hex : v;
+      const copyVal    = card.isColor ? v.hex : v;
+      const swatch     = card.isColor
+        ? `<span class="color-swatch" style="background:${v.hex}"></span>` : '';
+      return `<div class="data-value-row">
+        <span class="data-value-index">${i + 1}</span>
+        ${swatch}
+        <span class="data-value" title="${escHtml(displayVal)}">${escHtml(displayVal)}</span>
+        <button class="btn-copy-val" onclick="copyVal('${escAttr(copyVal)}', this)">Copy</button>
+      </div>`;
+    }).join('');
+
+    document.getElementById(`body-${cardId}`).innerHTML = rowsHtml;
+
+    // Update copy-all value
+    const footer = document.querySelector(`#card-${cardId} .btn-copy-all`);
+    if (footer) footer.setAttribute('onclick', `copyAll('${cardId}', '${escAttr(allVals)}')`);
+  }
+
+  function regenerateAll() {
+    CARDS.forEach(c => regenCard(c.id));
+    showToast('All values regenerated');
+  }
+
+  // ─── Copy helpers ─────────────────────────────────────────────────────────
+  function copyVal(val, btn) {
+    navigator.clipboard.writeText(val).then(() => {
+      btn.classList.add('copied');
+      btn.textContent = '✓';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.textContent = 'Copy';
+      }, 1500);
+    });
+  }
+
+  function copyAll(cardId, vals) {
+    const decoded = vals.replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+    navigator.clipboard.writeText(decoded).then(() => showToast('All values copied!'));
+  }
+
+  function showToast(msg) {
+    document.getElementById('toastMsg').textContent = msg || 'Copied!';
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // ─── Escape helpers ───────────────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(s) {
+    return String(s).replace(/\\/g,'\\\\').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/\n/g,'\\n');
+  }
+
+  // ─── Sidebar ──────────────────────────────────────────────────────────────
   function toggleSidebar() {
     const s = document.getElementById('sidebar');
     s.style.left = s.style.left === '0px' ? '-270px' : '0px';
   }
-  const FIRST = ["James","Maria","John","Emma","Robert","Olivia","Michael","Ava","William","Sophia","David","Isabella","Richard","Mia","Joseph","Charlotte","Thomas","Amelia","Charles","Harper"];
-  const LAST  = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Wilson","Taylor","Anderson","Thomas","Jackson","White","Harris","Martin","Thompson","Moore","Lee","Clark"];
-  const DOMAINS = ["example.com","test.com","sample.org","demo.net","qa-mail.io","testenv.dev"];
-  function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-  function generateRandomName() { return `${rand(FIRST)} ${rand(LAST)}`; }
-  function generateRandomEmail() {
-    const name = generateRandomName().toLowerCase().replace(' ', '.') + Math.floor(Math.random()*99);
-    return `${name}@${rand(DOMAINS)}`;
-  }
-  function generateRandomPhone() {
-    const a = Math.floor(100+Math.random()*900), b = Math.floor(100+Math.random()*900), c = Math.floor(1000+Math.random()*9000);
-    return `(${a}) ${b}-${c}`;
-  }
-  function generateTestData() {
-    const dataType = document.getElementById("dataType").value;
-    const qty = parseInt(document.getElementById("dataQuantity").value, 10);
-    if (!qty || qty <= 0) { alert("Please enter a valid quantity."); return; }
-    const data = [];
-    for (let i = 0; i < qty; i++) {
-      if (dataType === "name") data.push(generateRandomName());
-      else if (dataType === "email") data.push(generateRandomEmail());
-      else data.push(generateRandomPhone());
-    }
-    document.getElementById("dataOutput").textContent = data.join("\n");
-    document.getElementById("outputCount").textContent = `${qty} item${qty>1?'s':''} generated`;
-    document.getElementById("outputCard").style.display = 'block';
-  }
-  function regenerate() { generateTestData(); }
-  function clearAll() {
-    document.getElementById('dataQuantity').value = '';
-    document.getElementById('outputCard').style.display = 'none';
-  }
-  function copyData() {
-    const text = document.getElementById('dataOutput').textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      const t = document.getElementById('toast');
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2000);
-    });
-  }
+
+  // ─── Init ─────────────────────────────────────────────────────────────────
+  renderAll();
 </script>
 </body>
 </html>
