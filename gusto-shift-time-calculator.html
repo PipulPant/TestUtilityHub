@@ -744,9 +744,9 @@
     // ─── Core Calculation ─────────────────────────────────────────────────────
     function computeShift(dateStr, totalHours) {
       const DEFAULT_START = 8;
-      const sum = DEFAULT_START + totalHours;
-      const overflow = sum > 24;
-      const startHour = overflow ? DEFAULT_START - (sum - 24) : DEFAULT_START;
+      const END_OF_DAY = 23 + 59 / 60; // 23:59 in fractional hours
+      const startHour = Math.min(DEFAULT_START, END_OF_DAY - totalHours);
+      const overflow = startHour < DEFAULT_START;
 
       const baseMs = new Date(dateStr + 'T00:00:00.000Z').getTime();
       const startMs = baseMs + startHour * 3600 * 1000;
@@ -805,8 +805,8 @@
       } else if (result.overflow) {
         const hrs = total.toFixed(2).replace(/\.00$/, '');
         alertsEl.innerHTML += `<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i>
-        <strong>Overflow detected:</strong> ${hrs}h shift exceeds 8 + duration > 24 threshold.
-        Start shifted back to ${pad(result.startHour)}:00 UTC to keep shift within the same calendar date.</div>`;
+        <strong>Overflow detected:</strong> ${hrs}h shift exceeds the 15h 59m threshold (8 AM + duration &gt; 23:59).
+        Start shifted back to ${pad(Math.floor(result.startHour))}:${pad(Math.round((result.startHour % 1) * 60))} UTC so the shift ends at 23:59.</div>`;
       } else {
         alertsEl.innerHTML += `<div class="alert alert-info"><i class="fas fa-check-circle"></i>
         No overflow — shift starts at 8:00 AM UTC as expected.</div>`;
