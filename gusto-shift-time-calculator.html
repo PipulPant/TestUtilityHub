@@ -721,17 +721,23 @@
       return days[d.getUTCDay()] + ', ' + months[d.getUTCMonth()] + ' ' + d.getUTCDate();
     }
 
+    function fmtHM(hours) {
+      const h = Math.floor(hours);
+      const m = Math.round((hours - h) * 60);
+      return h + 'h' + (m ? ' ' + m + 'm' : '');
+    }
+
     function getBreakdown(totalHours) {
       const pills = [];
       const reg = Math.min(totalHours, 8);
-      if (reg > 0) pills.push({ label: reg.toFixed(2).replace(/\.00$/, '') + 'h Regular', cls: '' });
+      if (reg > 0) pills.push({ label: fmtHM(reg) + ' regular', cls: '' });
       if (totalHours > 8) {
         const ot = Math.min(totalHours - 8, 4);
-        pills.push({ label: ot.toFixed(2).replace(/\.00$/, '') + 'h Overtime', cls: 'ot' });
+        pills.push({ label: fmtHM(ot) + ' overtime', cls: 'ot' });
       }
       if (totalHours > 12) {
         const dot = totalHours - 12;
-        pills.push({ label: dot.toFixed(2).replace(/\.00$/, '') + 'h Double OT', cls: 'dot' });
+        pills.push({ label: fmtHM(dot) + ' double overtime', cls: 'dot' });
       }
       return pills;
     }
@@ -850,10 +856,7 @@
         gustoStart + '–' + gustoEnd + ' ' + gmt + onIcon;
 
       const bkd = getBreakdown(total);
-      document.getElementById('gustoBreakdownCol').innerHTML = bkd.map(p => {
-        const label = p.label.replace('Regular', 'regular').replace('Overtime', 'overtime').replace('Double OT', 'double overtime');
-        return label;
-      }).join('<br>');
+      document.getElementById('gustoBreakdownCol').innerHTML = bkd.map(p => p.label).join('<br>');
 
       const totalH = Math.floor(total);
       const totalM = Math.round((total % 1) * 60);
