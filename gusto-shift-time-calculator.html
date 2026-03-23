@@ -540,12 +540,7 @@
           </div>
           <div class="form-group">
             <label for="minutes">Minutes</label>
-            <select id="minutes">
-              <option value="0">00</option>
-              <option value="15">15</option>
-              <option value="30">30</option>
-              <option value="45">45</option>
-            </select>
+            <input type="number" id="minutes" placeholder="0" min="0" max="59" step="1" />
           </div>
         </div>
         <div id="validationMsg" class="alert alert-error" style="display:none; margin-top:14px;"></div>
@@ -771,6 +766,7 @@
       msgEl.style.display = 'none';
 
       if (!dateStr) { showValidation('Please select a date.'); return null; }
+      if (minutes < 0 || minutes > 59) { showValidation('Minutes must be between 0 and 59.'); return null; }
       if (total <= 0) { showValidation('Duration must be greater than 0.'); return null; }
       if (total > 24) { showValidation('Duration cannot exceed 24 hours (Gusto limit).'); return null; }
       return { dateStr, total };
